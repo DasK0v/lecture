@@ -1,194 +1,2282 @@
-\documentclass[a4paper, 12pt]{article}
-\input{preamble.tex}
-\usepackage{needspace}
-\setlength{\tabcolsep}{4pt}
-\pagestyle{empty}
+\documentclass[a4paper,11pt]{article}
+% ---------- Кириллица: работает и в pdfLaTeX, и в XeLaTeX/LuaLaTeX ----------
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T2A]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage[russian]{babel}
+\else
+  \usepackage{fontspec}
+  \IfFontExistsTF{CMU Serif}{\setmainfont{CMU Serif}}{%
+    \IfFontExistsTF{Times New Roman}{\setmainfont{Times New Roman}}{\setmainfont{FreeSerif}}}
+  \IfFontExistsTF{CMU Typewriter Text}{%
+    \setmonofont{CMU Typewriter Text}\newfontfamily\cyrillicfonttt{CMU Typewriter Text}}{%
+    \IfFontExistsTF{Consolas}{%
+      \setmonofont{Consolas}\newfontfamily\cyrillicfonttt{Consolas}}{%
+      \setmonofont{FreeMono}\newfontfamily\cyrillicfonttt{FreeMono}}}
+  \usepackage{polyglossia}
+  \setdefaultlanguage{russian}
+\fi
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc,patterns,decorations.pathreplacing,babel,
+  shapes.geometric,shapes.misc,shapes.symbols,positioning}
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{fancyvrb}
+\usepackage[unicode,hidelinks]{hyperref}
 
+\emergencystretch=3em
+\tolerance=1500
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlist{nosep,leftmargin=*,topsep=2pt}
 
-% Блоки схем алгоритмов рисуются в масштабе 1 клетка = 0.5 см
-\tikzset{blk/.style={x=0.5cm, y=0.5cm, line width=0.6pt}}
+% ---------- оформление (как в angem.tex) ----------
+\definecolor{secred}{RGB}{190,40,45}
+\definecolor{subteal}{RGB}{0,110,120}
+\definecolor{leadcol}{RGB}{0,120,110}
+\titleformat{\section}{\Large\bfseries\color{secred}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\large\bfseries\color{subteal}}{\thesubsection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+
+\newtcolorbox{opr}{breakable,enhanced,colback=blue!4,colframe=blue!55!black,
+  boxrule=0pt,leftrule=2.2pt,arc=0pt,left=6pt,right=4pt,top=3pt,bottom=3pt,
+  before skip=6pt,after skip=6pt}
+\newtcolorbox{teor}[1]{breakable,enhanced,colback=orange!7,colframe=orange!70!black,
+  boxrule=0pt,leftrule=2.2pt,arc=0pt,left=6pt,right=4pt,top=3pt,bottom=3pt,
+  before skip=6pt,after skip=6pt,before upper={\textbf{Теорема #1.}\ }}
+\newtcolorbox{hwbox}{breakable,enhanced,colback=gray!6,colframe=gray!60,
+  boxrule=0.4pt,arc=1pt,left=6pt,right=6pt,top=3pt,bottom=3pt,fontupper=\small}
+
+\newcommand{\lead}[1]{\textbf{\color{leadcol}#1}\ }
+\newcommand{\q}{\textbf{\color{red!70!black}?}\ }
+\newcommand{\imp}{\textbf{\color{red!70!black}!}\ }
+\newcommand{\zam}{\textbf{Замечание.}\ }
+\newcommand{\prim}{\textbf{Пример.}\ }
+\newcommand{\primn}[1]{\textbf{Пример #1.}\ }
+\newcommand{\ispr}[1]{\footnote{\textit{Исправлено.} #1}}
+\renewcommand{\thefootnote}{\textcolor{red!75!black}{\arabic{footnote}}}
+\newcommand{\hwlist}[1]{{\small\color{gray}[#1]}}
+\newcommand{\qedr}{\hfill$\blacksquare$}
+\DeclareRobustCommand{\cn}[1]{\tikz[baseline=(c.base)]\node[draw,circle,inner sep=0.7pt,minimum size=1.15em,font=\footnotesize\bfseries] (c) {#1};}
+
+% Подпись и рисунок под ней не разрываются между страницами
+\newenvironment{schema}{\par\noindent\begin{minipage}{\linewidth}\setlength{\parskip}{4pt}}%
+  {\end{minipage}\par\smallskip}
+
+% ---------- код ----------
+% Код пишется в окружении code (как есть, без экранирования):
+%   \begin{code}
+%   print('Привет')
+%   \end{code}
+% Короткий код в тексте --- \texttt{...} (символы _ % # { } экранировать).
+\definecolor{codebg}{RGB}{245,247,248}
+\newtcolorbox{codebox}{breakable,enhanced,colback=codebg,colframe=subteal!75,
+  boxrule=0pt,leftrule=1.5pt,arc=0pt,left=6pt,right=4pt,top=1pt,bottom=1pt,
+  before skip=5pt,after skip=5pt}
+\newenvironment{code}%
+  {\VerbatimEnvironment\begin{codebox}\begin{Verbatim}[fontsize=\small]}%
+  {\end{Verbatim}\end{codebox}}
+
+% ---------- блоки схем алгоритмов (ГОСТ 19.701-90) ----------
+% 1 клетка = 0,5 см: блок 6 x 2 клетки = 3 x 1 см
+\tikzset{
+  sa/.style={line width=0.6pt,font=\small,node distance=5mm,>={Stealth[length=2mm]}},
+  blk/.style={draw,align=center,minimum width=3cm,minimum height=1cm,inner xsep=2pt,inner ysep=3.5pt},
+  proc/.style={blk,rectangle},                                   % процесс
+  term/.style={blk,rounded rectangle},                           % начало, конец
+  io/.style={blk,trapezium,trapezium left angle=70,trapezium right angle=110,
+    trapezium stretches body},                                   % ввод, вывод
+  dec/.style={blk,diamond,aspect=2.4,minimum width=3cm,minimum height=1.2cm,
+    inner sep=1pt},                                              % решение
+  prep/.style={blk,signal,signal to=east and west,signal pointer angle=120},
+                                                                 % цикл (старый ГОСТ)
+  lpbeg/.style={blk,chamfered rectangle,chamfered rectangle corners={north west,north east},
+    chamfered rectangle sep=2.5mm},                              % начало цикла (новый ГОСТ)
+  lpend/.style={blk,chamfered rectangle,chamfered rectangle corners={south west,south east},
+    chamfered rectangle sep=2.5mm},                              % конец цикла (новый ГОСТ)
+  pred/.style={proc,path picture={\draw
+    ([xshift=2.5mm]path picture bounding box.north west)--([xshift=2.5mm]path picture bounding box.south west)
+    ([xshift=-2.5mm]path picture bounding box.north east)--([xshift=-2.5mm]path picture bounding box.south east);}},
+                                                                 % вызов подпрограммы
+  yes/.style={font=\footnotesize,inner sep=1pt},                 % подписи «да», «нет»
+  cmt/.style={font=\small,align=left},                           % комментарий
+}
+\newcommand{\dop}[1]{\footnote{\textit{Дописано.} #1}}
+% Цикл по старому ГОСТу: линия возврата от последнего блока тела (#3) в левую вершину
+% шестиугольника (#2), выход из правой вершины. Точка выхода --- координата (#2-out).
+% Необязательный параметр --- отступ линий от блоков, см.
+\newcommand{\cycleold}[3][0.45]{%
+  \draw[->] (#3.south) -- ++(0,-0.3) -| ([xshift=-#1 cm]#2.west) -- (#2.west);
+  \draw (#2.east) -- ++(#1,0) |- ([yshift=-0.6cm]#3.south)
+    node[inner sep=0pt,minimum size=0pt] (#2-out) {};}
+% комментарий по ГОСТ: пунктир от точки (#1) к скобке с текстом #2
+\newcommand{\gostcomment}[3][1.2]{%
+  \draw[dashed] (#2) -- ++(#1,0) coordinate (cm@a);
+  \draw ([shift={(0.18,0.32)}]cm@a) -- ([shift={(0,0.32)}]cm@a) -- ([shift={(0,-0.32)}]cm@a) -- ([shift={(0.18,-0.32)}]cm@a);
+  \node[cmt,anchor=west] at ([xshift=0.15cm]cm@a) {#3};}
+
 
 \begin{document}
 \begin{center}
-{\large КОНСПЕКТ ЛЕКЦИЙ}
-
-ПО ДИСЦИПЛИНЕ <<ПРОГРАММИРОВАНИЕ>>
-\tableofcontents
-\label{contents}
-
-\pagebreak
-
+{\LARGE\bfseries\color{secred}Программирование}\\[3pt]
+{\large Конспект лекций}
 \end{center}
-\vspace{10pt}
+\vspace{-2mm}
 
-\section{Тема 1. Арифметические выражения}
+\tableofcontents
+\newpage
 
-Операция: \texttt{17 + 2}. Оператор (команда, инструкция).
 
-Арифметическое выражение может состоять из:
-\begin{enumerate}[noitemsep, label=\arabic*)]
-  \item операций:
-    \begin{center}
-    \begin{tabular}{cl}
-      \texttt{+}  & сложение \\
-      \texttt{-}  & вычитание \\
-      \texttt{*}  & умножение \\
-      \texttt{/}  & деление \\
-      \texttt{//} & целочисленное деление \\
-      \texttt{\%} & остаток от деления \\
-      \texttt{**} & возведение в степень \\
-    \end{tabular}
-    \end{center}
-  \item скобок:
-    \[
-      \frac{a + b}{c + d} \;\Longrightarrow\; \texttt{(a + b) / (c + d)}
-    \]
-  \item переменных;
-  \item числовых констант;
-  \item математических функций:
-    \begin{center}
-    \begin{tabular}{ll}
-      1 способ & 2 способ \\
-      \texttt{import math} & \texttt{from math import *} \\
-      \texttt{math.log(4.8)} & \texttt{log(4.8)} \\
-    \end{tabular}
-    \end{center}
-  \item $\sqrt{x}$ --- \texttt{sqrt(x)}; \quad \texttt{x ** (1/2)} --- комплексное число!
-    (если введём отрицательное число);
-  \item тригонометрических функций --- аргумент в радианах;
-  \item \texttt{degrees} --- перевод из радиан в градусы;
-    \texttt{radians} --- перевод $x$ из градусов в радианы.
+% =====================================================================
+\section{Арифметические выражения}
+% =====================================================================
+\emph{Операция}: \texttt{17 + 2}. \ \emph{Оператор} (команда, инструкция).
+
+\lead{Арифметическое выражение может состоять из:}
+\begin{enumerate}[label=\arabic*)]
+\item \textbf{операций}:\\[2pt]
+\begin{tabular}{@{\qquad}>{\ttfamily}l@{\quad}l@{\qquad\qquad}>{\ttfamily}l@{\quad}l}
++  & сложение  & //  & целочисленное деление\\
+-  & вычитание & \%  & остаток от деления\\
+*  & умножение & **  & возведение в степень\\
+/  & деление   &     &
+\end{tabular}
+\item \textbf{скобок}: \ $\dfrac{a+b}{c+d}\ \Rightarrow\ $ \texttt{(a + b) / (c + d)};
+\item \textbf{переменных};
+\item \textbf{числовых констант};
+\item \textbf{математических функций}:\\[2pt]
+\begin{tabular}{@{\qquad}l@{\qquad\qquad}l}
+1 способ: & 2 способ:\\
+\texttt{import math} & \texttt{from math import *}\\
+\texttt{math.log(4.8)} & \texttt{log(4.8)}
+\end{tabular}
+\item $\sqrt x$~--- \texttt{sqrt(x)}; \ \texttt{x ** (1/2)}~--- \textbf{комплексное число!} (если ввели
+отрицательное число);
+\item \textbf{тригонометрических функций}~--- аргумент в радианах;
+\item \texttt{degrees}~--- перевод из радиан в градусы; \ \texttt{radians}~--- перевод $x$ из градусов
+в радианы.
 \end{enumerate}
 
 \subsection{Приоритет операций}
-
-\begin{enumerate}[noitemsep, label=\arabic*)]
-  \item то, что в \texttt{( )};
-  \item математические функции;
-  \item[3--4)] операция возведения в степень; унарная операция \texttt{(-)}:
-    \texttt{-5}, \texttt{-sin(x)}, \texttt{+5} (в мат. --- комплементарная); % так в оригинале
-  \item[5)] \texttt{*} \ \texttt{/} \ \texttt{\%} \ \texttt{//};
-  \item[6)] \texttt{+} \ \texttt{-}.
+\begin{enumerate}[label=\arabic*)]
+\item то, что в скобках \texttt{( )};
+\item математические функции;
+\item[3--4)] операция возведения в степень; унарная операция \texttt{(-)}: \texttt{-5},
+\texttt{-sin(x)}, \texttt{+5} (в мат.~--- <<комплементарная>>);
+\item[5)] \texttt{*} \ \texttt{/} \ \texttt{\%} \ \texttt{//};
+\item[6)] \texttt{+} \ \texttt{-}.
 \end{enumerate}
 
-\texttt{x = 1 + 2 + 3} --- по очереди слева направо.
+\texttt{x = 1 + 2 + 3}~--- по очереди слева направо.
 
-\texttt{2 ** 3 ** 2} $\to$ \texttt{512} --- справа налево.
+\texttt{2 ** 3 ** 2} $\to$ \texttt{512}~--- справа налево: $2^{(3^2)}=2^9$.
 
-\texttt{\#} --- однострочный комментарий.
+\texttt{\#}~--- однострочный комментарий; \ \texttt{'''} многострочный комментарий \texttt{'''}.
 
-\texttt{'''} многострочный комментарий \texttt{'''}.
-
-\section{Тема 2. Линейные алгоритмы}
-
-\textbf{Алгоритм} --- это конечная последовательность действий решения
+% =====================================================================
+\section{Линейные алгоритмы}
+% =====================================================================
+\begin{opr}
+\textbf{Определение.} \emph{Алгоритм}~--- это конечная последовательность действий решения
 какой-либо задачи.
+\end{opr}
 
-Способы представления алгоритма:
-\begin{enumerate}[noitemsep]
-  \item структурограммы;
-  \item схема алгоритма;
-  \item псевдокод;
-  \item словесная запись.
+\lead{Способы представления алгоритма:}
+\begin{enumerate}[label=\arabic*.]
+\item структурограммы;
+\item схема алгоритма;
+\item псевдокод;
+\item словесная запись.
 \end{enumerate}
 
 \subsection{Основные блоки схемы алгоритма}
+Размеры даны в клетках: обычный блок~--- 6 клеток в ширину и 2 в высоту.
+\begin{center}
+\begin{tikzpicture}[sa]
+\tikzset{lbl/.style={font=\small,align=center,text width=4.8cm,anchor=north},
+         dim/.style={font=\scriptsize,text=gray}}
+% ряд 1
+\node[proc] (b1) at (0,0) {};
+\node[term] (b2) at (5.6,0) {};
+\node[io]   (b3) at (11.2,0) {};
+\node[dim,above] at (b1.north) {6};  \node[dim,left] at (b1.west) {2};
+\node[lbl] at (0,-0.75)    {1) вычислительный процесс};
+\node[lbl] at (5.6,-0.75)  {2) начало и конец процесса};
+\node[lbl] at (11.2,-0.75) {3) ввод и вывод};
+% ряд 2
+\node[dec]  (b4) at (0,-2.9) {};
+\node[prep] (b5) at (5.6,-2.9) {};
+\node[lpbeg,minimum width=2.4cm,minimum height=0.8cm] (b6a) at (10.1,-2.9) {};
+\node[lpend,minimum width=2.4cm,minimum height=0.8cm] (b6b) at (12.7,-2.9) {};
+\node[dim,above] at (b4.north) {6};  \node[dim,left] at (b4.west) {2};
+\node[dim,above] at (b5.north) {6};  \node[dim,left] at (b5.west) {2};
+\node[lbl] at (0,-3.75)    {4) решение};
+\node[lbl] at (5.6,-3.75)  {5) цикл с параметром\\(старый ГОСТ)};
+\node[lbl] at (11.4,-3.75) {6) цикл с параметром (новый ГОСТ):\\начало и конец цикла};
+% ряд 3
+\draw (0,-6.2) circle (0.5);
+\node[dim] at (0,-5.5) {2};  \node[dim] at (-0.7,-6.2) {2};
+\draw (5.2,-5.8)--(6.0,-5.8)--(6.0,-6.35)--(5.6,-6.65)--(5.2,-6.35)--cycle;
+\node[dim] at (5.6,-5.6) {1};  \node[dim] at (5.0,-6.2) {1};
+\node[pred] (b9) at (11.2,-6.2) {};
+\node[dim,above] at (b9.north) {6};  \node[dim,left] at (b9.west) {2};
+\node[lbl] at (0,-6.95)    {7) соединитель};
+\node[lbl] at (5.6,-6.95)  {8) межстраничный\\соединитель};
+\node[lbl] at (11.2,-6.95) {9) предопределённый процесс};
+\end{tikzpicture}
+\end{center}
 
+\subsection{Правила составления схем}
 \begin{enumerate}[label=\arabic*)]
-  \item \Needspace{3cm}Вычислительный процесс
-    \begin{center}
-    \begin{tikzpicture}[blk]
-      \draw (0,0) rectangle (6,2);
-      \node[above] at (3,2) {6 кл};
-      \node[left] at (0,1) {2};
-    \end{tikzpicture}
-    \end{center}
-
-  \item \Needspace{3cm}Начало и конец процесса
-    \begin{center}
-    \begin{tikzpicture}[blk]
-      \draw[rounded corners=0.5cm] (0,0) rectangle (6,2);
-    \end{tikzpicture}
-    \end{center}
-
-  \item \Needspace{3cm}Ввод и вывод
-    \begin{center}
-    \begin{tikzpicture}[blk]
-      \draw (1,0) -- (7,0) -- (6,2) -- (0,2) -- cycle;
-    \end{tikzpicture}
-    \end{center}
-
-  \item \Needspace{3cm}Решение
-    \begin{center}
-    \begin{tikzpicture}[blk]
-      \draw (0,1) -- (3,2) -- (6,1) -- (3,0) -- cycle;
-      \node[above] at (3,2) {6};
-      \node[left] at (0,1) {2};
-    \end{tikzpicture}
-    \end{center}
-
-  \item \Needspace{3cm}Цикл с параметром (старый ГОСТ)
-    \begin{center}
-    \begin{tikzpicture}[blk]
-      \draw (0,1) -- (1,2) -- (5,2) -- (6,1) -- (5,0) -- (1,0) -- cycle;
-      \node[above] at (3,2) {6};
-      \node[left] at (0,1) {2};
-    \end{tikzpicture}
-    \end{center}
-
-  \item \Needspace{3cm}Цикл с параметром (новый ГОСТ)
-    \begin{center}
-    \begin{tikzpicture}[blk]
-      \draw (0,0) -- (6,0) -- (6,1.5) -- (5.5,2) -- (0.5,2) -- (0,1.5) -- cycle;
-    \end{tikzpicture}
-    \qquad
-    \begin{tikzpicture}[blk]
-      \draw (0,0.5) -- (0.5,0) -- (5.5,0) -- (6,0.5) -- (6,2) -- (0,2) -- cycle;
-    \end{tikzpicture}
-    \end{center}
-
-  \item \Needspace{3cm}Соединитель
-    \begin{center}
-    \begin{tikzpicture}[blk]
-      \draw (1,1) circle (1);
-      \node[above] at (1,2) {2};
-      \node[left] at (0,1) {2};
-    \end{tikzpicture}
-    \end{center}
-
-  \item \Needspace{3cm}Межстраничный соединитель
-    \begin{center}
-    \begin{tikzpicture}[x=1cm, y=1cm, line width=0.6pt]
-      \draw (0,1) -- (1,1) -- (1,0.35) -- (0.5,0) -- (0,0.35) -- cycle;
-      \node[above] at (0.5,1) {1};
-      \node[left] at (0,0.5) {1};
-    \end{tikzpicture}
-    \end{center}
-
-  \item \Needspace{3cm}Предопределённый процесс
-    \begin{center}
-    \begin{tikzpicture}[blk]
-      \draw (0,0) rectangle (6,2);
-      \draw (0.5,0) -- (0.5,2) (5.5,0) -- (5.5,2);
-      \node[above] at (3,2) {6};
-      \node[left] at (0,1) {2};
-    \end{tikzpicture}
-    \end{center}
+\item Одинаковая ширина блоков~--- 6--8 клеток.
+\item Высота блоков может быть различной.
+\item Соединительная стрелка между блоками~--- 1 клетка, по необходимости~2.
+\item Математические функции пишем как в математике.
+\item Подряд идущие ввод данных, вывод данных, присваивания объединяем в один блок.
+\item Каждое присваивание в блоке пишем с новой строки.
+\item Схема алгоритма изображается без привязки к конкретному языку программирования.
+\item Схема алгоритма должна занимать в высоту не более листа А4.
 \end{enumerate}
 
-\subsection{Правила составления}
+\subsection{Подпрограммы}
+В программировании часто встречаются алгоритмы, в которых повторяются фрагменты, одинаковые
+по выполняемым действиям и различающиеся только значениями обрабатываемых данных.
+\begin{opr}
+\textbf{Определение.} Такие фрагменты записывают отдельно, однократно и называют
+\emph{подпрограммами} (п/п). В дальнейшем к п/п можно обращаться многократно с различными
+значениями данных.
+\end{opr}
 
-\begin{enumerate}[noitemsep, label=\arabic*)]
-  \item Одинаковая ширина блоков --- 6--8 клеток.
-  \item Высота блоков может быть различной.
-  \item Соединительная стрелка между блоками --- 1 клетка, по необходимости 2.
-  \item Математические функции пишем как в математике.
-  \item Подряд идущие ввод данных, вывод данных, присваивание объединяем
-    в один блок.
-  \item Каждое присваивание в блоке пишем с новой строки.
-  \item Схема алгоритма изображается без привязки к конкретному языку
-    программирования.
-  \item Схема алгоритма должна занимать в высоту не более листа А4.
+\lead{Синтаксис описания п/п}
+(\texttt{[ ]}~--- часть, которая может отсутствовать):
+\begin{code}
+def <имя п/п>([<список формальных параметров>]):
+    <команды>
+    [return <возвращаемые значения>]
+\end{code}
+
+\lead{Синтаксис вызова п/п:}
+\begin{code}
+<имя п/п>([<список фактических параметров>])
+\end{code}
+
+\begin{opr}
+\textbf{Определение.} \emph{Формальные параметры}~--- это имена переменных, которые используются
+для описания п/п.
+
+\emph{Фактические параметры}~--- это конкретные значения параметров, с которыми п/п будет вызвана
+и выполнена.
+\end{opr}
+
+П/п бывают двух видов: \cn{1} функции; \ \cn{2} процедуры.
+\begin{opr}
+\textbf{Определение.} \emph{Функцией} будем считать п/п, в которой присутствует \texttt{return}
+и возвращаемое значение. П/п без \texttt{return}~--- \emph{процедура}.
+\end{opr}
+
+\prim Процедура без параметров:
+\begin{code}
+def Error():
+    print('Ошибка!')
+
+a = 5
+b = 0
+if b == 0:
+    Error()
+else:
+    print(a / b)
+\end{code}
+
+\prim Процедура с параметрами:
+\begin{code}
+def hello(name):
+    print('Привет,', name, '!')
+
+name = input('Вв. своё имя: ')
+hello(name)
+hello('Мама')
+hello(1)
+\end{code}
+
+\prim Функция сложения:
+\begin{code}
+def func(a, b):
+    rez = a + b
+    return rez
+
+z = func(6, 4)
+print(z)            # 10
+\end{code}
+
+Процедура и функция различаются при вызове. В место вызова функции возвращается значение,
+которое можно присваивать, выводить, использовать в других выражениях и~т.\,д.
+
+\lead{Правила соответствия между формальными и фактическими параметрами:}
+\begin{enumerate}[label=\cn{\arabic*}]
+\item В классическом случае число формальных и фактических параметров должно совпадать.
+\item Типы параметров (всех: и формальных, и фактических) в общем случае должны совпадать.
+\item Порядок параметров (всех) нужно соблюдать.
+\item Имена формальных и фактических параметров могут совпадать.
 \end{enumerate}
+
+\begin{opr}
+\textbf{Определение.} \emph{Глобальная переменная}~--- это переменная, область видимости которой~---
+вся программа. В Питоне это переменные, созданные в основной программе.
+
+\emph{Локальная переменная}~--- это переменная, область видимости которой чем-то ограничена
+(например, телом п/п).
+\end{opr}
+
+% =====================================================================
+\section{Применение функций пользователя}
+% =====================================================================
+\begin{opr}
+\textbf{Определение.} \emph{Необязательные параметры.} При описании п/п у формальных параметров
+можно указать их значения по умолчанию. Тогда эти параметры при вызове можно не указывать, т.\,е.
+они являются необязательными. Параметры, у которых значения по умолчанию нет, будут обязательными.
+\end{opr}
+\begin{code}
+def proc(arg1, arg2=5, arg3=88):
+    print(arg1, arg2, arg3)
+
+proc(1)               # 1 5 88
+proc(1, 2)            # 1 2 88
+proc(888, arg3=77)    # 888 5 77
+\end{code}
+
+\primn{3.1} Программа вычисления суммы площадей двух прямоугольников\ispr{В рукописи стороны
+второго прямоугольника тоже вводятся в \texttt{a1}, \texttt{b1}; должно быть \texttt{a2}, \texttt{b2}~---
+иначе \texttt{sq(a2, b2)} даст ошибку.}.
+
+Сразу после заголовка функции в тройных кавычках пишут её описание:
+1)~что делает; 2)~перечисляют все входные значения; 3)~описывают, что возвращает \texttt{return}.
+\begin{code}
+# Программа вычисления суммы площадей двух прямоугольников
+# Переменные:
+#     a1, b1, a2, b2 - стороны прямоугольников
+#     S1, S2 - их площади
+
+# import ...  (сначала подключаются модули)
+
+def sq(a, b):
+    ''' Функция вычисления площади прямоугольника S
+    Входные параметры:
+        a, b - стороны прямоугольника
+    Выходные данные: S
+    '''
+    S = a * b
+    return S            # или сразу: return a * b
+
+print('Вв. стороны 1-го прям.')
+a1 = float(input())
+b1 = float(input())
+print('Вв. стороны 2-го прям.')
+a2 = float(input())
+b2 = float(input())
+# эхо-печать
+print(a1, b1, a2, b2)
+
+S1 = sq(a1, b1)
+S2 = sq(a2, b2)
+print('Пл. 1-го прям. =', S1)
+print('Пл. 2-го прям. =', S2)
+print('Их сумма', S1 + S2)
+\end{code}
+
+\subsection{Правила оформления схем алгоритмов программ с п/п}
+\begin{enumerate}[label=\arabic*)]
+\item Начало и конец пишут только в основной программе. В п/п пишут \emph{вход} и \emph{выход}.
+\item Для каждой п/п изображается отдельная схема алгоритма.
+\item В верхнем блоке п/п нужно указать входные параметры, а в нижнем~--- выходные параметры
+или вычисляемые значения.
+\item Вызов п/п в основной программе изображается блоком <<предопределённый процесс>>
+\tikz[sa,baseline=-0.6ex]\node[pred,minimum width=1.4cm,minimum height=0.45cm]{};.
+\end{enumerate}
+
+\begin{schema}
+Схемы к примеру~3.1: слева~--- п/п \texttt{Sq}, справа~--- основная программа.
+\begin{center}
+\begin{tikzpicture}[sa]
+% п/п Sq
+\node[term] (s1) at (0,0) {Вход в п/п\\$Sq(a,b)$};
+\node[proc,below=6mm of s1] (s2) {$S=a\cdot b$};
+\node[term,below=6mm of s2] (s3) {Выход из п/п\\$Sq(S)$};
+\draw (s1)--(s2)--(s3);
+\gostcomment{s1.east}{$a,b$}
+\gostcomment{s3.east}{$S$}
+% основная программа
+\node[term] (m1) at (8,0.6) {начало};
+\node[io,below=of m1] (m2) {Ввод\\$a_1,b_1,a_2,b_2$};
+\node[pred,below=of m2] (m3) {$S_1=Sq(a_1,b_1)$};
+\node[pred,below=of m3] (m4) {$S_2=Sq(a_2,b_2)$};
+\node[io,below=of m4] (m5) {Вывод\\$S_1,\ S_2,\ S_1+S_2$};
+\node[term,below=of m5] (m6) {конец};
+\draw (m1)--(m2)--(m3)--(m4)--(m5)--(m6);
+\end{tikzpicture}
+\end{center}
+\end{schema}
+
+% =====================================================================
+\section{Условный оператор}
+% =====================================================================
+Условный оператор позволяет выполнить один из входящих в него наборов команд.
+
+\lead{Синтаксис:}
+\begin{code}
+if <выражение>:
+    <команда 1>
+[else:
+    <команда 2>]
+\end{code}
+Сначала проверяется значение выражения после \texttt{if}. Если оно истинно, то выполнится
+\texttt{<команда 1>}, иначе (значение выражения ложно) выполнится \texttt{<команда 2>} (если есть
+\texttt{else}).
+
+\begin{minipage}[t]{0.48\textwidth}
+\lead{За истину в Питоне считается:}
+\begin{itemize}
+\item \texttt{True};
+\item числовое значение, отличное от нуля;
+\item непустые объекты.
+\end{itemize}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\lead{Ложь:}
+\begin{itemize}
+\item \texttt{False};
+\item \texttt{0} (целое, вещественное \texttt{0.0});
+\item пустые объекты (\texttt{None}).
+\end{itemize}
+\end{minipage}
+
+\subsection{Схема условного оператора}
+\begin{center}
+\begin{tikzpicture}[sa,bx/.style={proc,minimum width=2.6cm}]
+% полная форма
+\node[dec] (d) at (0,0) {условие};
+\draw (0,1.1) -- (d.north);
+\node[bx] (c2) at (-2.2,-1.6) {команда 2};
+\node[bx] (c1) at (2.2,-1.6) {команда 1};
+\draw[->] (d.west) -| node[yes,above,pos=0.25]{нет} (c2.north);
+\draw[->] (d.east) -| node[yes,above,pos=0.25]{да} (c1.north);
+\draw (c2.south) |- (0,-2.7) -| (c1.south);
+\draw[->] (0,-2.7) -- (0,-3.3);
+\node[font=\small] at (0,-4.0) {полная форма};
+% сокращённая форма, вариант 1
+\begin{scope}[xshift=7.2cm]
+\node[dec] (d) at (0,0) {условие};
+\draw (0,1.1) -- (d.north);
+\node[bx] (c1) at (2.2,-1.6) {команда 1};
+\draw[->] (d.east) -| node[yes,above,pos=0.25]{да} (c1.north);
+\draw (d.west) -- node[yes,above]{нет} (-2.0,0) |- (0,-2.7) -| (c1.south);
+\draw[->] (0,-2.7) -- (0,-3.3);
+\node[font=\small,align=center] at (0.6,-4.0) {сокращённая форма};
+\end{scope}
+\end{tikzpicture}
+\end{center}
+
+\begin{schema}
+\lead{Условный оператор с одним условием (сокращённая форма)} можно изобразить и так:
+\begin{center}
+\begin{tikzpicture}[sa]
+\node[dec] (d) at (0,0) {условие};
+\draw (0,1.1) -- (d.north);
+\node[proc,below=7mm of d] (c1) {команда 1};
+\draw[->] (d.south) -- node[yes,right]{да} (c1.north);
+\draw (d.west) -- node[yes,above]{нет} (-2.1,0) |- (0,-2.75);
+\draw (c1.south) -- (0,-2.75);
+\draw[->] (0,-2.75) -- (0,-3.35);
+\end{tikzpicture}
+\end{center}
+\end{schema}
+
+\subsection{Логические выражения}
+В классическом варианте выражение после \texttt{if} должно быть \emph{логическим} (истина или ложь).
+Чтобы выражение было логическим, оно должно включать:
+\begin{itemize}
+\item \textbf{операции отношения (сравнения)}: \ \texttt{>}, \ \texttt{<}, \ \texttt{>=}, \ \texttt{<=},
+\ \texttt{==}, \ \texttt{!=};
+\item \textbf{логические операции}:\\
+\texttt{and}~--- логическое <<и>> (конъюнкция);\\
+\texttt{or}~--- логическое <<или>> (дизъюнкция);\\
+\texttt{not}~--- логическое <<не>> (отрицание).
+\end{itemize}
+
+\textbf{<<Исключающее или>>}~--- побитовое сложение по модулю~2, обозначается \texttt{\^{}}. Истина,
+когда аргументы имеют противоположные значения; ложь~--- когда одинаковые.
+
+\imp В Питоне у операций сравнения приоритет выше, чем у логических операций.
+
+\prim $1\le x\le3$.\\
+Классический вариант: \ \texttt{x >= 1 and x <= 3}.\\
+В Питоне реализованы <<ленивые>> цепочки операций сравнения: \ \texttt{1 <= x <= 3}.
+Сначала вычисляется \texttt{1 <= x}. Если это \texttt{False}, то дальше не идём (результат
+\texttt{False}). Если \texttt{True}, то берём~\texttt{x} и дальше сравниваем: \texttt{x <= 3}.
+
+\subsection{Тернарный условный оператор}
+Конструкцию
+\begin{code}
+if X:
+    A = Y
+else:
+    A = Z
+\end{code}
+можно записать в одну строку\dop{В рукописи под заголовком записана только полная форма
+\texttt{if}--\texttt{else}; строка с тернарным оператором добавлена.}:
+\begin{code}
+A = Y if X else Z
+\end{code}
+
+\prim Найти квадрат максимума из трёх значений.
+
+Переменные: \texttt{a, b, c}~--- исходные числа; \ \texttt{z}~--- максимум из них.
+\begin{code}
+print('введите 3 числа')
+a = float(input())
+b = float(input())
+c = float(input())
+# эхо-печать
+print(a, b, c)
+if a > b:
+    z = a
+else:
+    z = b
+if c > z:
+    z = c
+print("Квадрат макс =", z * z)
+\end{code}
+
+\begin{center}
+\begin{tikzpicture}[sa,bx/.style={proc,minimum width=2.6cm}]
+\node[term] (b) at (0,0) {начало};
+\node[io] (in) at (0,-1.5) {Ввод $a,b,c$};
+\node[io] (o1) at (0,-3.0) {Вывод $a,b,c$};
+\node[dec] (d1) at (0,-4.6) {$a>b$};
+\node[bx] (zb) at (-2.4,-6.0) {$z=b$};
+\node[bx] (za) at (2.4,-6.0) {$z=a$};
+\node[dec] (d2) at (0,-8.0) {$c>z$};
+\node[bx] (zc) at (2.4,-9.4) {$z=c$};
+\node[io] (o2) at (0,-11.6) {Вывод $z^2$};
+\node[term] (e) at (0,-13.1) {конец};
+\draw (b)--(in)--(o1)--(d1);
+\draw[->] (d1.west) -| node[yes,above,pos=0.25]{нет} (zb.north);
+\draw[->] (d1.east) -| node[yes,above,pos=0.25]{да} (za.north);
+\draw (zb.south) |- (0,-6.9) -| (za.south);
+\draw[->] (0,-6.9) -- (d2.north);
+\draw[->] (d2.east) -| node[yes,above,pos=0.25]{да} (zc.north);
+\draw (d2.west) -- node[yes,above]{нет} (-2.4,-8.0) |- (0,-10.4) -| (zc.south);
+\draw[->] (0,-10.4) -- (o2.north);
+\draw (o2)--(e);
+\end{tikzpicture}
+\end{center}
+
+\primn{4.2} (к лаб.~4.1). Вычисление выражения с условием:
+\[
+y=\begin{cases}
+\frac12\sqrt x, & x\ge1,\\[2pt]
+\frac13\sqrt[3]{x}, & 0<x<1,\\[2pt]
+\frac14\sqrt[4]{|x|}, & -1\le x\le0,\\[2pt]
+0 & \text{иначе}.
+\end{cases}
+\]
+\begin{code}
+# Вычисление выражения с условием
+# Переменные:
+#     x - аргумент
+#     y - вычисляемая функция
+from math import sqrt
+
+x = float(input('введите x \n'))
+
+if x >= 1:
+    y = 0.5 * sqrt(x)
+else:
+    if x > 0 and x < 1:
+        y = 1/3 * x ** (1/3)
+    else:
+        if x >= -1 and x <= 0:
+            y = 1/4 * abs(x) ** (1/4)
+        else:
+            y = 0
+
+print('x =', x, 'y =', y)
+\end{code}
+
+\begin{center}
+\begin{tikzpicture}[sa,bx/.style={proc,minimum width=2.6cm},dd/.style={dec,minimum width=2.6cm}]
+\node[term] (b) at (1.5,0) {начало};
+\node[io] (in) at (1.5,-1.5) {Ввод $x$};
+\node[dd] (d1) at (1.5,-3.1) {$x\ge1$};
+\node[bx] (y1) at (5.3,-4.6) {$y=\frac12\sqrt x$};
+\node[dd] (d2) at (-1.3,-4.6) {$0<x<1$};
+\node[bx] (y2) at (2.0,-6.1) {$y=\frac13\sqrt[3]{x}$};
+\node[dd] (d3) at (-4.1,-6.1) {$x\ge-1$};
+\node[bx] (y3) at (-1.1,-7.6) {$y=\frac14\sqrt[4]{|x|}$};
+\node[bx] (y4) at (-6.4,-7.6) {$y=0$};
+\node[io] (o) at (-0.5,-9.9) {Вывод $x,\ y$};
+\node[term] (e) at (-0.5,-11.4) {конец};
+\draw (b)--(in)--(d1);
+\draw[->] (d1.east) -| node[yes,above,pos=0.2]{да} (y1.north);
+\draw[->] (d1.west) -| node[yes,above,pos=0.2]{нет} (d2.north);
+\draw[->] (d2.east) -| node[yes,above,pos=0.25]{да} (y2.north);
+\draw[->] (d2.west) -| node[yes,above,pos=0.25]{нет} (d3.north);
+\draw[->] (d3.east) -| node[yes,above,pos=0.25]{да} (y3.north);
+\draw[->] (d3.west) -| node[yes,above,pos=0.25]{нет} (y4.north);
+\draw (y4.south) |- (5.3,-8.8) (y3.south) -- (-1.1,-8.8) (y2.south) -- (2.0,-8.8) (y1.south) -- (5.3,-8.8);
+\draw[->] (-0.5,-8.8) -- (o.north);
+\draw (o)--(e);
+\end{tikzpicture}
+\end{center}
+
+\zam Если функция где-то не определена, нужно разделить числовую прямую на части и для каждой
+части записать свою ветку.
+
+\primn{4.3} \ $y=\begin{cases}2x^2, & 0\le x\le2,\\ 3x^3, & x>2;\end{cases}$ \ при $x<0$ функция не определена\dop{Условия в рукописи нет, оно восстановлено по программе.}.
+\begin{code}
+# пример 4_3
+x = float(input())
+if x < 0:
+    print('x =', x, 'ф. не определена')
+else:
+    if x <= 2:
+        y = 2 * x ** 2
+    else:
+        y = 3 * x ** 3
+    print('x =', x, 'y =', y)
+\end{code}
+
+\begin{center}
+\begin{tikzpicture}[sa]
+\node[term] (b) at (0,0) {начало};
+\node[io,below=of b] (in) {Ввод $x$};
+\node[dec,below=6mm of in] (d1) {$x<0$};
+\node[io,minimum width=3.4cm] (er) at (4.6,-4.3) {Вывод $x$,\\<<ф. не опред.>>};
+\node[dec] (d2) at (-3,-4.3) {$x\le2$};
+\node[proc,minimum width=2.6cm] (y3) at (-5.4,-6.2) {$y=3x^3$};
+\node[proc,minimum width=2.6cm] (y2) at (-0.6,-6.2) {$y=2x^2$};
+\node[io] (out) at (-3,-8.3) {Вывод $x,\ y$};
+\node[term] (e) at (0,-10.5) {конец};
+\draw (b)--(in)--(d1);
+\draw[->] (d1.east) -| node[yes,above,pos=0.2]{да} (er.north);
+\draw[->] (d1.west) -| node[yes,above,pos=0.2]{нет} (d2.north);
+\draw[->] (d2.west) -| node[yes,above,pos=0.3]{нет} (y3.north);
+\draw[->] (d2.east) -| node[yes,above,pos=0.3]{да} (y2.north);
+\draw (y3.south) |- (-3,-7.25) -| (y2.south);
+\draw[->] (-3,-7.25) -- (out.north);
+\draw (out.south) |- (0,-9.5);
+\draw (er.south) |- (0,-9.5);
+\draw[->] (0,-9.5) -- (e.north);
+\end{tikzpicture}
+\end{center}
+
+\primn{4.4} (к лаб.~4.3). Определить, попадает ли точка $(x,y)$ в заштрихованную область:
+\begin{center}
+\begin{tikzpicture}[scale=0.75,line width=0.6pt]
+\fill[pattern=north east lines] (0,-2) arc (-90:-270:2) -- (2,2) -- (2,-2) -- cycle;
+\draw (0,-2) arc (-90:-270:2) -- (2,2) -- (2,-2) -- cycle;
+\draw[->] (-2.8,0)--(3,0) node[right] {$x$};
+\draw[->] (0,-2.8)--(0,2.8) node[above] {$y$};
+\node[above left] at (0,2) {$2$};   \node[below left] at (0,-2) {$-2$};
+\node[above left] at (-2,0) {$-2$}; \node[below right] at (2,0) {$2$};
+\end{tikzpicture}
+\end{center}
+\lead{Подсказка:} отдельно записать условие для $x<0$, где $x^2+y^2\le R^2$.
+
+% =====================================================================
+\section{Многоальтернативное ветвление}
+% =====================================================================
+В Питоне \texttt{if}, вложенный в ветку \texttt{else}, функционально заменяется на \texttt{elif}.
+
+\lead{Синтаксис}\ispr{В рукописи после первой строки пропущены \texttt{<команды 1>}.}
+(\texttt{[ ]}~--- часть, которая может отсутствовать):
+\begin{code}
+if <выражение 1>:
+    <команды 1>
+[elif <выражение 2>:
+    <команды 2>]
+...
+[else:
+    <команды N+1>]
+\end{code}
+
+\primn{5.1} (к лаб.~5). Соотношение между мерами длины.
+
+Переменные: \texttt{k}~--- код пункта меню.
+\begin{code}
+print('1 - миля')
+print('2 - верста\n3 - сажень')
+print('''4 - аршин
+5 - фут''')
+k = int(input('Вв. код пункта меню: '))
+if k == 1:
+    print('1,61 км')
+elif k == 2:
+    print('1,07 км')
+elif k == 3:
+    print('2,13 м')
+elif k == 4:
+    print('0,71 м')
+elif k == 5:
+    print('0,30 м')
+else:
+    print('Нет такого пункта меню')
+\end{code}
+\vspace{-4pt}
+{\small В рукописи после ветки \texttt{k == 2} стоит многоточие; ветки для \texttt{k = 3, 4, 5} и
+\texttt{else} дописаны\dop{1 сажень $=2{,}1336$~м, 1 аршин $=0{,}7112$~м, 1 фут $=0{,}3048$~м.}.}
+
+\subsection{Оператор выбора \texttt{match}}
+\lead{Синтаксис:}
+\begin{code}
+match <выражение-селектор>:
+    case <шаблон 1>:
+        <команды 1>
+    ...
+    case <шаблон N>:
+        <команды N>
+    [case _:
+        <команды N+1>]
+\end{code}
+\texttt{case \_}~--- ветка <<иначе>>: выполняется, если не подошёл ни один шаблон. Несколько
+шаблонов в одной ветке перечисляют через \texttt{|}.
+
+\primn{5.3} Простейший калькулятор.
+\begin{code}
+# Переменные:
+#     a, b - операнды
+#     y - результат
+#     znak - знак операции
+#     flag - признак существования знака операции
+print('?')
+a = float(input())
+znak = input()
+b = float(input())
+flag = True
+match znak:
+    case '+':
+        y = a + b
+    case '-':
+        y = a - b
+    case '*':
+        y = a * b
+    case '/' | ':':
+        y = a / b
+    case _:
+        flag = False
+if flag:
+    print(a, znak, b, '=', y)
+else:
+    print('Неизвестный знак операции')
+\end{code}
+\vspace{-4pt}
+{\small Последние четыре строки (вывод результата) дописаны: в рукописи программа и схема
+обрываются после \texttt{match}\dop{Добавлены вывод результата и блок <<flag>> на схеме.}.}
+
+\begin{center}
+\begin{tikzpicture}[sa,
+  bx/.style={proc,minimum width=2.6cm}]
+\node[term] (b) at (0,0) {начало};
+\node[io] (in) at (0,-1.5) {Ввод $a$, знак, $b$};
+\node[proc] (fl) at (0,-3.0) {flag $=$ True};
+\node[dec] (z) at (0,-4.7) {знак};
+\draw (b)--(in)--(fl)--(z);
+\draw (z.south) -- (0,-5.8);
+\draw (-6.8,-5.8) -- (6.8,-5.8);
+\foreach \xx/\txt/\lab/\nm in {-6.8/{$y=a+b$}/{'+'}/c1, -3.4/{$y=a-b$}/{'$-$'}/c2,
+    0/{$y=a\cdot b$}/{'*'}/c3, 3.4/{$y=a/b$}/{'/', ':'}/c4, 6.8/{flag $=$ False}/{иначе}/c5}
+  { \node[bx] (\nm) at (\xx,-6.9) {\txt};
+    \draw[->] (\xx,-5.8) -- node[yes,left,pos=0.4]{\lab} (\nm.north); }
+\draw (-6.8,-7.4) -- (-6.8,-7.9) -- (6.8,-7.9) -- (6.8,-7.4);
+\foreach \xx in {-3.4,0,3.4} \draw (\xx,-7.4) -- (\xx,-7.9);
+\node[dec] (f) at (0,-9.0) {flag};
+\draw[->] (0,-7.9) -- (f.north);
+\node[io,minimum width=3.4cm] (o1) at (3.8,-10.7) {Вывод\\$a$, знак, $b$, $y$};
+\node[io,minimum width=3.4cm] (o2) at (-3.8,-10.7) {Вывод <<Неизвестный\\знак операции>>};
+\draw[->] (f.east) -| node[yes,above,pos=0.2]{да} (o1.north);
+\draw[->] (f.west) -| node[yes,above,pos=0.2]{нет} (o2.north);
+\node[term] (e) at (0,-12.8) {конец};
+\draw (o1.south) |- (0,-11.9) (o2.south) |- (0,-11.9);
+\draw[->] (0,-11.9) -- (e.north);
+\end{tikzpicture}
+\end{center}
+
+\begin{schema}
+\lead{Общий вид выбора на схеме.} От блока <<решение>> идёт одна линия, от неё ответвляются
+выходы, подписанные значениями селектора; после блоков ветви сходятся:
+\begin{center}
+\begin{tikzpicture}[sa]
+\node[dec,minimum width=2.2cm] (k) at (0,0) {$k$};
+\draw (k.south) -- (0,-5.4);
+\node[proc,minimum width=2.6cm] (p1) at (2.6,-1.5) {};
+\node at (2.6,-2.7) {$\dots$};
+\node[proc,minimum width=2.6cm] (p3) at (2.6,-3.9) {};
+\draw[->] (0,-1.5) -- node[yes,above]{1} (p1.west);
+\draw[->] (0,-2.7) -- node[yes,above]{2} (1.1,-2.7);
+\draw[->] (0,-3.9) -- node[yes,above]{$N$} (p3.west);
+\draw (p1.east) -- (4.4,-1.5) (p3.east) -- (4.4,-3.9);
+\draw[->] (4.4,-1.5) -- (4.4,-4.7) -- (0,-4.7);
+\end{tikzpicture}
+\end{center}
+\end{schema}
+
+% =====================================================================
+\section{Циклы с параметром (со счётчиком) \texttt{for}}
+% =====================================================================
+Когда одни и те же действия необходимо выполнить многократно, для этого используют различные
+операторы циклов. В программировании различают следующие \textbf{типы циклов}:
+\begin{enumerate}[label=\arabic*)]
+\item циклы с предусловием;
+\item циклы с постусловием;
+\item циклы с параметром;
+\item циклы с перебором коллекций.
+\end{enumerate}
+
+Каждый из перечисленных циклов имеет \textbf{общие структурные особенности} и состоит из 4 частей:
+\begin{enumerate}[label=\arabic*)]
+\item \emph{подготовка цикла}~--- необходима для задания начальных значений;
+\item \emph{тело цикла}~--- те команды, которые расположены внутри цикла и выполняются многократно;
+\item \emph{модификация}~--- изменение параметра цикла;
+\item \emph{проверка условия} окончания или продолжения цикла.
+\end{enumerate}
+
+\lead{Синтаксис цикла с параметром:}
+\begin{code}
+for <параметр> in <список значений>:
+    <команды>
+\end{code}
+\lead{Как работает:} параметр поочерёдно принимает значения из списка, при этом каждый раз
+выполняются команды из тела цикла.
+
+\subsection{Диапазон \texttt{range()}}
+Функция \texttt{range()} возвращает диапазон целых чисел от заданного начального значения до
+конечного с заданным шагом:
+\begin{center}
+\texttt{range(<нач. знач.>, <след. за конечным знач.>, <шаг>)}
+\end{center}
+Если начальное значение не указано, то оно $=0$; если не указан шаг, то он $=+1$.
+
+\begin{minipage}[t]{0.48\textwidth}
+\begin{code}
+for i in range(5):
+    print(i)
+\end{code}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\begin{code}
+lst = [1, 2, 3]
+for el in lst:
+    print(el)
+\end{code}
+\end{minipage}
+
+\begin{schema}
+\lead{Схема цикла по старому ГОСТу}~--- блок <<модификация>> (шестиугольник), линия возврата
+приходит в его левую вершину, выход из цикла~--- из правой:
+\begin{center}
+\begin{tikzpicture}[sa]
+\node[prep] (h) at (0,0) {$i=0(1)4$};
+\node[io,below=of h] (o) {Вывод $i$};
+\cycleold{h}{o}
+\draw[->] (h-out.center) -- ++(0,-0.5);
+\node[prep] (h2) at (7,0) {$el$ из $lst$};
+\node[io,below=of h2] (o2) {Вывод $el$};
+\cycleold{h2}{o2}
+\draw[->] (h2-out.center) -- ++(0,-0.5);
+\end{tikzpicture}
+\end{center}
+\end{schema}
+
+\begin{schema}
+\lead{По новому ГОСТу} цикл изображается двумя блоками: начало цикла (с законом изменения
+параметра) и конец цикла (с именем параметра):
+\begin{center}
+\begin{tikzpicture}[sa]
+\node[lpbeg] (lb) {$i=0(1)4$};
+\node[below=4mm of lb] (dots) {$\dots$};
+\node[lpend,below=4mm of dots] (le) {$i$};
+\draw (lb)--(dots)--(le);
+\end{tikzpicture}
+\end{center}
+\end{schema}
+
+\primn{6.1} Вывести $n_{\max}$ членов последовательности $a_1=2$, \ $a_n=n\cdot a_{n-1}$%
+\dop{Условия в рукописи нет, оно восстановлено по программе.}.
+\begin{code}
+# Переменные:
+#     nmax - количество чисел
+#     n - параметр цикла
+#     a1, a2 - предыдущее и текущее значения
+nmax = int(input('Вв. кол-во чисел\n'))
+a1 = 2
+print('a1 = 2')
+for n in range(2, nmax + 1):
+    a2 = n * a1
+    print('a%d = %d' % (n, a2))
+    a1 = a2
+\end{code}
+\vspace{-4pt}
+{\small Последняя строка \texttt{a1 = a2} добавлена\ispr{В рукописи нет \texttt{a1 = a2}: тогда
+\texttt{a1} всегда равно~2 и вместо $a_n=n\,a_{n-1}$ печатается $2n$.}.}
+
+\primn{6.2} Числа Фибоначчи: \ $f_n=f_{n-1}+f_{n-2}$, \ $f_1=1$, \ $f_2=1$.
+\begin{code}
+# Пример 6_2
+# Числа Фибоначчи
+# Переменные:
+#     n - параметр цикла
+#     nmax - количество чисел
+#     f1, f2, f3 - предыдущие и текущее числа Фибоначчи
+nmax = int(input('Вв. количество чисел: '))
+f1 = 1
+f2 = 1
+print('f1 = 1\nf2 = 1')
+for n in range(3, nmax + 1):
+    f3 = f1 + f2
+    print('f%d = %d' % (n, f3))
+    f1 = f2
+    f2 = f3
+\end{code}
+
+\begin{center}
+\begin{tikzpicture}[sa]
+\node[term] (b) {начало};
+\node[io,below=of b] (in) {Ввод $n_{\max}$};
+\node[proc,below=of in] (p) {$f_1=1$\\$f_2=1$};
+\node[io,below=of p] (o) {Вывод $f_1,\ f_2$};
+\node[prep,minimum width=3.4cm,below=6mm of o] (h) {$n=3(1)n_{\max}$};
+\node[proc,below=of h] (s) {$f_3=f_1+f_2$};
+\node[io,below=of s] (o2) {Вывод $n,\ f_3$};
+\node[proc,below=of o2] (sh) {$f_1=f_2$\\$f_2=f_3$};
+\node[term,below=14mm of sh] (e) {конец};
+\draw (b)--(in)--(p)--(o)--(h)--(s)--(o2)--(sh);
+\cycleold[0.6]{h}{sh}
+\draw[->] (h-out.center) -- (e.north);
+\end{tikzpicture}
+\end{center}
+{\small Схема из рукописи\ispr{В рукописи после блока $f_3=f_1+f_2$ стоит ещё блок ввода-вывода с той
+же формулой; он лишний и убран.}.}
+
+\subsection{Форматный вывод: оператор \texttt{\%}}
+В строке ставят спецификаторы, а после строки через \texttt{\%} перечисляют значения:
+\texttt{'f\%d = \%d' \% (n, f3)}.
+\begin{code}
+# %d - целое число
+# %f - вещественное число в формате с фиксированной точкой
+print('%f' % 1234568.12)     # 1234568.120000
+print('%f' % 1e-3)           # 0.001000
+# %e - вещественное число в формате с плавающей точкой
+print('%e' % 1234568.12)     # 1.234568e+06
+# %s - для вывода строк
+print('%10d' % 123)          #        123   (поле из 10 позиций)
+print('%8.2f' % 123.4567)    #   123.46     (8 позиций, 2 знака после точки)
+print('%.3f' % 123.45678)    # 123.457
+print('%20f' % 123.45678)    #           123.456780   (строка из 20 символов)
+# %o - вывод числа в 8 СС
+print('%o' % 123)            # 173
+# %x - вывод целого в 16 СС
+print('%x' % 123)            # 7b
+\end{code}
+
+\subsection{Накопление суммы}
+\[
+S=f_1+f_2+\dots+f_n=\sum_{i=1}^{n}f_i .
+\]
+Для вычисления такой суммы в программировании можно воспользоваться \emph{рекуррентной формулой}:
+\[
+S_i=S_{i-1}+f_i,\qquad i=1(1)n=\overline{1,n}\ \ (i=1,2,\dots,n),\qquad S_0=0.
+\]
+\imp Для того чтобы не испортить значение суммы, её начальное значение нужно задать равным нулю
+($S_0=0$).
+
+\primn{6.3} \ $S=\displaystyle\sum_{i=1}^{n}\frac1{i^2}=\frac11+\frac1{2^2}+\dots+\frac1{n^2}$.
+\begin{code}
+# Пример вычисления суммы
+# Переменные:
+#     i - параметр цикла
+#     S - сумма
+#     n - количество слагаемых
+n = int(input("Вв. количество слагаемых: "))
+S = 0
+for i in range(1, n + 1):
+    S = S + 1 / i ** 2      # или S += 1 / i ** 2
+print('Сумма %d слагаемых = %f' % (n, S))
+\end{code}
+
+\subsection{Произведение}
+\[
+P=f_1\cdot f_2\cdot\ldots\cdot f_n=\prod_{i=1}^{n}f_i,\qquad
+P_i=P_{i-1}\cdot f_i,\quad i=\overline{1,n},\qquad P_0=1.
+\]
+
+\primn{6.4} Натуральная степень действительного числа через произведение:
+\[
+a^n=\underbrace{a\cdot a\cdot\ldots\cdot a}_{n\ \text{раз}}=\prod_{i=1}^{n}a .
+\]
+\begin{code}
+# Пример 6_4
+# Вычисление через произведение
+# натуральной степени заданного действительного числа
+# Переменные:
+#     P - произведение (результат)
+#     a - основание
+#     n - натуральная степень
+#     i - параметр цикла
+print('Введите основание и степень')
+a = float(input())
+n = int(input())
+P = 1
+for i in range(1, n + 1):    # можно range(n): i в теле не используется
+    P *= a
+print('%.2f в степени %d = %.3f' % (a, n, P))
+\end{code}
+
+\primn{6.5}
+\[
+z=\begin{cases}
+\dfrac{x+1}{2}\displaystyle\sum_{n=1}^{10}\Bigl(\frac{x}{n}\Bigr)^{2}, & x\le2,\\[12pt]
+\dfrac{\sin x+\cos x}{2+\sin x}\displaystyle\prod_{n=0}^{15}\Bigl(1+\frac{x}{n+2}\Bigr), & x>2.
+\end{cases}
+\]
+\begin{code}
+# Пример 6_5
+# Переменные:
+#     x - аргумент
+#     z - вычисляемая функция
+#     n - параметр цикла
+from math import sin, cos
+x = float(input('Введите x: '))
+if x <= 2:
+    S = 0
+    for n in range(1, 10 + 1):
+        S += (x / n) ** 2
+    z = (x + 1) / 2 * S
+else:
+    P = 1
+    for n in range(0, 16):
+        P *= 1 + x / (n + 2)
+    z = (sin(x) + cos(x)) / (2 + sin(x)) * P
+print('x = %5.2f \t z = %5.2f' % (x, z))
+\end{code}
+\vspace{-4pt}
+{\small Показатель степени в сумме~--- как в условии\ispr{В рукописи в условии $(x/n)^2$, а в программе
+\texttt{(x/n)**n} и на схеме $(1/n)^n$. Здесь везде как в условии. Если на доске было $(x/n)^n$,
+поменяй показатель во всех трёх местах.}.}
+
+\begin{center}
+\begin{tikzpicture}[sa,bx/.style={minimum width=3.4cm}]
+\node[term] (b) at (0,0) {начало};
+\node[io,below=of b] (in) {Ввод $x$};
+\node[dec,below=6mm of in] (d) {$x\le2$};
+% ветка "нет"
+\node[proc,bx] (p0) at (-4,-4.4) {$P=1$};
+\node[prep,bx,below=6mm of p0] (hp) {$n=0(1)15$};
+\node[proc,bx,below=of hp] (pp) {$P=P\Bigl(1+\dfrac{x}{n+2}\Bigr)$};
+\node[proc,bx,below=14mm of pp] (zp) {$z=\dfrac{\sin x+\cos x}{2+\sin x}\cdot P$};
+\draw (p0)--(hp)--(pp);
+\cycleold[0.5]{hp}{pp}
+\draw[->] (hp-out.center) -- (zp.north);
+% ветка "да"
+\node[proc,bx] (s0) at (4,-4.4) {$S=0$};
+\node[prep,bx,below=6mm of s0] (hs) {$n=1(1)10$};
+\node[proc,bx,below=of hs] (ss) {$S=S+\Bigl(\dfrac{x}{n}\Bigr)^2$};
+\node[proc,bx,below=14mm of ss] (zs) {$z=\dfrac{x+1}{2}\cdot S$};
+\draw (s0)--(hs)--(ss);
+\cycleold[0.5]{hs}{ss}
+\draw[->] (hs-out.center) -- (zs.north);
+\draw[->] (d.west) -| node[yes,above,pos=0.2]{нет} (p0.north);
+\draw[->] (d.east) -| node[yes,above,pos=0.2]{да} (s0.north);
+% слияние
+\coordinate (m) at (0,-11.9);
+\draw (zp.south) |- (m) (zs.south) |- (m);
+\node[io,below=6mm of m] (o) {Вывод $x,\ z$};
+\node[term,below=of o] (e) {конец};
+\draw[->] (m)--(o); \draw (o)--(e);
+\end{tikzpicture}
+\end{center}
+
+\subsection{Табулирование}
+\begin{opr}
+\textbf{Определение.} \emph{Протабулировать} функцию $y=f(x)$~--- это вычислить значения этой функции
+при различных значениях аргумента.
+\end{opr}
+Закон изменения аргумента записывают так:
+\[
+x=x_0(h_x)x_n,\qquad x_0\text{~--- начальное значение},\ \ h_x\text{~--- шаг},\ \
+x_n\text{~--- конечное значение аргумента}.
+\]
+\prim $x=1(0{,}5)3$, \ $y=f(x)=\sin x$:
+\[
+x=1:\ y=\sin1=\dots;\qquad x=1{,}5:\ y=\sin1{,}5=\dots;\qquad\dots;\qquad x=3:\ y=\sin3=\dots
+\]
+
+Поскольку в Питоне в цикле \texttt{for} при использовании функции \texttt{range()} можно работать
+с параметрами цикла только целого типа, необходимо ввести переменную $N_x$, которая равна числу
+повторений цикла при указанном законе изменения параметра~$x$:
+\[
+N_x=\Bigl[\frac{x_n-x_0}{h_x}\Bigr]+1,\qquad [\ \ ]\text{~--- целая часть.}
+\]
+\imp \texttt{for x in range(1, 3 + 0.5, 0.5)}~--- \textbf{нельзя!!!}
+
+\primn{6.6} Протабулировать функцию $y=\sin x$.
+\begin{code}
+# Переменные:
+#     x - аргумент
+#     x0 - начальное значение аргумента x
+#     xn - конечное значение аргумента x
+#     hx - шаг изменения x
+#     y - вычисляемая функция
+#     Nx - количество точек в диапазоне
+#     i - параметр цикла
+from math import *
+print('Введите x0(hx)xn')      # лучше подписать каждое значение
+x0 = float(input())
+hx = float(input())
+xn = float(input())
+Nx = trunc((xn - x0) / hx + 1e-6) + 1      # 1e-6 - погрешность
+x = x0
+for i in range(Nx):
+    y = sin(x)
+    print('x = %10.2f \t y = %10.3f' % (x, y))
+    x = x + hx
+\end{code}
+\zam $10^{-6}$ добавляют на случай погрешности вещественной арифметики: например, при
+$x=0(0{,}1)0{,}7$ в Питоне \texttt{0.7 / 0.1} даёт \texttt{6.999999999999999}, и без поправки
+потерялась бы последняя точка.
+
+% =====================================================================
+\section{Цикл с предусловием \texttt{while}}
+% =====================================================================
+Цикл \texttt{for} используется тогда, когда заранее известно число повторений цикла. Когда оно
+неизвестно, используют циклы с предусловием или с постусловием.
+
+\lead{Синтаксис цикла с предусловием:}
+\begin{code}
+while <выражение>:
+    <команды 1>
+[else:
+    <команды 2>]
+\end{code}
+Пока значение выражения истинно, выполняются \texttt{<команды 1>} из тела цикла. Как только
+значение выражения становится ложным, происходит выход из цикла.
+
+\imp При наличии \texttt{else} после \emph{естественного} выхода из цикла (для цикла с предусловием это
+происходит тогда, когда выражение стало ложно) выполняются \texttt{<команды 2>}.
+
+\begin{center}
+\begin{tikzpicture}[sa]
+\coordinate (top) at (0,0.9);
+\node[dec] (d) at (0,0) {выражение};
+\node[proc,below=7mm of d] (c) {команды};
+\draw[->] (0,1.5) -- (d.north);
+\draw[->] (d.south) -- node[yes,right]{да} (c.north);
+\draw[->] (c.south) -- ++(0,-0.35) -| (-2.2,0.9) -- (0,0.9);
+\draw (d.east) -- node[yes,above]{нет} (2.2,0) -- (2.2,-3.0) -- (0,-3.0);
+\draw[->] (0,-3.0) -- (0,-3.6);
+\end{tikzpicture}
+\end{center}
+
+\subsection{Цикл с постусловием}
+Этот цикл отличается от цикла с предусловием тем, что проверка условия продолжения или окончания
+цикла в нём происходит \emph{после} выполнения тела цикла.
+\begin{center}
+\begin{tikzpicture}[sa]
+\node[proc] (c) at (0,0) {команды};
+\node[dec,below=6mm of c] (d) {выражение};
+\draw[->] (0,1.3) -- (c.north);
+\draw (c)--(d);
+\draw[->] (d.west) -- node[yes,above]{да/нет} ++(-0.9,0) |- (0,0.85);
+\draw[->] (d.south) -- node[yes,right]{нет/да} ++(0,-0.7);
+\end{tikzpicture}
+\end{center}
+Так как в цикле с предусловием условие проверяется до тела цикла, то, если условие сразу ложно,
+цикл выполнится 0~раз. \textbf{Цикл с постусловием выполнится минимум 1~раз.}
+
+\subsection{Общее для циклов \texttt{for} и \texttt{while}}
+\lead{Оператор \texttt{continue}.} При выполнении \texttt{continue} происходит переход на следующий
+шаг (итерацию) цикла; при этом на текущей итерации команды, стоящие в теле цикла после
+\texttt{continue}, выполнены не будут.
+\begin{code}
+for i in range(1, 6):
+    if i == 3:
+        continue
+    print('2^{} = {}'.format(i, 2 ** i))
+\end{code}
+
+\lead{Оператор \texttt{break}.} При выполнении \texttt{break} в теле цикла происходит досрочный выход
+из цикла: на текущей итерации не выполняются команды тела цикла, стоящие после \texttt{break},
+и не выполняются следующие итерации.
+\begin{code}
+for i in range(1, 6):
+    if i == 3:
+        break
+    print(f'2^{i} = {2 ** i}')
+\end{code}
+\imp \texttt{break} и \texttt{continue} в лабах не используем (считаем, что их нет).
+
+\lead{Конструкция \texttt{else}.} Ветка \texttt{else} выполняется, только если цикл закончился
+естественно, а не через \texttt{break}:
+\begin{code}
+lst = [1, 2, 3, 4]
+for el in lst:
+    if el < 0:
+        break
+else:
+    print('В списке ' + str(lst) + ' нет отрицательных')
+\end{code}
+
+\primn{7.1} (6.3 по \texttt{while}). Протабулировать функцию при $x=x_0(h_x)x_n$:
+\[
+y=\begin{cases}-x+2, & -1\le x\le2,\\ -3, & x<-1;\end{cases}
+\qquad\text{при остальных $x$ функция не определена.}
+\]
+\begin{code}
+# Табулирование циклом с предусловием
+# Переменные:
+#     x, x0, hx, xn - аргумент и параметры его изменения
+#     y - функция
+print('Введите x0(hx)xn')
+x0 = float(input())
+hx = float(input())
+xn = float(input())
+x = x0
+while x <= xn + hx / 3:
+    if x > 2:
+        print(f'x = {x} функция не опр.')
+    else:
+        if x < -1:
+            y = -3
+        else:
+            y = -x + 2
+        print(f'x = {x} y = {y}')
+    x = x + hx
+\end{code}
+\vspace{-4pt}
+{\small Значение при $x<-1$~--- как в условии\ispr{В рукописи в условии $-3$, а в программе
+\texttt{y = 3}. Если в условии опечатка, верни \texttt{y = 3}: при $y=3$ функция непрерывна в точке
+$x=-1$.}. Добавка \texttt{hx / 3} в условии цикла~--- запас на погрешность, чтобы не потерять
+точку $x_n$.}
+
+\primn{7.2} \ $f_1=2+\sin3x$, \ $f_2=\cos\dfrac{x}{3}$. Определить аргумент, при котором расстояние
+между функциями $f_1$ и $f_2$ на заданном интервале максимально.
+
+Расстояние $d=\sqrt{(x_1-x_2)^2+(y_1-y_2)^2}$; \ при $x_1=x_2=x$ \
+$d=\sqrt{(y_1-y_2)^2}=|y_1-y_2|$.
+\begin{code}
+# Пример 7_2
+# Переменные:
+#     x, x0, hx, xn - аргумент и его параметры
+#     y1, y2 - функции
+#     d - расстояние
+#     dmax - максимальное расстояние
+#     xmax - аргумент, при котором расстояние максимально
+from math import sin, cos
+
+def f1(x):
+    '''Вычисляет и возвращает значение функции f1
+    Формальный параметр: x - аргумент'''
+    return 2 + sin(3 * x)
+
+def f2(x):
+    '''Вычисляет и возвращает значение функции f2'''
+    return cos(x / 3)
+
+print('Введите x0(hx)xn')
+x0 = float(input())
+hx = float(input())
+xn = float(input())
+
+x = x0
+dmax = abs(f1(x0) - f2(x0))
+xmax = x0
+while x <= xn + hx / 4:
+    y1 = f1(x)
+    y2 = f2(x)
+    d = abs(y1 - y2)
+    print(f'{x = }\t f1 = {y1:10.2f} f2 = {y2:.3f} {d = :10.2f}')
+    if d > dmax:
+        dmax = d
+        xmax = x
+    x += hx
+print(f'макс. расст. между ф. {dmax} в точке {xmax}')
+\end{code}
+\zam Начальное значение можно задать и так: \texttt{dmax = -inf} (\texttt{inf} есть в модуле
+\texttt{math}) или \texttt{dmax = float('-inf')}\ispr{В рукописи \texttt{dmax = inf}, без минуса. При
+$+\infty$ условие \texttt{d > dmax} не выполнится ни разу, и максимум не найдётся.}.
+
+\zam Запись \texttt{\{x = \}} в f-строке печатает и имя, и значение: \texttt{x = 0.5}.
+
+% =====================================================================
+\section{Вложенные циклы}
+% =====================================================================
+\begin{opr}
+\textbf{Определение.} \emph{Вложенным} называют цикл, содержащий внутри себя один или несколько
+других циклов. Циклы, охватывающие другие циклы, называют \emph{внешними}, а остальные~---
+\emph{внутренними}.
+\end{opr}
+\begin{enumerate}[label=\arabic*)]
+\item Правила организации внешнего и внутреннего циклов такие же, как и для простого цикла
+соответствующего вида.
+\item Внутренний цикл должен полностью располагаться в теле внешнего цикла.
+\end{enumerate}
+
+Циклы, образующие вложенный цикл, условно разбивают на \emph{уровни} (\emph{ранги}): внешний цикл~---
+уровень~0, первый внутренний цикл~--- уровень~1 и~т.\,д.
+
+Параметры циклов разных уровней изменяются не одновременно. Сначала все свои значения
+последовательно принимает параметр самого внутреннего цикла при неизменных значениях параметров
+внешних для него циклов. После этого на один шаг изменяется параметр предыдущего по рангу цикла,
+и снова все свои значения принимает параметр цикла последнего уровня вложения. Этот процесс
+происходит до тех пор, пока параметры циклов всех уровней не примут все свои возможные значения.
+\begin{code}
+for i in range(1, 4):
+    for j in range(3):
+        print(i, j)
+\end{code}
+Если во вложенном цикле реализованы 2 циклические структуры с количеством повторений $N_1$ и $N_2$
+соответственно, то общее число повторений тела внутреннего цикла равно $N_1\cdot N_2$ (в примере
+выше $3\cdot3=9$ строк).
+
+\primn{8.1} Табулирование функции двух переменных $z=f(x,y)$.
+
+Переменные: \texttt{x, x0, xn, hx}~--- для изменения $x$; \ \texttt{y, y0, yn, hy}~--- для изменения
+$y$; \ \texttt{z}~--- вычисляемая функция.
+
+Пусть $z=\sin x\cdot\cos2y$, \ $x=x_0(h_x)x_n$, \ $y=y_0(h_y)y_n$.
+\begin{code}
+from math import sin, cos
+print('Введите x0(hx)xn')
+x0 = float(input())
+hx = float(input())
+xn = float(input())
+print('Введите y0(hy)yn')
+y0 = float(input())
+hy = float(input())
+yn = float(input())
+
+x = x0
+while x <= xn + hx / 3:
+    y = y0
+    while y <= yn + hy / 4:
+        z = sin(x) * cos(2 * y)
+        print(f'{x = } {y = } {z = }')
+        y += hy
+    x += hx
+\end{code}
+\imp Начальное значение параметра внутреннего цикла (\texttt{y = y0}) задаётся \emph{внутри} внешнего
+цикла: перед каждым новым $x$ перебор $y$ начинается заново.
+
+\primn{8.2}
+\[
+y=\frac{x+1{,}5}{3{,}75}\sum_{k=0}^{9}\ \prod_{n=5}^{3}(k+n)\cdot x^{k+n},\qquad x=x_0(h_x)x_n .
+\]
+\begin{code}
+# Пример 8_2
+# Переменные:
+#     x, x0, xn, hx - параметры изменения x
+#     y - вычисляемая функция
+#     S, P - сумма и произведение
+#     k, n - параметры циклов
+
+# вводим x0, hx, xn   <- это обязательно
+
+x = x0
+while x <= xn + hx / 3:
+    S = 0
+    for k in range(10):
+        P = 1
+        for n in range(5, 2, -1):
+            P *= (k + n) * x ** (k + n)
+        S += P
+    y = (x + 1.5) / 3.75 * S
+    print(f'{x = :10.2f}\t{y = :10.3f}')
+    x = x + hx
+\end{code}
+\zam Произведение по $n$ от~5 до~3 идёт в обратном порядке: \texttt{range(5, 2, -1)} даёт
+$5,4,3$. Сумму обнуляют перед циклом по~$k$, произведение~--- перед циклом по~$n$, т.\,е. каждое
+накопление начинают заново на своём уровне вложения.
+
+\primn{8.3}
+\[
+y=\sum_{i=0}^{3}\ \prod_{j=5}^{2}\ \sum_{k=4}^{1}\frac{i+j\cdot k}{i\cdot j+k}.
+\]
+\begin{code}
+# Переменные:
+#     i, j, k - параметры циклов
+#     P - произведение
+#     S1, S2 - суммы
+S1 = 0
+for i in range(4):
+    P = 1
+    for j in range(5, 1, -1):
+        S2 = 0
+        for k in range(4, 0, -1):
+            S2 += (i + j * k) / (i * j + k)
+        P *= S2
+    S1 += P
+print('y =', S1)
+\end{code}
+\vspace{-4pt}
+{\small Скобки в дроби расставлены по формуле\ispr{В рукописи \texttt{S2 += (i + j*k / (i*j + k))}:
+по приоритету операций это $i+\frac{j\cdot k}{i\cdot j+k}$, а не дробь из условия.}.}
+
+\primn{8.4}
+\[
+y=a\prod_{i=1}^{10}\ \prod_{j=1}^{i}\frac{i}{j+|a|^{j}},\qquad a=a_0(h_a)a_n .
+\]
+\begin{code}
+# Переменные:
+#     a, a0, ha, an - параметры переменной a
+#     y - функция
+#     i, j - параметры циклов
+#     P1, P2 - произведения
+#     P - произведение для вычисления |a|**j
+
+# ввод a0, ha, an
+
+a = a0
+while a <= an + ha / 4:
+    P1 = 1
+    for i in range(1, 11):
+        P2 = 1
+        P = 1
+        for j in range(1, i + 1):
+            P = P * abs(a)
+            P2 = P2 * i / (j + P)
+        P1 = P1 * P2
+    y = a * P1
+    print(f'{a = } {y = }')
+    a += ha
+\end{code}
+\zam Степень $|a|^j$ здесь не вычисляется через \texttt{**}, а накапливается произведением:
+на каждом шаге внутреннего цикла \texttt{P} умножается на~$|a|$, поэтому при текущем~$j$
+\texttt{P}~$=|a|^j$. Для этого \texttt{P = 1} задают перед внутренним циклом.
+
+% =====================================================================
+\section{Списки (одномерные массивы)}
+% =====================================================================
+\begin{opr}
+\textbf{Определение.} \emph{Список} в Питоне~--- это индексированная (упорядоченная) динамическая
+коллекция, которая состоит из одинаковых или различных элементов.
+
+\emph{Динамическая}~--- это значит, что количество элементов может меняться во время выполнения
+программы.
+\end{opr}
+\imp \emph{Массив}, в отличие от списка в Питоне, состоит из элементов одного типа.
+
+\lead{Создание списка} (\texttt{list()}):
+\begin{code}
+# создание списка
+lst1 = [4, 5, 1]
+lst2 = [1, 'строка', 3.45]
+# создание пустого списка
+empt1 = []
+empt2 = list()
+\end{code}
+
+Список~--- \emph{индексированная и упорядоченная} коллекция: у каждого элемента списка есть
+порядковый номер (индекс), по которому можно обращаться к элементу. Нумерация с нуля;
+отрицательный индекс считает с конца.
+\begin{code}
+a = [1, 2, 3, 4]
+print(a[2])            # 3
+print(a[-1])           # 4
+print([4, 3, 6][2])    # 6
+print(a[99])           # Ошибка! (IndexError)
+\end{code}
+
+\lead{Изменение элемента:}
+\begin{code}
+a[0] = 99
+print(a)               # [99, 2, 3, 4]
+\end{code}
+
+\lead{Метод \texttt{append()}}~--- добавление в конец списка:
+\begin{code}
+a.append(13)
+print(a)               # [99, 2, 3, 4, 13]
+\end{code}
+
+\lead{Метод \texttt{extend()}}~--- расширение одного списка элементами другого:
+\begin{code}
+a1 = [1, 2, 3]
+a2 = [44, 55]
+a1.extend(a2)
+print(a1)              # [1, 2, 3, 44, 55]
+\end{code}
+
+\begin{code}
+a = 1
+b = 2
+c = [a, b]
+print(c)               # [1, 2]
+b = 4
+print(c)               # [1, 2]
+\end{code}
+\zam В список попадают \emph{значения} переменных на момент создания; изменение \texttt{b} потом
+на список не влияет.
+
+\lead{Длина списка:}
+\begin{code}
+a = [1, 2, 3]
+print(len(a))          # 3
+\end{code}
+
+\lead{Удаление элемента по индексу:}
+\begin{code}
+del a[1]
+print(a)               # [1, 3]
+\end{code}
+
+\lead{Соединение списков} (сцепление, сложение):
+\begin{code}
+a1 = [1, 2]
+a2 = [3, 4]
+print(a1 + a2)         # [1, 2, 3, 4]
+lst = [1, 2, 3, 4]
+lst += [99]
+print(lst)             # [1, 2, 3, 4, 99]
+\end{code}
+
+\lead{Повтор элементов списка:}
+\begin{code}
+a = ['k'] * 3
+print(a)               # ['k', 'k', 'k']
+\end{code}
+
+\lead{Принадлежность элемента списку} (\texttt{in}, \texttt{not in}):
+\begin{code}
+a = [1, 2, 44]
+if 44 in a:
+    print('содержится')
+if 55 not in a:
+    print('не содержится')
+\end{code}
+\vspace{-4pt}
+{\small Во втором условии стоит \texttt{not in}\ispr{В рукописи \texttt{if 55 in a: print('не')}. Числа 55 в
+списке нет, и сообщение не напечатается; судя по его тексту, имелось в виду \texttt{not in}.}.}
+
+\subsection{Перебор элементов списка}
+\lead{1 способ~--- через индексы:}
+\begin{code}
+for i in range(len(a)):
+    print(a[i], i)
+# 1 0
+# 2 1
+# 44 2
+\end{code}
+\lead{2 способ~--- через перебор элементов коллекции:}
+\begin{code}
+for el in a:
+    print(el)
+\end{code}
+
+\subsection{Ввод списка с клавиатуры}
+\lead{1 способ}~--- начинаем с пустого списка и добавляем элементы:
+\begin{code}
+a = []
+n = int(input('Вв. количество элементов: '))
+print(f'Вв. {n} эл-в')
+for i in range(n):
+    a.append(int(input(f'a[{i+1}] = ')))
+print(a)
+\end{code}
+\lead{2 способ}~--- сразу создаём список нужной длины и заполняем по индексам:
+\begin{code}
+n = int(input())
+print(n)
+a = [0] * n            # заполнение массива a нулями
+for i in range(n):
+    a[i] = int(input())
+print(a)
+\end{code}
+
+\subsection{Вывод элементов списка}
+\begin{minipage}[t]{0.48\textwidth}
+\begin{code}
+print('Массив:')
+for i in range(n):
+    print(a[i], end=' ')
+print()
+\end{code}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\begin{code}
+print('Массив:')
+for el in a:
+    print(el, end='\t')
+print()
+\end{code}
+\end{minipage}
+
+\texttt{end=' '}~--- после элемента печатается пробел, а не перевод строки; пустой \texttt{print()} в
+конце переводит строку.
+
+\subsection{Срезы списков}
+\begin{center}
+\texttt{<список>[<нач. инд.>:<инд. след. за кон.>:<шаг>]}
+\end{center}
+\begin{code}
+a = [1, 2, 3, 4, 5]
+print(a[0:len(a):2])   # [1, 3, 5]
+print(a[::2])          # [1, 3, 5]
+print(a[::-1])         # [5, 4, 3, 2, 1]
+\end{code}
+То же, что \texttt{a[::-1]}, циклом:
+\begin{code}
+b = []
+for i in range(len(a) - 1, -1, -1):
+    b.append(a[i])
+print(b)               # [5, 4, 3, 2, 1]
+\end{code}
+Срезу можно присвоить новые значения:
+\begin{code}
+month = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
+         'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
+spring = month[2:5]
+print(spring)          # ['март', 'апрель', 'май']
+month[5:8] = ('June', 'July', 'August')
+print(month[4:9])      # ['май', 'June', 'July', 'August', 'сентябрь']
+\end{code}
+\begin{code}
+print(month)           # изменённый массив
+a = [1, 2, 3, 4, 5, 6]
+del a[::2]
+print(a)               # [2, 4, 6]
+print(a[1:99])         # [4, 6]   (выход за границы в срезе - не ошибка)
+print(a[99:1000])      # []
+\end{code}
+
+\subsection{Генератор списков}
+\begin{code}
+a1 = [k for k in range(7)]
+print(a1)              # [0, 1, 2, 3, 4, 5, 6]
+a2 = [k ** 2 for k in range(5)]
+print(a2)              # [0, 1, 4, 9, 16]
+a3 = [k for k in range(7) if k % 3]
+print(a3)              # [1, 2, 4, 5]
+import random
+a4 = [random.random() for _ in range(5)]
+print(a4)              # 5 случайных чисел из [0; 1)
+\end{code}
+\zam В \texttt{a3} условие \texttt{k \% 3} истинно, когда остаток не равен нулю, т.\,е. берутся числа,
+не делящиеся на~3. Имя \texttt{\_} ставят вместо параметра цикла, если он в теле не нужен.
+
+\subsection{Функция \texttt{enumerate()}}
+\texttt{enumerate()} даёт сразу и номер, и значение элемента:
+\begin{code}
+a1 = [2, 456, 88, 7]
+for index, value in enumerate(a1, start=1):
+    print(index, value)
+# 1 2
+# 2 456
+# 3 88
+# 4 7
+\end{code}
+Без \texttt{start} (\texttt{for index, value in enumerate(a1):}) нумерация идёт с нуля.
+
+\subsection{Методы списков}
+\begin{center}
+\begin{tabular}{>{\ttfamily}l l}
+append(x)    & добавляет элемент в конец списка\\
+extend(lst)  & добавляет в конец все элементы другого списка\\
+insert(i, a) & вставляет на $i$-ю позицию элемент $a$\\
+remove(a)    & удаляет первое найденное значение элемента $a$; ошибка, если такого нет\\
+pop(i)       & удаляет $i$-й элемент и возвращает его; без индекса~--- последний\\
+index(a)     & возвращает индекс первого элемента, равного $a$\\
+count(a)     & возвращает количество элементов, равных $a$\\
+sort()       & сортирует список (меняет сам список)
+\end{tabular}
+\end{center}
+
+\begin{code}
+lst = [1, 2, 3, 4]
+lst.insert(2, 'a')
+print(lst)             # [1, 2, 'a', 3, 4]
+
+a = [1, 2, 3, 1]
+a.remove(1)
+print(a)               # [2, 3, 1]
+
+L = [1, 2, 3]
+el = L.pop(1)
+print(el, L)           # 2 [1, 3]
+
+L = [1, 2, 3, 1]
+i1 = L.index(1)
+print(i1)              # 0
+i2 = L.index(1, i1 + 1)    # искать, начиная с позиции i1 + 1
+print(i2)              # 3
+\end{code}
+
+\begin{code}
+L = [1, 2, 3, 4, 1, 6, 1]
+print(L.count(1))      # 3
+# то же «вручную» - сколько раз встречается 4:
+k = 0
+for el in L:
+    if el == 4:
+        k += 1
+print(k)               # 1
+\end{code}
+
+\begin{code}
+L = [1, 56, -8, 1000, 2]
+L.sort()
+print(L)               # [-8, 1, 2, 56, 1000]
+# функция sorted() не меняет исходный список
+L = [4, 7, 1]
+print(sorted(L, reverse=True))     # [7, 4, 1]
+print(L)                           # [4, 7, 1]
+L = [-10, 1, -5, 2, -3]
+print(sorted(L, key=abs))          # [1, 2, -3, -5, -10]
+\end{code}
+\texttt{reverse=True}~--- по убыванию; \ \texttt{key=abs}~--- сравнивать элементы по модулю.
+
+\begin{code}
+L = [1, 2, 3]
+L.reverse()            # reverse() - разворачивает список
+print(L)               # [3, 2, 1]
+print(L[::-1])         # [1, 2, 3]
+\end{code}
+
+\lead{Метод \texttt{copy()}}~--- поверхностная копия списка:
+\begin{code}
+L1 = [1, 2, 3]
+L2 = L1.copy()         # сравни: L2 = L1
+L1.reverse()
+print(L2, id(L1), id(L2))     # [1, 2, 3], id(L1) != id(L2)
+\end{code}
+\vspace{-4pt}
+{\small Разворачивается список \texttt{L1}\ispr{В рукописи \texttt{L1 = reverse()}~--- такой функции нет,
+нужен метод \texttt{L1.reverse()}.}.}
+
+При \texttt{L2 = L1} будет \texttt{id(L1) == id(L2)}. Поэтому при использовании \texttt{copy()} значение
+нового списка не будет изменяться при изменении исходного ($id_1\ne id_2$). Если списки присвоить
+через \texttt{=} (присваивание), то значение копии будет изменяться при изменении оригинала
+($id_1=id_2$): обе переменные указывают на один и тот же список. Копию можно сделать и срезом:
+\texttt{L3 = L1[:]}.
+
+\lead{Метод \texttt{clear()}}~--- очистка списка:
+\begin{code}
+print(id(L1))          # id1
+L1.clear()
+print(L1, id(L1))      # [] id2:  id1 == id2 - тот же список
+L1 = []
+print(L1, id(L1))      # [] id3:  id1 != id3 - новый список
+del L1[:]              # тоже очищает список на месте
+print(id(L1))
+\end{code}
+
+\primn{9.1} Нахождение среднего значения элементов одномерного массива.
+\begin{code}
+# Переменные:
+#     i - индекс элемента
+#     n - размер массива
+#     a - одномерный массив
+#     S - сумма
+#     Sr - среднее
+n = int(input('Введите размер мас.: '))
+
+a = []
+print(f'Введите {n} эл-в массива')
+for i in range(n):
+    print(f'a[{i+1}] = ', end='')
+    a.append(float(input()))
+# вывод массива
+print('массив:')
+for el in a:
+    print(el, end=' ')
+print()
+
+# определение суммы элементов массива
+S = 0
+for el in a:
+    S += el
+Sr = S / n
+print(f'Сумма элементов массива {S:.2f}')
+print(f'Среднее значение {Sr:.2f}')
+\end{code}
+
+\lead{Ввод элементов массива одной строкой} (через пробел):
+\begin{code}
+lst = list(map(float, input().split()))
+print(sum(lst) / len(lst))
+\end{code}
+\texttt{input().split()} разбивает строку на части по пробелам, \texttt{map(float, \dots)} переводит
+каждую часть в число, \texttt{list(\dots)} собирает результат в список.
+
+\begin{schema}
+Схема к примеру 9.1. Справа от цикла~--- его краткая запись одним блоком; так и рисуют, когда
+ввод или вывод массива ничем не примечателен.
+\begin{center}
+\begin{tikzpicture}[sa]
+\node[term] (b) {начало};
+\node[proc,below=of b] (p0) {$a$~--- пустой массив};
+\node[io,below=of p0] (in) {Ввод $n$};
+\node[prep,below=6mm of in] (h1) {$i=0(1)n-1$};
+\node[io,below=of h1] (o1) {Вывод $i+1$};
+\node[io,below=of o1] (i1) {Ввод и добавление\\$a_i$ в конец};
+\draw (b)--(p0)--(in)--(h1)--(o1)--(i1);
+\cycleold{h1}{i1}
+\node[prep,below=6mm of h1-out.center] (h2) {$el$ из $a$};
+\node[io,below=of h2] (o2) {Вывод $el$};
+\draw (h1-out.center)--(h2)--(o2);
+\cycleold{h2}{o2}
+\node[draw,circle,minimum size=7mm,inner sep=0pt,below=6mm of h2-out.center] (c1) {1};
+\draw[->] (h2-out.center)--(c1);
+% краткая запись
+\draw[decorate,decoration={brace,amplitude=6pt}] ([xshift=2.5cm]h1.north) -- ([xshift=2.5cm]h1-out.center);
+\node[io,minimum width=2.8cm,anchor=west] at ([xshift=2.9cm]$(h1.north)!0.5!(h1-out.center)$) {Ввод\\массива $a$};
+\draw[decorate,decoration={brace,amplitude=6pt}] ([xshift=2.5cm]h2.north) -- ([xshift=2.5cm]h2-out.center);
+\node[io,minimum width=2.8cm,anchor=west] at ([xshift=2.9cm]$(h2.north)!0.5!(h2-out.center)$) {Вывод\\массива $a$};
+% продолжение
+\begin{scope}[xshift=-6.2cm,yshift=-1.0cm]
+\node[draw,circle,minimum size=7mm,inner sep=0pt] (c2) {1};
+\node[proc,below=6mm of c2] (s0) {$S=0$};
+\node[prep,below=6mm of s0] (h3) {$el$ из $a$};
+\node[proc,below=of h3] (s1) {$S=S+el$};
+\draw[->] (c2)--(s0); \draw (s0)--(h3)--(s1);
+\cycleold{h3}{s1}
+\node[proc,below=6mm of h3-out.center] (sr) {$S_r=\dfrac{S}{n}$};
+\node[io,below=of sr] (out) {Вывод $S,\ S_r$};
+\node[term,below=of out] (e) {конец};
+\draw (h3-out.center)--(sr)--(out)--(e);
+\end{scope}
+\end{tikzpicture}
+\end{center}
+\end{schema}
+
+\primn{9.2} Сортировка массива по убыванию методом пузырька.
+\begin{code}
+# Переменные:
+#     a - одномерный массив (список)
+#     n - размер массива
+#     i, k - параметры циклов
+#     temp - вспомогательная переменная для обмена элементов
+import random
+
+# заполнение массива случайными числами
+n = int(input('Вв. кол-во эл-в массива: '))
+a = [0] * n
+for i in range(n):
+    a[i] = random.randint(-10, 10)
+
+# вывод массива
+for i in range(n):
+    print(a[i], end='\t')
+print()
+
+# сортировка пузырьком
+for i in range(n - 1):
+    for k in range(n - i - 1):
+        if a[k] < a[k + 1]:          # > - по возрастанию
+            temp = a[k]
+            a[k] = a[k + 1]
+            a[k + 1] = temp
+            # или: a[k], a[k + 1] = a[k + 1], a[k]
+print('Отсортированный массив:')
+print(*a, sep='\t')
+\end{code}
+\zam За один проход внутреннего цикла самый маленький из ещё не упорядоченных элементов
+<<всплывает>> в конец, поэтому каждый следующий проход на один элемент короче:
+$k=0(1)n-i-2$. Звёздочка в \texttt{print(*a, sep='\textbackslash t')} передаёт элементы списка в
+\texttt{print} по отдельности.
+
+\begin{center}
+\begin{tikzpicture}[sa]
+\node[term] (b) {начало};
+\node[io,below=of b] (in) {Ввод $n$};
+\node[proc,below=of in] (z) {Заполнение массива\\$a$ $n$ нулями};
+\node[prep,below=6mm of z] (h1) {$i=0(1)n-1$};
+\node[proc,below=of h1] (r) {$a_i$~--- случайное\\число от $-10$ до $10$};
+\draw (b)--(in)--(z)--(h1)--(r);
+\cycleold{h1}{r}
+\node[io,below=6mm of h1-out.center] (o1) {Вывод\\массива $a$};
+\draw (h1-out.center)--(o1);
+\node[draw,circle,minimum size=7mm,inner sep=0pt,below=6mm of o1] (c1) {1};
+\draw[->] (o1)--(c1);
+\draw[decorate,decoration={brace,amplitude=6pt}] ([xshift=2.5cm]h1.north) -- ([xshift=2.5cm]h1-out.center);
+\node[io,minimum width=2.8cm,anchor=west] at ([xshift=2.9cm]$(h1.north)!0.5!(h1-out.center)$) {Ввод\\массива $a$};
+\end{tikzpicture}
+\end{center}
+\begin{center}
+\begin{tikzpicture}[sa]
+\node[draw,circle,minimum size=7mm,inner sep=0pt] (c2) {1};
+\node[prep,below=6mm of c2] (hi) {$i=0(1)n-2$};
+\node[prep,below=6mm of hi] (hk) {$k=0(1)n-i-2$};
+\node[dec,below=6mm of hk] (d) {$a_k<a_{k+1}$};
+\node[proc,minimum width=2.6cm] (sw) at ([xshift=2.4cm,yshift=-1.5cm]d.center)
+  {$temp=a_k$\\$a_k=a_{k+1}$\\$a_{k+1}=temp$};
+\draw[->] (c2)--(hi); \draw (hi)--(hk)--(d);
+\draw[->] (d.east) -| node[yes,above,pos=0.25]{да} (sw.north);
+\coordinate (m) at ($(d.center |- sw.south)+(0,-0.35)$);
+\draw (d.west) -- node[yes,above]{нет} ++(-0.4,0) |- (m);
+\draw (sw.south) |- (m);
+\cycleold[2.5]{hk}{m}
+\cycleold[2.9]{hi}{hk-out}
+\node[io,below=6mm of hi-out.center] (o2) {Вывод\\массива $a$};
+\node[term,below=of o2] (e) {конец};
+\draw (hi-out.center)--(o2)--(e);
+\end{tikzpicture}
+\end{center}
+
+\primn{9.3} Поиск максимума и минимума в массиве.
+\begin{code}
+# Переменные:
+#     a - массив
+#     n - размер массива
+#     el - элемент массива
+#     i - индекс элемента массива
+#     amax - макс. элемент
+#     amin - мин. элемент
+#     imin - его индекс
+a = list(map(int, input('Введите элементы мас.: ').split()))
+print(*a)
+
+amax = -float('inf')
+for el in a:
+    if el > amax:
+        amax = el
+print('Макс. элемент', amax)
+
+# поиск минимума и его индекса
+amin = a[0]
+imin = 0
+n = len(a)
+for i in range(1, n):
+    if a[i] < amin:
+        amin = a[i]
+        imin = i
+print(f'min элемент {amin}, его номер {imin + 1}')
+\end{code}
+\zam Максимум можно начинать с $-\infty$ (\texttt{-float('inf')}): любой элемент больше, и первое же
+сравнение заменит его. Минимум здесь начинают с первого элемента, тогда цикл идёт с $i=1$.
+Номер для человека~--- \texttt{imin + 1}, т.\,к. индексы считаются с нуля.
+
+% =====================================================================
+\section{Матрицы (двумерные массивы)}
+% =====================================================================
+\begin{hwbox}
+В рукописи матрицы записаны после кортежей (тема~11), здесь они стоят по номеру темы. У заголовка
+пометка <<без п/п>>: примеры этой темы написаны без подпрограмм.
+\end{hwbox}
+
+\begin{opr}
+\textbf{Определение.} Если число индексов в описании массива равно~2, то массив называется
+\emph{двумерным массивом} или \emph{матрицей}.
+\end{opr}
+Матрицу в Питоне можно представить в виде вложенного списка, при этом для обращения к элементу
+нужно указывать 2~индекса, каждый в своих скобках \texttt{[ ]}.
+
+\begin{center}
+\begin{tikzpicture}[line width=0.6pt,>={Stealth[length=2mm]}]
+\node (A) at (0,0) {$A=\begin{pmatrix}11&12&13&14\\21&22&23&24\\31&32&33&34\end{pmatrix}$};
+\draw[->] (2.35,0.75) -- node[right,align=left,font=\small]{строки~--- индекс $i$:\\
+$i=0,1,\dots,n-1$} (2.35,-0.75);
+\draw[->] (-0.45,-1.0) -- node[below,font=\small]{столбцы~--- индекс $j$: \ $j=0,1,\dots,m-1$} (2.0,-1.0);
+\end{tikzpicture}
+\end{center}
+$A_{n\times m}$: \ $n$~--- число строк, \ $m$~--- число столбцов.
+
+\begin{code}
+A = [[11, 12, 13, 14],
+     [21, 22, 23, 24],
+     [31, 32, 33, 34]]
+# A[i][j] - элемент из i-й строки и j-го столбца
+print(A[1][2])         # 23
+\end{code}
+
+\subsection{Создание и ввод матрицы}
+Создание матрицы $A_{n\times m}$ через генератор и заполнение её нулями:
+\begin{code}
+A = [[0] * m for _ in range(n)]
+\end{code}
+\imp Не пиши \texttt{A = [[0] * m] * n}: так получится $n$ ссылок на \emph{одну и ту же} строку, и
+присваивание \texttt{A[0][0] = 5} изменит первый элемент во всех строках.
+
+\lead{Ввод элементов матрицы:}
+\begin{code}
+n = int(input('Вв. количество строк: '))
+m = int(input('Вв. количество столбцов: '))
+A = [[0] * m for _ in range(n)]
+print(f'Введите {n * m} элементов матрицы')
+for i in range(n):
+    for j in range(m):
+        A[i][j] = float(input())
+print(A)
+\end{code}
+
+\lead{Ввод по строкам:} каждая строка матрицы вводится одной строкой через пробел
+\begin{code}
+B = []
+for i in range(n):
+    row = [int(el) for el in input().split()]
+    B.append(row)
+print(B)
+\end{code}
+или по одному элементу:
+\begin{code}
+B = []
+for i in range(n):
+    row = []
+    for j in range(m):
+        row.append(int(input()))
+    B.append(row)
+print(B)
+\end{code}
+
+\subsection{Вывод матрицы}
+\begin{minipage}[t]{0.48\textwidth}
+\begin{code}
+for i in range(n):
+    for j in range(m):
+        print(A[i][j], end='\t')
+    print()
+\end{code}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\begin{code}
+for row in A:
+    for el in row:
+        print(el, end='\t')
+    print()
+\end{code}
+\end{minipage}
+
+\subsection{Пример}
+\primn{10.1} Найти в матрице максимальный элемент, минимальный элемент и его индексы. Заменить
+минимальный элемент максимальным.
+\begin{code}
+# Переменные:
+#     a - матрица
+#     i, j - параметры циклов
+#     n, m - число строк и столбцов матрицы
+#     amin - мин. элемент
+#     imin, jmin - его индексы
+#     amax - макс. элемент
+
+# ввод матрицы (см. п. 10.1)
+# вывод матрицы (см. п. 10.2)
+
+# поиск минимума и максимума
+amin = a[0][0]
+imin = 0
+jmin = 0
+amax = -float('inf')
+for i in range(n):
+    for j in range(m):
+        if a[i][j] > amax:
+            amax = a[i][j]
+        if a[i][j] < amin:
+            amin = a[i][j]
+            imin = i
+            jmin = j
+print(f'Макс. элемент {amax}')
+print(f'Мин. элемент {amin}, его индексы [{imin}][{jmin}]')
+
+# замена минимума на максимум
+a[imin][jmin] = amax
+
+# вывод матрицы
+print('Матрица после замены:')
+for row in a:
+    for el in row:
+        print(el, end='\t')
+    print()
+\end{code}
+
+\begin{schema}
+На схеме двойной цикл ввода (вывода) матрицы можно заменить одним блоком:
+\begin{center}
+\begin{tikzpicture}[sa]
+\node[prep] (hi) at (0,0) {$i=0(1)n-1$};
+\node[prep,below=6mm of hi] (hj) {$j=0(1)m-1$};
+\node[io,below=of hj] (in) {Ввод $a_{ij}$};
+\draw (0,0.9)--(hi); \draw (hi)--(hj)--(in);
+\cycleold{hj}{in}
+\cycleold[0.9]{hi}{hj-out}
+\draw (hi-out.center) -- ++(0,-0.4);
+\draw[decorate,decoration={brace,amplitude=6pt}] (2.6,0.5) -- (2.6,-4.6);
+\node[io,minimum width=2.4cm] at (4.25,-2.05) {Ввод\\матрицы $a$};
+\begin{scope}[xshift=8.9cm]
+\node[prep] (oi) at (0,0) {$i=0(1)n-1$};
+\node[prep,below=6mm of oi] (oj) {$j=0(1)m-1$};
+\node[io,below=of oj] (out) {Вывод $a_{ij}$};
+\draw (0,0.9)--(oi); \draw (oi)--(oj)--(out);
+\cycleold{oj}{out}
+\cycleold[0.9]{oi}{oj-out}
+\draw (oi-out.center) -- ++(0,-0.4);
+\draw[decorate,decoration={brace,amplitude=6pt}] (2.6,0.5) -- (2.6,-4.6);
+\node[io,minimum width=2.4cm] at (4.25,-2.05) {Вывод\\матрицы $a$};
+\end{scope}
+\end{tikzpicture}
+\end{center}
+\end{schema}
+
+\begin{center}
+Схема к примеру 10.1\dop{В рукописи схема не закончена: после блока начальных значений стоят пустые
+блоки циклов и решения. Здесь она достроена по программе.}\\*[4pt]
+\begin{tikzpicture}[sa,bx/.style={proc,minimum width=2.6cm}]
+% левый столбец
+\node[term] (b) at (0,0) {начало};
+\node[io,below=of b] (in) {Ввод $n,\ m$};
+\node[proc,below=of in] (z) {Заполнение матрицы\\$a_{n\times m}$ нулями};
+\node[io,below=of z] (ia) {Ввод\\матрицы $a$};
+\node[io,below=of ia] (oa) {Вывод\\матрицы $a$};
+\node[proc,below=of oa] (st) {$a_{\min}=a_{00}$\\$i_{\min}=0$, \ $j_{\min}=0$\\$a_{\max}=-\infty$};
+\node[draw,circle,minimum size=7mm,inner sep=0pt,below=6mm of st] (c1) {1};
+\draw (b)--(in)--(z)--(ia)--(oa)--(st); \draw[->] (st)--(c1);
+% правый столбец
+\begin{scope}[xshift=7.2cm]
+\node[draw,circle,minimum size=7mm,inner sep=0pt] (c2) at (0,0) {1};
+\node[prep,below=6mm of c2] (hi) {$i=0(1)n-1$};
+\node[prep,below=6mm of hi] (hj) {$j=0(1)m-1$};
+\node[dec,below=6mm of hj] (d1) {$a_{ij}>a_{\max}$};
+\node[bx] (s1) at ([xshift=2.6cm,yshift=-1.3cm]d1.center) {$a_{\max}=a_{ij}$};
+\coordinate (m1) at ($(d1.center |- s1.south)+(0,-0.35)$);
+\draw[->] (d1.east) -| node[yes,above,pos=0.25]{да} (s1.north);
+\draw (d1.west) -- node[yes,above]{нет} ++(-0.4,0) |- (m1);
+\draw (s1.south) |- (m1);
+\node[dec,below=5mm of m1] (d2) {$a_{ij}<a_{\min}$};
+\node[bx] (s2) at ([xshift=2.6cm,yshift=-1.55cm]d2.center) {$a_{\min}=a_{ij}$\\$i_{\min}=i$\\$j_{\min}=j$};
+\coordinate (m2) at ($(d2.center |- s2.south)+(0,-0.35)$);
+\draw[->] (d2.east) -| node[yes,above,pos=0.25]{да} (s2.north);
+\draw (d2.west) -- node[yes,above]{нет} ++(-0.4,0) |- (m2);
+\draw (s2.south) |- (m2);
+\draw (m1)--(d2);
+\draw[->] (c2)--(hi); \draw (hi)--(hj)--(d1);
+\cycleold[2.75]{hj}{m2}
+\cycleold[3.15]{hi}{hj-out}
+\node[io,below=6mm of hi-out] (o1) {Вывод $a_{\max}$,\\$a_{\min},\ i_{\min},\ j_{\min}$};
+\node[proc,below=of o1] (r) {$a_{i_{\min}j_{\min}}=a_{\max}$};
+\node[io,below=of r] (o2) {Вывод\\матрицы $a$};
+\node[term,below=of o2] (e) {конец};
+\draw (hi-out.center)--(o1)--(r)--(o2)--(e);
+\end{scope}
+\end{tikzpicture}
+\end{center}
+
+% =====================================================================
+\section{Кортежи}
+% =====================================================================
+\begin{opr}
+\textbf{Определение.} \emph{Кортеж}~--- это упорядоченная неизменяемая коллекция, используемая для
+хранения набора элементов. \emph{Упорядоченная} означает, что у каждого элемента есть свой
+порядковый номер (индекс).
+\end{opr}
+Отличие кортежа от списка состоит в том, что кортежи нельзя изменять.
+
+Ключевое слово, отвечающее за данную коллекцию,~--- \texttt{tuple}. Элементы кортежа заключаются в
+круглые скобки, типы данных могут быть любыми.
+\begin{code}
+card = ('7', 'пики')
+empty1 = ()            # пустой кортеж
+empty2 = tuple()
+\end{code}
+
+\imp Для создания кортежа из одного элемента необходимо поставить после этого элемента запятую:
+\begin{code}
+t1 = (18,)
+t2 = ('one',)
+\end{code}
+
+Если не возникает неоднозначности, элементы кортежа можно перечислить без скобок:
+\begin{code}
+k1 = (13, 22, 444, -5)
+k2 = 13, 22, 444, -5
+print(k1 == k2)        # True
+\end{code}
+\zam В рукописи записано \texttt{id(k1) = id(k2)}. В программе так и выходит: Питон хранит два
+одинаковых кортежа-константы как один объект. Но это особенность интерпретатора, а не правило,
+поэтому кортежи сравнивают через~\texttt{==}.
+
+\begin{code}
+print(card[0], len(card), card + t1)
+# 7 2 ('7', 'пики', 18)
+\end{code}
+Для кортежей тоже есть операция среза, она возвращает новый кортеж.
+
+К кортежам применимы операции сравнения, сравнение производится поэлементно:
+\begin{code}
+(1, 2) == (1, 3)                  # False
+(1, 2) < (1, 3)                   # True
+(1, 2) < (5,)                     # True
+('7', 'червей') < ('7', 'треф')   # False
+(1, 2) < ('7', 'пик')             # ошибка: число нельзя сравнить со строкой
+\end{code}
+Для обработки кортежей можно использовать функции и методы списков, кроме тех, которые изменяют
+элементы.
+
+\subsection{Присваивание кортежей}
+Кортежи можно присваивать друг другу:
+\begin{code}
+n, s = 10, 'hello'
+a, b = b, a            # обмен значений
+\end{code}
+
+\subsection{Для чего нужны кортежи}
+\begin{enumerate}[label=\arabic*)]
+\item Набор данных (список), который нужно защитить от изменений.
+\item Обмен значений переменных местами.
+\item Если в цикле есть набор переменных, которые изменяются одновременно.
+\item Кортежи занимают меньше места в памяти.
+\item Кортежи работают быстрее.
+\item В функции~--- чтобы вернуть несколько значений:
+\begin{code}
+def f(a, b):
+    return a + b, a - b
+
+y1, y2 = f(5, 2)
+k = f(5, 2)
+print(k[0], k[1])      # 7 3
+\end{code}
+\item Для передачи переменного числа аргументов в п/п можно использовать кортеж:
+\begin{code}
+def proc(*args):
+    print(type(args))  # класс tuple
+    for value in args:
+        print(value)
+
+proc(1, 2, 3)
+\end{code}
+\item Кортеж может быть использован в словаре в качестве составного ключа, например координат
+или ФИО.
+\item Кортеж может быть параметром цикла \texttt{for}:
+\begin{code}
+lst = [11, 2, 43, 4]
+for i, el in enumerate(lst, start=1):
+    print(i, el)
+\end{code}
+или пример для пункта~8\dop{Словарь \texttt{locations} добавлен, чтобы пример можно было
+запустить.}:
+\begin{code}
+locations = {(55.76, 37.62): 'Москва', (54.63, 39.74): 'Рязань'}
+for coord, city in locations.items():
+    print(f'{city} на координатах {coord}')
+\end{code}
+\item В некоторых библиотеках параметры п/п тоже могут быть кортежами:
+\begin{code}
+import turtle
+turtle.write('Привет!', font=('Arial', 16, 'bold'))
+\end{code}
+\item Для ввода нескольких переменных одной строкой:
+\begin{code}
+a, b = map(int, input().split())
+\end{code}
+\end{enumerate}
+
+\subsection{Ввод кортежа с клавиатуры}
+\begin{code}
+n = int(input('Введите число элементов кортежа: '))
+k = tuple(int(input(f'Введите число {i + 1}: ')) for i in range(n))
+print(k)
+\end{code}
 
 \end{document}
