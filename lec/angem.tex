@@ -64,6 +64,7 @@
 \newcommand{\Imz}{\operatorname{Im}}
 \newcommand{\rang}{\operatorname{rang}}
 \newcommand{\diag}{\operatorname{diag}}
+\newcommand{\pr}{\operatorname{\text{пр}}}
 \newcommand{\gauss}[2][]{\;\xrightarrow[\scriptstyle #1]{\scriptstyle #2}\;}
 
 
@@ -1592,5 +1593,933 @@ $(\alpha_1,\alpha_2,\alpha_3)$~--- это \emph{координаты} $\vec a$ �
 \begin{teor}{1}
 Любой вектор в данном базисе имеет единственный набор координат.
 \end{teor}
+
+\textbf{Схема доказательства.} Пусть $\vec e_1,\vec e_2,\vec e_3$~--- это базис (если на плоскости, то без
+$\vec e_3$). Для любого выбранного $\vec a$ начала всех этих НО поместим в одну точку $A$, конец $\vec a$
+обозначим $C_1$ и построим параллелепипед $ABCDA_1B_1C_1D_1$, образованный рёбрами, параллельными
+базисным векторам.
+
+\begin{minipage}[c]{0.5\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth,scale=0.95]
+ \coordinate (A) at (0,0); \coordinate (D) at (2.6,0); \coordinate (B) at (-0.9,1.0);
+ \coordinate (A1) at (0.7,1.4);
+ \coordinate (C) at ($(B)+(D)-(A)$);
+ \coordinate (B1) at ($(B)+(A1)-(A)$); \coordinate (D1) at ($(D)+(A1)-(A)$);
+ \coordinate (C1) at ($(C)+(A1)-(A)$);
+ \draw[dashed,gray] (B)--(C)--(D) (A1)--(B1)--(C1)--(D1)--cycle (B)--(B1) (C)--(C1) (D)--(D1) (A)--(B) (A)--(D) (A)--(A1);
+ \draw[->,very thick] (A)--(0.9,0) node[below] {\small$\vec e_1$};
+ \draw[->,very thick] (A)--(-0.4,0.45) node[left] {\small$\vec e_2$};
+ \draw[->,very thick] (A)--(0.3,0.6) node[right=-1pt] {\small$\vec e_3$};
+ \draw[->,thick,blue] (A)--(C1) node[pos=0.6,above left=-1pt] {$\vec a$};
+ \node[below left] at (A) {$A$}; \node[below] at (D) {$D$}; \node[left] at (B) {$B$};
+ \node[right] at (A1) {$A_1$}; \node[left] at (B1) {$B_1$}; \node[right] at (D1) {$D_1$};
+ \node[right] at (C) {$C$}; \node[above right] at (C1) {$C_1$};
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.48\linewidth}
+\[
+\vec a=\overrightarrow{AC_1}=\underbrace{\overrightarrow{AC}}_{\overrightarrow{AD}+\overrightarrow{AB}\ (\text{по }\square)}
++\underbrace{\overrightarrow{CC_1}}_{=\overrightarrow{AA_1}}
+\]
+(сложение по правилу треугольника), т.\,е.
+\[
+\vec a=\underbrace{\overrightarrow{AD}}_{\parallel\vec e_1}+\underbrace{\overrightarrow{AB}}_{\parallel\vec e_2}
++\underbrace{\overrightarrow{AA_1}}_{\parallel\vec e_3}.
+\]
+\end{minipage}
+
+Для $\parallel$ векторов учтём правило умножения на число\ispr{В рукописи во второй строке выкладки
+записано $\overrightarrow{AD}+\overrightarrow{AD}+\overrightarrow{AA_1}$; второе слагаемое~--- $\overrightarrow{AB}$.}:
+\[
+\overrightarrow{AD}=\alpha_1\vec e_1,\qquad \overrightarrow{AB}=\alpha_2\vec e_2,\qquad \overrightarrow{AA_1}=\alpha_3\vec e_3,
+\]
+например, $\alpha_3=\dfrac{|AA_1|}{|\vec e_3|}$, если $\overrightarrow{AA_1}\upuparrows\vec e_3$, или
+$\alpha_3=-\dfrac{|AA_1|}{|\vec e_3|}$, если $\overrightarrow{AA_1}\uparrow\downarrow\vec e_3$. Таким образом\ispr{В рукописи последнее слагаемое записано как $\alpha_1\vec e_3$; должно быть $\alpha_3\vec e_3$.},
+\[
+\vec a=\alpha_1\vec e_1+\alpha_2\vec e_2+\alpha_3\vec e_3
+\]
+~---
+координаты определились однозначно. Если рассуждать на плоскости, то $\vec e_3$ исключаем
+$\Rightarrow$ получим на рисунке параллелограмм $ABCD$.\qedr
+
+\textbf{Следствие 1.} На плоскости любые 3 вектора ЛЗ, в пространстве любые 4 вектора ЛЗ.
+
+Действительно, если в пространстве выбраны $\vec a,\vec b,\vec c,\vec d$, то:
+\begin{enumerate}[label=\arabic*)]
+\item среди них найдутся ЛЗ\ispr{В рукописи~--- <<найдутся 2 ЛЗ>>. Чтобы разобрать все случаи, в п.\,1
+нужно считать, что ЛЗ какие-то 3 вектора из четырёх (иначе есть 3 ЛНЗ~--- это п.\,2). Рассуждение то же:
+дописываем остальные векторы с нулевыми коэффициентами.}, например $\alpha_1\vec a+\alpha_2\vec b=\vec0$
+$\Rightarrow$ и все 4 ЛЗ:
+\[
+\alpha_1\vec a+\alpha_2\vec b+0\cdot\vec c+0\cdot\vec d=\vec0
+\]
+~--- ЛК с ненулевыми коэффициентами $\Rightarrow$ $\vec a,\vec b,\vec c,\vec d$ линейно зависимы;
+\item в наборе существуют 3 ЛНЗ вектора, например $\vec a,\vec b,\vec c$ $\Rightarrow$ по теореме~1, взяв
+$\vec a,\vec b,\vec c$ как базис, разложим
+\[
+\vec d=\alpha_1\vec a+\alpha_2\vec b+\alpha_3\vec c\iff
+\alpha_1\vec a+\alpha_2\vec b+\alpha_3\vec c+\underbrace{(-1)}_{\ne0}\vec d=\vec0
+\]
+~--- нулевая ЛК с ненулевым коэффициентом $\Rightarrow$ $\vec a,\vec b,\vec c,\vec d$ ЛЗ.
+\end{enumerate}
+
+\zam Отсюда ясно, что базис в пространстве (на плоскости) содержит не более 3 (2) векторов.
+
+\subsection{Линейные операции над векторами в координатах}
+Покажем, что знание координат позволяет удобно оперировать с векторами. Допустим, выбран базис
+$\vec e_1,\vec e_2,\vec e_3$~--- 3 некомпланарных вектора $\iff$ 3 ЛНЗ вектора.
+
+\begin{enumerate}[label=\cn{\arabic*}]
+\item Допустим, получено разложение
+\[
+\vec a=\alpha_1\vec e_1+\alpha_2\vec e_2+\alpha_3\vec e_3\iff\vec a=(\alpha_1,\alpha_2,\alpha_3)
+\]
+~--- \emph{координатная форма} вектора.
+
+$\Rightarrow$ \lead{Вычислим произведение вектора на число:}
+\[
+k\cdot\vec a=k(\alpha_1\vec e_1+\alpha_2\vec e_2+\alpha_3\vec e_3)
+\overset{\text{дистрибутивность}}{=}(k\alpha_1)\vec e_1+(k\alpha_2)\vec e_2+(k\alpha_3)\vec e_3=(k\alpha_1,k\alpha_2,k\alpha_3).
+\]
+\textbf{Вывод:} при умножении вектора на число каждая координата вектора умножается на это число.
+
+\item \lead{Сложение векторов.} Пусть $\vec b=\beta_1\vec e_1+\beta_2\vec e_2+\beta_3\vec e_3=(\beta_1,\beta_2,\beta_3)$. Тогда
+\begin{multline*}
+\vec a+\vec b=(\alpha_1\vec e_1+\alpha_2\vec e_2+\alpha_3\vec e_3)+(\beta_1\vec e_1+\beta_2\vec e_2+\beta_3\vec e_3)={}\\
+=(\alpha_1+\beta_1)\vec e_1+(\alpha_2+\beta_2)\vec e_2+(\alpha_3+\beta_3)\vec e_3=(\alpha_1+\beta_1,\ \alpha_2+\beta_2,\ \alpha_3+\beta_3)
+\end{multline*}
+(использовали коммутативность сложения и дистрибутивность).
+
+\textbf{Вывод:} при сложении векторов складываются их соответствующие координаты.
+\end{enumerate}
+
+\lead{Проверка базисности векторов.}
+\begin{enumerate}[label=\arabic*)]
+\item Допустим, каким-то образом нам известны координаты двух векторов на плоскости (см. далее
+систему координат): $\vec a=(a_1,a_2)$, $\vec b=(b_1,b_2)$. Тогда
+\begin{multline*}
+\vec a,\vec b\text{~--- базис}\iff\vec a\nparallel\vec b\iff\nexists k:\ \vec b=k\vec a\iff\vec a,\vec b\text{~--- ЛНЗ}\iff{}\\
+\iff\begin{pmatrix}a_1\\a_2\end{pmatrix},\begin{pmatrix}b_1\\b_2\end{pmatrix}\text{~--- ЛНЗ}\iff
+\det\begin{pmatrix}a_1&b_1\\a_2&b_2\end{pmatrix}\ne0
+\end{multline*}
+(в противном случае с помощью элементарных операций получили бы $\det$ с нулевой строкой).
+\[
+\det\begin{pmatrix}a_1&b_1\\a_2&b_2\end{pmatrix}=a_1b_2-a_2b_1\ne0\iff\frac{a_1}{b_1}\ne\frac{a_2}{b_2},
+\]
+т.\,е. если координаты базисных векторов не пропорциональны.
+\item В пространстве выберем $\vec a=(a_1,a_2,a_3)$, $\vec b=(b_1,b_2,b_3)$, $\vec c=(c_1,c_2,c_3)$ $\Rightarrow$
+\begin{multline*}
+\vec a,\vec b,\vec c\text{~--- базис}\iff\text{некомпланарны (ни один из них не является ЛК других)}\iff{}\\
+\iff\begin{pmatrix}a_1\\a_2\\a_3\end{pmatrix},\begin{pmatrix}b_1\\b_2\\b_3\end{pmatrix},\begin{pmatrix}c_1\\c_2\\c_3\end{pmatrix}\text{~--- ЛНЗ}
+\iff\det\ne0.
+\end{multline*}
+\end{enumerate}
+\textbf{Итак,} для проверки базисности из координат векторов составляем матрицу (по строкам или
+по столбцам) и сравниваем её $\det$ с~0.
+
+\subsection{Декартова система координат}
+\begin{enumerate}[label=\arabic*)]
+\item Выберем ортонормированный базис (т.\,е. векторы длины 1 и попарно $\perp$):
+\[
+\vec i=(1,0,0),\quad \vec j=(0,1,0),\quad \vec k=(0,0,1)\quad\text{(координаты получаем по определению)};
+\]
+$|\vec i|=|\vec j|=|\vec k|=1$, \ $\vec i\perp\vec j$, \ $\vec j\perp\vec k$, \ $\vec i\perp\vec k$.
+\item Выберем любую точку $O$~--- \emph{начало координат}, присвоим ей координаты $(0,0,0)$.
+\item Выберем \emph{оси координат}: $Ox\upuparrows\vec i$, \ $Oy\upuparrows\vec j$, \ $Oz\upuparrows\vec k$.
+\item Для произвольной точки $M$, чтобы найти её координаты, строим её ортогональные проекции на оси.
+\end{enumerate}
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+ \draw[->] (-0.5,0)--(5,0) node[below] {$x$};
+ \draw[->,very thick] (0.6,0)--(1.4,0) node[below] {$\vec i$};
+ \fill (0.6,0) circle (1.4pt) node[below] {$O$};
+ \fill (3.2,1.5) circle (1.5pt) node[above] {$M$};
+ \draw[dashed] (3.2,1.5)--(3.2,0);
+ \draw (3.2,0.2)--(3.4,0.2)--(3.4,0);
+ \fill (3.2,0) circle (1.4pt) node[below] {$M_x$};
+\end{tikzpicture}
+\end{center}
+Аналогично для других осей получим $M(M_x,M_y,M_z)$.
+
+При этом получаем, что $\overrightarrow{OM_x}$~--- это \emph{векторная проекция} радиус-вектора
+$\overrightarrow{OM}$ на направление вектора $\vec i$. \emph{Алгебраическая проекция}~--- это
+$|\overrightarrow{OM_x}|$, если $\overrightarrow{OM_x}\upuparrows\vec i$, или $-|\overrightarrow{OM_x}|$,
+если $\overrightarrow{OM_x}\uparrow\downarrow\vec i$; аналогично для других осей.
+
+\begin{minipage}[c]{0.52\linewidth}
+При этом радиус-вектор
+\[
+\overrightarrow{OM}=\underbrace{\overrightarrow{OM_x}}_{M_x\vec i}+\underbrace{\overrightarrow{OM_y}}_{M_y\vec j}
++\underbrace{\overrightarrow{OM_z}}_{M_z\vec k}=(M_x,M_y,M_z),
+\]
+т.\,е. \imp координаты точки совпадают с координатами её радиус-вектора.
+\end{minipage}\hfill
+\begin{minipage}[c]{0.44\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth,scale=0.95]
+ \coordinate (O) at (0,0);
+ \coordinate (X) at (-1.1,-1.3); \coordinate (Y) at (2.4,0); \coordinate (Z) at (0,1.9);
+ \coordinate (P) at ($(X)+(Y)$); \coordinate (M) at ($(P)+(Z)$);
+ \draw[->] (O)--(-1.7,-2.0) node[below left] {$x$};
+ \draw[->] (O)--(3.3,0) node[right] {$y$};
+ \draw[->] (O)--(0,2.6) node[left] {$z$};
+ \draw[dashed,gray] (X)--(P)--(Y) (P)--(M) (Z)--(M);
+ \draw[->,thick] (O)--(X) node[left] {\small$M_x$};
+ \draw[->,thick] (O)--(Y) node[above right=-2pt] {\small$M_y$};
+ \draw[->,thick] (O)--(Z) node[left] {\small$M_z$};
+ \draw[->,dashed,teal] (O)--(P) node[pos=0.6,below right=-2pt] {\scriptsize$\overrightarrow{OM_x}+\overrightarrow{OM_y}$};
+ \draw[->,very thick,blue] (O)--(M) node[pos=0.55,above left=-2pt] {\small$\overrightarrow{OM}$};
+ \fill (M) circle (1.5pt) node[above right] {$M$};
+ \node[below left] at (O) {\small$O$};
+\end{tikzpicture}
+\end{minipage}
+
+\lead{Установим формулы для координат НО и для длины НО.} Пусть $A(a_1,a_2,a_3)$, $B(b_1,b_2,b_3)$.
+
+\begin{minipage}[c]{0.4\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth,scale=0.9]
+ \draw[->] (0,0)--(-1.0,-1.1) node[below left] {$x$};
+ \draw[->] (0,0)--(3,0) node[right] {$y$};
+ \draw[->] (0,0)--(0,1.8) node[left] {$z$};
+ \coordinate (A) at (0.9,1.6); \coordinate (B) at (2.0,0.6);
+ \draw[->,thick] (0,0)--(A); \draw[->,thick] (0,0)--(B);
+ \draw[->,thick,blue] (A)--(B);
+ \node[above] at (A) {$A$}; \node[right] at (B) {$B$}; \node[below right] at (0,0) {$O$};
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.58\linewidth}
+\[
+\underbrace{\overrightarrow{OB}}_{(b_1,b_2,b_3)}=\underbrace{\overrightarrow{OA}}_{(a_1,a_2,a_3)}+\overrightarrow{AB}\ \Rightarrow
+\]
+\[
+\boxed{\ \overrightarrow{AB}=(b_1-a_1,\ b_2-a_2,\ b_3-a_3)\ }
+\]
+~--- из координат конца вычитаем соответствующие координаты начала.
+\end{minipage}
+
+Построим прямоугольный параллелепипед $V$ с диагональю $AB$ и применим обобщённую теорему Пифагора:
+квадрат диагонали равен сумме квадратов рёбер прямоугольного параллелепипеда, проходящих через одну вершину.
+\begin{center}
+\begin{tikzpicture}[>=Stealth,scale=0.9]
+ \coordinate (A) at (0,0); \coordinate (P) at (2.6,0); \coordinate (Q) at (-1.0,-0.9);
+ \coordinate (H) at (0,1.8);
+ \coordinate (B) at ($(P)+(Q)+(H)-2*(A)$);
+ \draw[gray] (A)--(P)--($(P)+(H)$)--(H)--cycle;
+ \draw[gray] (Q)--($(Q)+(P)$)--($(Q)+(P)+(H)$)--($(Q)+(H)$)--cycle;
+ \draw[gray] (P)--($(P)+(Q)$) (H)--($(H)+(Q)$) ($(P)+(H)$)--(B);
+ \draw[gray,dashed] (A)--(Q);
+ \draw[->,thick,blue] (Q)--($(P)+(H)$) node[pos=0.55,above left=-2pt] {\small$\overrightarrow{AB}$};
+ \node[below left] at (Q) {$A$}; \node[above right] at ($(P)+(H)$) {$B$};
+ \draw[decorate,decoration={brace,amplitude=4pt,mirror}] ($(Q)+(0,-0.1)$)--($(Q)+(P)+(0,-0.1)$) node[midway,below=4pt] {\small$b_1-a_1$};
+ \draw[decorate,decoration={brace,amplitude=4pt}] ($(Q)+(-0.1,0)$)--($(Q)+(H)+(-0.1,0)$) node[midway,left=4pt] {\small$b_3-a_3$};
+ \draw[decorate,decoration={brace,amplitude=4pt,mirror}] ($(Q)+(P)+(0.1,0)$)--($(P)+(0.1,0)$) node[midway,below right=1pt] {\small$b_2-a_2$};
+\end{tikzpicture}
+\end{center}
+Заметим, что $b_1-a_1$~--- это алгебраическая проекция $\overrightarrow{AB}$ на ось, т.\,е. возможно
+$b_1-a_1<0$, но в квадрате это не важно:
+\[
+|\overrightarrow{AB}|^2=(b_1-a_1)^2+(b_2-a_2)^2+(b_3-a_3)^2,
+\]
+\[
+\boxed{\ |\overrightarrow{AB}|=\sqrt{(b_1-a_1)^2+(b_2-a_2)^2+(b_3-a_3)^2}\ }
+\]
+~--- под корнем сумма квадратов координат вектора.
+
+\subsection{Базовые задачи. Деление отрезка в данном отношении}
+\textbf{Дано:} $A(a_1,a_2,a_3)$, $B(b_1,b_2,b_3)$. \ \textbf{Найти} $C$: $\dfrac{AC}{CB}=\dfrac ab$ ($\dfrac ab$~--- дано).
+
+\textbf{Решение.}
+
+\begin{minipage}[c]{0.46\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth,scale=0.95]
+ \draw[->] (-0.3,0)--(5,0) node[below] {$x$};
+ \coordinate (A) at (0.5,0.9); \coordinate (B) at (4.0,2.3);
+ \coordinate (C) at ($(A)!0.4!(B)$);
+ \draw (A)--(B);
+ \foreach \P/\n/\m in {A/A/a_1,C/C/c_1,B/B/b_1}{
+   \fill (\P) circle (1.5pt) node[above] {$\n$};
+   \draw[dashed] (\P)--(\P|-0,0);
+   \draw ($(\P|-0,0)+(0,0.15)$)--++(0.15,0)--++(0,-0.15);
+   \node[below] at (\P|-0,0) {$\m$};}
+ \node[left] at (0.5,0.3) {\small$A_1$};
+ \node[left] at ($(C|-0,0)+(0,0.3)$) {\small$C_1$};
+ \node[left] at ($(B|-0,0)+(0,0.3)$) {\small$B_1$};
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.52\linewidth}
+Найдём ортогональную проекцию $AB$ на $Ox$ (рис.):
+\[
+\left.\begin{aligned}A_1A&\perp Ox\\C_1C&\perp Ox\\B_1B&\perp Ox\end{aligned}\right\}\Rightarrow
+A_1A\parallel C_1C\parallel B_1B\ \Rightarrow
+\]
+по теореме Фалеса параллельные прямые отсекают на сторонах угла пропорциональные отрезки $\Rightarrow$
+\end{minipage}
+\[
+\frac{AC}{CB}=\frac{c_1-a_1}{b_1-c_1}=\frac ab\iff b(c_1-a_1)=a(b_1-c_1)\iff
+\boxed{\ c_1=\frac{ab_1+ba_1}{a+b}=\underbrace{\frac{a}{a+b}}_{\text{вес}}b_1+\underbrace{\frac{b}{a+b}}_{\text{вес}}a_1\ }
+\]
+\textbf{Вывод:} $c_1$~--- первая координата $C$~--- это взвешенная сумма первых координат точек $A$ и $B$.
+Очевидно, что 2-ю и 3-ю координаты найдём аналогично, проецируя на $Oy$, $Oz$.
+
+\textbf{Общий вывод:} если $C$ делит $AB$ в отношении $a:b$, то координаты $C$~--- это взвешенные суммы
+соответствующих координат $A$ и $B$. Больший из весов $\dfrac a{a+b}$, $\dfrac b{a+b}$~--- у ближней точки.
+
+\prim $A(10,-5,6)$, $B(0,-7,3)$, \ $\dfrac{AC}{CB}=\dfrac23$ $\Rightarrow$ $C$~--- ?
+
+\textbf{Решение.} $AC$ получилось короче $\Rightarrow$ $C$ ближе к $A$ $\Rightarrow$ берём $A$ с весом
+$\dfrac3{2+3}$, т.\,е. $\dfrac35$, а $B$~--- с весом $\dfrac25$:
+\[
+C\Bigl(\underbrace{\tfrac35\cdot10+\tfrac25\cdot0}_{6},\ \underbrace{\tfrac35(-5)+\tfrac25(-7)}_{-\frac{29}5},\
+\underbrace{\tfrac35\cdot6+\tfrac25\cdot3}_{\frac{24}5}\Bigr).
+\]
+
+\zam В частности, середина отрезка~--- это полусумма координат концов.
+
+% =====================================================================
+\section{Произведения векторов}
+% =====================================================================
+\subsection{Скалярное произведение}
+В физике, например, при вычислении работы силы:
+\begin{center}
+\begin{minipage}[c]{0.35\linewidth}
+\[A=|\vec F|\cdot|\vec S|\cos\varphi\]
+\end{minipage}
+\begin{minipage}[c]{0.3\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth]
+ \draw[->,thick] (0,0)--(2,0.7) node[right] {$\vec F$};
+ \draw[->,thick] (0,0)--(2,-0.4) node[right] {$\vec S$};
+ \draw (0.7,0.245) arc (19.3:-11.3:0.75); \node at (1.0,0.05) {\small$\varphi$};
+\end{tikzpicture}
+\end{minipage}
+\end{center}
+т.\,е. результат действия с двумя векторами~--- это число (скаляр). Обобщим этот результат:
+\begin{opr}
+\textbf{Определение.} \emph{Скалярное произведение} векторов $\vec a$ и $\vec b$:
+\[
+(\vec a,\vec b)=|\vec a|\cdot|\vec b|\cdot\cos\varphi,\qquad \varphi=\widehat{(\vec a,\vec b)}.
+\]
+\end{opr}
+
+\lead{Геометрические свойства скалярного произведения.}
+\begin{enumerate}[label=\cn{\arabic*}]
+\item $\varphi=\widehat{(\vec a,\vec b)}$~--- острый (тупой) $\iff(\vec a,\vec b)>0$ ($<0$).
+
+\textbf{Доказательство.} $(\vec a,\vec b)=\underbrace{|\vec a|\,|\vec b|}_{>0}\underbrace{\cos\varphi}_{>0\,(<0)}$~---
+знак зависит от косинуса.\qedr
+
+\item $\vec a\perp\vec b\iff(\vec a,\vec b)=0$.
+
+\textbf{Доказательство.} $\varphi=90^\circ\iff\cos\varphi=0\iff(\vec a,\vec b)=0$.\qedr
+
+\item Допустим, $\vec a$ образует углы $\varphi_1,\varphi_2,\varphi_3$ с осями $Ox,Oy,Oz$ в декартовой СК $\Rightarrow$
+
+\begin{minipage}[c]{0.55\linewidth}
+\[
+\cos\varphi_1=\frac{(\vec a,\vec i)}{|\vec a|\,|\vec i|}=\frac{|\vec i|\cdot\pr_{\vec i}\vec a}{|\vec a|\,|\vec i|}=\frac{a_1}{|\vec a|}.
+\]
+\end{minipage}\hfill
+\begin{minipage}[c]{0.4\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth]
+ \draw[->] (0,0)--(2.4,-1.2) node[right] {$x$};
+ \draw[->,very thick] (0,0)--(0.8,-0.4) node[below] {\small$\vec i=(1,0,0)$};
+ \draw[->,thick,blue] (0,0)--(2.2,0.1) node[right] {$\vec a$};
+ \draw (0.9,0.04) arc (2.6:-26.6:0.9); \node at (1.25,-0.2) {\small$\varphi_1$};
+ \fill (0,0) circle (1.3pt) node[left] {$O$};
+\end{tikzpicture}
+\end{minipage}
+
+Аналогично $\cos\varphi_2=\dfrac{a_2}{|\vec a|}$, \ $\cos\varphi_3=\dfrac{a_3}{|\vec a|}$.
+
+Итак, справедливо обобщённое ОТТ:
+\[
+\boxed{\ \cos^2\varphi_1+\cos^2\varphi_2+\cos^2\varphi_3=1\ }
+\qquad\text{т.\,к.}\quad
+\frac{a_1^2}{|\vec a|^2}+\frac{a_2^2}{|\vec a|^2}+\frac{a_3^2}{|\vec a|^2}=1,\quad |\vec a|^2=a_1^2+a_2^2+a_3^2.
+\]
+\[
+\underbrace{\begin{pmatrix}\cos\varphi_1\\\cos\varphi_2\\\cos\varphi_3\end{pmatrix}}_{\substack{\text{вектор направляющих}\\\text{косинусов }\vec a}}
+=\underbrace{\frac1{|\vec a|}\cdot\vec a}_{\substack{\text{нормированный}\\\text{вектор }\vec a}}
+\]
+\end{enumerate}
+
+\lead{Алгебраические свойства скалярного произведения.}
+\begin{enumerate}[label=\cn{\arabic*}]
+\item \textbf{коммутативность} (симметричность): $(\vec a,\vec b)=(\vec b,\vec a)$~--- следует из определения:
+$|\vec a|\,|\vec b|\cos\varphi=|\vec b|\,|\vec a|\cos\varphi$.
+\item \textbf{дистрибутивность}: $(\vec a,\vec b+\vec c)=(\vec a,\vec b)+(\vec a,\vec c)$.
+
+\textbf{Доказательство.} По определению $(\vec a,\vec b)=|\vec a|\cdot\pr_{\vec a}\vec b$, поэтому
+\[
+(\vec a,\vec b+\vec c)=|\vec a|\cdot\underbrace{\pr_{\vec a}(\vec b+\vec c)}_{\substack{\text{проекция суммы}\\=\text{сумма проекций}}}
+=|\vec a|\bigl(\pr_{\vec a}\vec b+\pr_{\vec a}\vec c\bigr)
+=\underbrace{|\vec a|\pr_{\vec a}\vec b}_{(\vec a,\vec b)}+\underbrace{|\vec a|\pr_{\vec a}\vec c}_{(\vec a,\vec c)}.\qquad\blacksquare
+\]
+\begin{center}
+\begin{tikzpicture}[>=Stealth,scale=0.95]
+ \coordinate (O) at (0,0); \coordinate (U) at (0.894,-0.447);
+ \draw (-1.2,0.6)--(4.2,-2.1);
+ \coordinate (b) at (1.5,0.3); \coordinate (c) at (0.6,1.6);
+ \coordinate (bc) at ($(b)+(c)$);
+ \draw[->,very thick] (O)--($0.8*(U)$) node[below left=-1pt] {\small$\vec a$};
+ \draw[->,thick] (O)--(b) node[right] {\small$\vec b$};
+ \draw[->,thick] (O)--(c) node[left] {\small$\vec c$};
+ \draw[dashed,gray] (b)--(bc) (c)--(bc);
+ \draw[->,thick,blue] (O)--(bc) node[right] {\small$\vec b+\vec c$};
+ \coordinate (Pbc) at ($(O)!(bc)!(U)$); \coordinate (Pb) at ($(O)!(b)!(U)$);
+ \draw[dashed] (bc)--(Pbc); \draw[dashed] (b)--(Pb);
+ \draw[decorate,decoration={brace,amplitude=4pt,mirror},blue] ($(O)+(-0.1,-0.2)$)--($(Pbc)+(-0.1,-0.2)$)
+   node[midway,below left] {\small$\pr_{\vec a}(\vec b+\vec c)$};
+\end{tikzpicture}
+\end{center}
+
+\item \textbf{ассоциативность относительно умножения на число}: $\alpha(\vec a,\vec b)=(\alpha\vec a,\vec b)$.
+
+\textbf{Иллюстрация}\ispr{В конспекте место для иллюстрации оставлено пустым; рассуждение добавлено.}:
+при $\alpha>0$: $|\alpha\vec a|=\alpha|\vec a|$, угол с $\vec b$ тот же $\Rightarrow$
+$(\alpha\vec a,\vec b)=\alpha|\vec a|\,|\vec b|\cos\varphi$; \
+при $\alpha<0$: $|\alpha\vec a|=-\alpha|\vec a|$, угол становится $180^\circ-\varphi$, а
+$\cos(180^\circ-\varphi)=-\cos\varphi$ $\Rightarrow$ снова $(\alpha\vec a,\vec b)=\alpha|\vec a|\,|\vec b|\cos\varphi$.
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+ \begin{scope}
+  \draw[->,thick] (0,0)--(2,0) node[right] {\small$\vec b$};
+  \draw[->,thick] (0,0)--(0.8,0.6) node[above] {\small$\vec a$};
+  \draw[->,thick,blue] (0,0)--(1.6,1.2) node[right] {\small$\alpha\vec a$};
+  \draw (0.5,0) arc (0:36.9:0.5); \node at (0.75,0.2) {\scriptsize$\varphi$};
+  \node at (1,-0.5) {\small$\alpha>0$};
+ \end{scope}
+ \begin{scope}[xshift=5cm]
+  \draw[->,thick] (0,0)--(2,0) node[right] {\small$\vec b$};
+  \draw[->,thick] (0,0)--(0.8,0.6) node[above] {\small$\vec a$};
+  \draw[->,thick,blue] (0,0)--(-1.2,-0.9) node[left] {\small$\alpha\vec a$};
+  \draw (0.4,0) arc (0:216.9:0.4); \node at (-0.15,0.6) {\scriptsize$180^\circ-\varphi$};
+  \node at (1,-0.5) {\small$\alpha<0$};
+ \end{scope}
+\end{tikzpicture}
+\end{center}
+
+\item \textbf{скалярный квадрат}: $(\vec a,\vec a)=|\vec a|^2$.
+
+\emph{Следствие:} \ $\boxed{\ |\vec a|=\sqrt{(\vec a,\vec a)}\ }$~--- евклидово определение длины вектора.
+\end{enumerate}
+
+\lead{Вычисление скалярного произведения в декартовой СК.}
+\begin{teor}{1}
+Пусть $\vec a=(a_1,a_2,a_3)$, $\vec b=(b_1,b_2,b_3)$~--- координаты в декартовом базисе. Тогда
+\[
+\boxed{\ (\vec a,\vec b)=a_1b_1+a_2b_2+a_3b_3\ }\tag{1}
+\]
+~--- сумма произведений соответствующих координат.
+\end{teor}
+\zam Если дана сумма произведений, то это скалярное произведение каких-то векторов.
+
+\textbf{Доказательство.} $\vec a=a_1\vec i+a_2\vec j+a_3\vec k$, \ $\vec b=b_1\vec i+b_2\vec j+b_3\vec k$\ispr{В рукописи
+во втором разложении первый коэффициент записан как $a_2$; должно быть $b_1$.}. Используем дистрибутивность и
+ассоциативность скалярного произведения, а также ортонормированность базиса $\vec i,\vec j,\vec k$:
+$|\vec i|=|\vec j|=|\vec k|=1$, \ $\vec i\perp\vec j$, \ $\vec i\perp\vec k$, \ $\vec k\perp\vec j$.
+\begin{multline*}
+(\vec a,\vec b)=(a_1\vec i+a_2\vec j+a_3\vec k,\ b_1\vec i+b_2\vec j+b_3\vec k)=
+a_1b_1\underbrace{(\vec i,\vec i)}_{1}+a_1b_2\underbrace{(\vec i,\vec j)}_{0}+a_1b_3\underbrace{(\vec i,\vec k)}_{0}+{}\\
++a_2b_1\underbrace{(\vec j,\vec i)}_{0}+a_2b_2\underbrace{(\vec j,\vec j)}_{1}+a_2b_3\underbrace{(\vec j,\vec k)}_{0}
++a_3b_1\underbrace{(\vec k,\vec i)}_{0}+a_3b_2\underbrace{(\vec k,\vec j)}_{0}+a_3b_3\underbrace{(\vec k,\vec k)}_{1}
+\overset{}{=}(1).\qquad\blacksquare
+\end{multline*}
+
+\zam Если бы СК была аффинной, то в скалярном произведении получилось бы 9 слагаемых.
+
+$\Downarrow$
+
+\textbf{Вывод.} Декартова СК удобна для всех операций, основанных на скалярном произведении.
+
+В алгебраическом варианте скалярное произведение~--- это произведение столбцов:
+\[
+a^Tb=\begin{pmatrix}a_1\\a_2\\a_3\end{pmatrix}^T\begin{pmatrix}b_1\\b_2\\b_3\end{pmatrix}.
+\]
+Формула из доказательства теоремы в аффинном базисе преобразуется в вид\ispr{В рукописи под суммой
+записано $d_{ij}a_id_j$; второй множитель~--- координата $b_j$.}
+\[
+\sum_{i=1}^3\sum_{j=1}^3 d_{ij}a_ib_j\iff
+\begin{pmatrix}a_1\\a_2\\a_3\end{pmatrix}^T\underbrace{D}_{(d_{ij})}\begin{pmatrix}b_1\\b_2\\b_3\end{pmatrix},
+\qquad d_{ij}=(\vec e_i,\vec e_j)
+\]
+~--- это матрица, составленная из скалярных произведений векторов аффинного базиса.
+
+\textbf{Следствие} (координаты вектора в ортогональном базисе).
+\[
+\boxed{\ \vec a=(a_1,a_2,a_3)\iff a_i=\frac{(\vec a,\vec e_i)}{|\vec e_i|^2}\ }\tag{2}
+\]
+где $\vec e_1,\vec e_2,\vec e_3$~--- ортогональный базис.
+
+\textbf{Доказательство.} По условию и по определению координат вектора
+$\vec a=a_1\vec e_1+a_2\vec e_2+a_3\vec e_3$; умножим скалярно на $\vec e_1$\ispr{В рукописи под $(\vec e_1,\vec e_1)$ подписано $|\vec e_1|$; скалярный квадрат равен $|\vec e_1|^2$, как и в ответе.}:
+\[
+(\vec a,\vec e_1)=a_1\underbrace{(\vec e_1,\vec e_1)}_{|\vec e_1|^2}+a_2\underbrace{(\vec e_2,\vec e_1)}_{0}+a_3\underbrace{(\vec e_3,\vec e_1)}_{0}
+\ \Rightarrow\ a_1=\frac{(\vec a,\vec e_1)}{|\vec e_1|^2}
+\]
+аналогично
+для других координат.\qedr
+
+\subsection{Векторное произведение}
+\begin{opr}
+\textbf{Определение.} Будем говорить, что $\vec c$~--- \emph{векторное произведение} $\vec a$ и $\vec b$, и
+обозначать $\vec c=[\vec a,\vec b]$, если выполняются условия:
+\begin{enumerate}[label=\arabic*)]
+\item $|\vec c|=|\vec a|\cdot|\vec b|\cdot\sin\varphi$, \ $\varphi=\widehat{(\vec a,\vec b)}$;
+\item $\vec c\perp\vec a$, \ $\vec c\perp\vec b$;
+\item $\vec a,\vec b,\vec c$~--- \emph{правая тройка} векторов, т.\,е. если смотреть с конца $\vec c$, то поворот от
+$\vec a$ к $\vec b$ будет положительным направлением (против часовой стрелки).
+\end{enumerate}
+\end{opr}
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+ \draw[->,thick] (0,0)--(2.4,-0.1) node[right] {$\vec b$};
+ \draw[->,thick] (0,0)--(-0.4,-0.7) node[below] {$\vec a$};
+ \draw[->,thick,blue] (0,0)--(0,1.6) node[above] {$\vec c=[\vec a,\vec b]$};
+ \draw (0,0.25)--(0.2,0.25)--(0.2,0);
+ \draw[->] (-0.25,-0.43) arc (240:358:0.5); \node at (0.55,-0.45) {\small$\varphi$};
+\end{tikzpicture}
+\end{center}
+\zam Декартова тройка базисных векторов $\vec i,\vec j,\vec k$~--- правая.
+
+\lead{Геометрические свойства векторного произведения.}
+\begin{enumerate}[label=\cn{\arabic*}]
+\item $\vec a\parallel\vec b\iff[\vec a,\vec b]=\vec0$.
+
+\textbf{Доказательство.} $\vec a\parallel\vec b\iff\varphi=0$ (или $180^\circ$) $\iff\sin\varphi=0\iff
+|[\vec a,\vec b]|=0\iff[\vec a,\vec b]=\vec0$.\qedr
+
+\item \begin{minipage}[t]{0.55\linewidth}
+$\boxed{\ S_{\square}=|[\vec a,\vec b]|\ }$~--- площадь параллелограмма, построенного на векторах $\vec a$ и $\vec b$.
+
+\textbf{Доказательство.} $|[\vec a,\vec b]|=|\vec a|\cdot\underbrace{|\vec b|\sin\varphi}_{h}=S_{\square}$.\qedr
+\end{minipage}\hfill
+\begin{minipage}[t]{0.4\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth,baseline=(cur.north)]
+ \coordinate (cur) at (0,1.2);
+ \draw[->,thick] (0,0)--(2.6,0) node[midway,below] {$\vec a$};
+ \draw[->,thick] (0,0)--(0.8,1.1) node[left] {$\vec b$};
+ \draw (0.8,1.1)--(3.4,1.1)--(2.6,0);
+ \draw[dashed] (0.8,1.1)--(0.8,0) node[midway,right] {\small$h$};
+ \draw (0.3,0) arc (0:54:0.3); \node at (0.45,0.18) {\scriptsize$\varphi$};
+ \node at (2.1,0.6) {\small$S_\square$};
+\end{tikzpicture}
+\end{minipage}
+\end{enumerate}
+
+\begin{minipage}[c]{0.58\linewidth}
+С механической точки зрения: если дано $\vec p$~--- плечо, $\vec F$~--- сила, вращающая материальную точку
+относительно данной оси с плечом $\vec p$, то $[\vec p,\vec F]$~--- \emph{момент силы}.
+\end{minipage}\hfill
+\begin{minipage}[c]{0.38\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth,scale=0.85]
+ \draw[dashed] (0,-0.6)--(0,2.4) node[above] {\small ось};
+ \draw[->,thick] (0,1.0)--(1.4,0.3) node[below] {\small$\vec p$};
+ \draw[->,thick,red] (1.4,0.3)--(2.4,0.9) node[right] {\small$\vec F$};
+ \draw[->,thick,blue] (1.4,0.3)--(1.4,2.0) node[above] {\small$[\vec p,\vec F]$};
+\end{tikzpicture}
+\end{minipage}
+
+\lead{Алгебраические свойства векторного произведения.}
+\begin{enumerate}[label=\cn{\arabic*}]
+\item \textbf{антикоммутативность}: $[\vec a,\vec b]=-[\vec b,\vec a]$~--- модули векторов равны, по
+направлению противоположны ($\uparrow\downarrow$): при перестановке множителей изменяется ориентация тройки.
+\item \textbf{дистрибутивность}\ispr{В рукописи справа записано $[\vec a,\vec c]+[\vec a,\vec c]$; первое
+слагаемое~--- $[\vec a,\vec b]$.}: $[\vec a,\vec b+\vec c]=[\vec a,\vec b]+[\vec a,\vec c]$.
+\item \textbf{ассоциативность относительно умножения на число}: $\alpha[\vec a,\vec b]=[\alpha\vec a,\vec b]=[\vec a,\alpha\vec b]$.
+
+\textbf{Доказательство}\ispr{В конспекте место для доказательства оставлено пустым; рассуждение добавлено.}.
+Модули: $|[\alpha\vec a,\vec b]|=|\alpha|\,|\vec a|\,|\vec b|\sin\varphi=|\alpha[\vec a,\vec b]|$ (при $\alpha<0$ угол
+меняется на $180^\circ-\varphi$, а синус не меняется). Направление: при $\alpha>0$ тройка $\alpha\vec a,\vec b,\vec c$
+остаётся правой, при $\alpha<0$ результат меняет направление на противоположное~--- так же, как $\alpha[\vec a,\vec b]$.
+\item \textbf{векторный квадрат}: $[\vec a,\vec a]=\vec0$, т.\,к. $\vec a\parallel\vec a$.
+\end{enumerate}
+
+\lead{Установим формулу для векторного произведения.}
+\begin{teor}{1}
+Пусть в декартовом базисе $\vec i,\vec j,\vec k$: $\vec a=(a_1,a_2,a_3)$, $\vec b=(b_1,b_2,b_3)$. Тогда
+\[
+\boxed{\ [\vec a,\vec b]=\begin{vmatrix}\vec i&\vec j&\vec k\\a_1&a_2&a_3\\b_1&b_2&b_3\end{vmatrix}\ }\tag{1}
+\]
+~--- удобно раскладывать по 1-й строке.
+\end{teor}
+\textbf{Доказательство.} Используем дистрибутивность и ассоциативность векторного произведения, а также
+свойства декартова базиса:
+\[
+[\vec i,\vec j]=\vec k,\qquad[\vec i,\vec k]=-\vec j,\qquad[\vec j,\vec k]=\vec i.
+\]
+\begin{multline*}
+[\vec a,\vec b]=[a_1\vec i+a_2\vec j+a_3\vec k,\ b_1\vec i+b_2\vec j+b_3\vec k]=
+a_1b_1\underbrace{[\vec i,\vec i]}_{\vec0}+a_1b_2\underbrace{[\vec i,\vec j]}_{\vec k}+a_1b_3\underbrace{[\vec i,\vec k]}_{-\vec j}+{}\\
++a_2b_1\underbrace{[\vec j,\vec i]}_{-\vec k}+a_2b_2\underbrace{[\vec j,\vec j]}_{\vec0}+a_2b_3\underbrace{[\vec j,\vec k]}_{\vec i}
++a_3b_1\underbrace{[\vec k,\vec i]}_{\vec j}+a_3b_2\underbrace{[\vec k,\vec j]}_{-\vec i}+a_3b_3\underbrace{[\vec k,\vec k]}_{\vec0}={}\\
+=\vec i\,(a_2b_3-a_3b_2)-\vec j\,(a_1b_3-a_3b_1)+\vec k\,(a_1b_2-a_2b_1)\ \text{~--- это и есть разложение (1) по 1-й строке.}\qquad\blacksquare
+\end{multline*}
+
+\textbf{Следствие.} $\vec a\parallel\vec b\iff$ координаты пропорциональны:
+\(\dfrac{a_1}{b_1}=\dfrac{a_2}{b_2}=\dfrac{a_3}{b_3}.\)
+
+\zam Запись $\dfrac00$ допускаем, т.\,к. это отношение в данном случае можно считать каким-либо числом
+(пропорцию понимаем как $a_ib_j=a_jb_i$).
+
+\textbf{Доказательство.} По свойству \cn1 и (1):
+\[
+\begin{vmatrix}\vec i&\vec j&\vec k\\a_1&a_2&a_3\\b_1&b_2&b_3\end{vmatrix}=\vec0\iff
+\vec i\underbrace{\begin{vmatrix}a_2&a_3\\b_2&b_3\end{vmatrix}}_{0}
+-\vec j\underbrace{\begin{vmatrix}a_1&a_3\\b_1&b_3\end{vmatrix}}_{0}
++\vec k\underbrace{\begin{vmatrix}a_1&a_2\\b_1&b_2\end{vmatrix}}_{0}=\vec0\iff
+\]
+\[
+\iff\frac{a_2}{b_2}=\frac{a_3}{b_3},\ \ \frac{a_1}{b_1}=\frac{a_3}{b_3},\ \ \frac{a_1}{b_1}=\frac{a_2}{b_2}.\qquad\blacksquare
+\]
+
+\subsection{Смешанное произведение}
+\begin{opr}
+\textbf{Определение.} \emph{Смешанное произведение} векторов $\vec a,\vec b,\vec c$~--- это
+$(\vec a,[\vec b,\vec c])$ (скалярное произведение $\vec a$ на векторное произведение $[\vec b,\vec c]$).
+\end{opr}
+
+\lead{Геометрический смысл смешанного произведения.}
+\begin{enumerate}[label=\cn{\arabic*}]
+\item \begin{minipage}[t]{0.5\linewidth}
+\vspace{-6pt}
+\[
+S_\square=|[\vec b,\vec c]|,\qquad S_\square\cdot h=V_{\text{призмы}},
+\]
+\[
+(\vec a,[\vec b,\vec c])=|\vec a|\cdot\underbrace{|[\vec b,\vec c]|}_{S_\square}\cdot\cos\varphi,
+\]
+\[
+\varphi=\widehat{(\vec a,[\vec b,\vec c])}\ \Rightarrow\ |\vec a|\cos\varphi=h
+\]
+(с точностью до знака).
+\end{minipage}\hfill
+\begin{minipage}[t]{0.44\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth,scale=0.9,baseline=(top.north)]
+ \coordinate (top) at (0,1.8);
+ \coordinate (O) at (0,0); \coordinate (b) at (2.8,0); \coordinate (c) at (1.0,0.8);
+ \coordinate (a) at (0.4,1.6);
+ \draw[gray] (b)--($(b)+(c)$)--(c);
+ \draw[gray] (a)--($(a)+(b)$)--($(a)+(b)+(c)$)--($(a)+(c)$)--cycle;
+ \draw[gray] (b)--($(a)+(b)$) ($(b)+(c)$)--($(a)+(b)+(c)$);
+ \draw[gray,dashed] (c)--($(a)+(c)$);
+ \fill[blue!10] (O)--(b)--($(b)+(c)$)--(c)--cycle;
+ \draw[->,thick] (O)--(b) node[below] {\small$\vec b$};
+ \draw[->,thick] (O)--(c) node[above left=-2pt] {\small$\vec c$};
+ \draw[->,thick] (O)--(a) node[left] {\small$\vec a$};
+ \draw[dashed] (a)--(0.4,0.32) node[pos=0.5,right] {\small$h$};
+ \node at (1.9,0.35) {\small$S_\square$};
+\end{tikzpicture}
+\end{minipage}
+
+\textbf{Вывод:} модуль смешанного произведения векторов равен объёму призмы (параллелепипеда),
+построенной на этих векторах.
+
+\item $(\vec a,[\vec b,\vec c])=0\iff\left[\begin{aligned}&\vec a\perp[\vec b,\vec c]\ \text{(а)},\\&[\vec b,\vec c]=\vec0\iff\vec b\parallel\vec c\ \text{(б)}.\end{aligned}\right.$
+\begin{center}
+\begin{tikzpicture}[>=Stealth,scale=0.85]
+ \begin{scope}
+  \draw (0,0)--(3.5,0)--(4.5,1.2)--(1,1.2)--cycle;
+  \coordinate (P) at (1.8,0.7);
+  \draw[->,thick] (P)--++(0.3,-0.5) node[below] {\small$\vec b$};
+  \draw[->,thick] (P)--++(1.2,0.25) node[right] {\small$\vec c$};
+  \draw[->,thick] (P)--++(1.3,-0.2) node[below right=-2pt] {\small$\vec a$};
+  \draw[->,thick,blue] (P)--++(0,1.6) node[above] {\small$[\vec b,\vec c]$};
+  \node at (5,0.4) {(а)};
+ \end{scope}
+ \begin{scope}[xshift=7cm]
+  \draw (0,0)--(3.5,0)--(4.5,1.2)--(1,1.2)--cycle;
+  \coordinate (P) at (1.2,0.45);
+  \draw[->,thick] (P)--++(0.8,0) node[above] {\small$\vec b$};
+  \draw[->,thick] (P)--++(2,0) node[right] {\small$\vec c$};
+  \draw[->,thick] (P)--++(0.6,0.55) node[above] {\small$\vec a$};
+  \node at (5,0.4) {(б)};
+ \end{scope}
+\end{tikzpicture}
+\end{center}
+Векторы компланарны $\iff$ их смешанное произведение равно 0.
+
+\textbf{Вывод:} с помощью смешанного произведения можно проверить, составляют ли 3 вектора базис.
+
+\item $(\vec a,[\vec b,\vec c])=([\vec a,\vec b],\vec c)$, так как это объём одной и той же призмы
+(видно в \cn1, если за основание взять параллелограмм на $\vec a,\vec b$: $S=|[\vec a,\vec b]|$).
+
+\textbf{Вывод:} порядок произведений векторов (скалярное, векторное) неважен, поэтому смешанное произведение
+будем обозначать $(\vec a,\vec b,\vec c)$. Алгебраические свойства следуют из свойств скалярного и векторного
+произведений.
+\end{enumerate}
+
+\begin{teor}{1}
+\textup{(о вычислении смешанного произведения в декартовых координатах)}
+Пусть $\vec a=(a_1,a_2,a_3)$, $\vec b=(b_1,b_2,b_3)$, $\vec c=(c_1,c_2,c_3)$. Тогда
+\[
+\boxed{\ (\vec a,\vec b,\vec c)=\begin{vmatrix}a_1&a_2&a_3\\b_1&b_2&b_3\\c_1&c_2&c_3\end{vmatrix}\ }\tag{1}
+\]
+\end{teor}
+\textbf{Доказательство}\ispr{В рукописи коэффициент при последнем определителе записан как $a_1$; должно быть $a_3$.}.
+\[
+(\vec a,\vec b,\vec c)\overset{\text{по опр.}}{=}(\vec a,[\vec b,\vec c])=\otimes,\qquad
+[\vec b,\vec c]\overset{\text{по теореме}}{=}\begin{vmatrix}\vec i&\vec j&\vec k\\b_1&b_2&b_3\\c_1&c_2&c_3\end{vmatrix}
+=\vec i\begin{vmatrix}b_2&b_3\\c_2&c_3\end{vmatrix}-\vec j\begin{vmatrix}b_1&b_3\\c_1&c_3\end{vmatrix}+\vec k\begin{vmatrix}b_1&b_2\\c_1&c_2\end{vmatrix}
+\]
+\[
+\Rightarrow\ \otimes\overset{\text{по теореме}}{=}a_1\begin{vmatrix}b_2&b_3\\c_2&c_3\end{vmatrix}-a_2\begin{vmatrix}b_1&b_3\\c_1&c_3\end{vmatrix}
++a_3\begin{vmatrix}b_1&b_2\\c_1&c_2\end{vmatrix}
+\]
+~--- это разложение
+по 1-й строке определителя (1).\qedr
+
+% =====================================================================
+\section{Плоскость и прямая в пространстве}
+% =====================================================================
+\subsection{Уравнение плоскости}
+\begin{opr}
+\textbf{Определение.} \emph{Уравнение плоскости}~--- это уравнение для координат произвольной точки
+плоскости.
+\end{opr}
+Чтобы его составить, введём \emph{характеристическое свойство} плоскости (ХС).
+
+\begin{enumerate}[label=\cn{\arabic*}]
+\item \begin{minipage}[t]{0.5\linewidth}
+Пусть $P(x,y,z)\in\Pi$; \ $M_0(x_0,y_0,z_0)\in\Pi$; \\
+$\vec a=(a_1,a_2,a_3)\parallel\Pi$, \ $\vec b=(b_1,b_2,b_3)\parallel\Pi$, \ $\vec a\nparallel\vec b$.
+
+Пусть $\Pi$ определяется одной из своих точек $M_0$ и парой неколлинеарных векторов $\vec a$ и $\vec b$.
+
+\textbf{ХС:} $P\in\Pi\iff$ векторы $\overrightarrow{M_0P}$, $\vec a$, $\vec b$ компланарны.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.44\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth,scale=0.85,baseline=(top.north)]
+ \coordinate (top) at (0,1.8);
+ \draw (0,0)--(3.6,0)--(4.6,1.6)--(1,1.6)--cycle; \node[below left] at (0,0) {$\Pi$};
+ \coordinate (M) at (1.2,0.9);
+ \fill (M) circle (1.4pt) node[left] {\small$M_0$};
+ \draw[->,thick] (M)--(2.8,1.3) node[right] {\small$\vec b$};
+ \draw[->,thick] (M)--(2.0,0.25) node[below] {\small$\vec a$};
+ \draw[->,thick,blue] (M)--(3.2,0.8) node[right] {\small$P$};
+\end{tikzpicture}
+\end{minipage}
+
+По формуле для смешанного произведения и по ХС получим \emph{уравнение плоскости по точке и двум
+неколлинеарным векторам}:
+\[
+\boxed{\ \begin{vmatrix}x-x_0&y-y_0&z-z_0\\a_1&a_2&a_3\\b_1&b_2&b_3\end{vmatrix}=0\ }\tag{1}
+\]
+Допустим, $M_1(x_1,y_1,z_1)$, $M_2(x_2,y_2,z_2)$, $M_3(x_3,y_3,z_3)\in\Pi$. Тогда из (1)
+($\vec a=\overrightarrow{M_1M_2}$, $\vec b=\overrightarrow{M_1M_3}$) получим \emph{уравнение плоскости по трём точкам}:
+\[
+\boxed{\ \begin{vmatrix}x-x_1&y-y_1&z-z_1\\x_2-x_1&y_2-y_1&z_2-z_1\\x_3-x_1&y_3-y_1&z_3-z_1\end{vmatrix}=0\ }\tag{2}
+\]
+
+\item \begin{minipage}[t]{0.5\linewidth}
+Выберем другой принцип конструирования плоскости: $\vec n$~--- \emph{нормаль}.
+
+\textbf{ХС:} $P\in\Pi$: $M_0\in\Pi$ и $\vec n\perp\Pi$ $\iff(\vec n,\overrightarrow{M_0P})=0$.
+
+$\vec n=(a,b,c)$, по ХС получим уравнение плоскости по точке и нормали:
+\end{minipage}\hfill
+\begin{minipage}[t]{0.44\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth,scale=0.85,baseline=(top.north)]
+ \coordinate (top) at (0,2.2);
+ \draw (0,0)--(3.6,0)--(4.6,1.4)--(1,1.4)--cycle; \node[below left] at (0,0) {$\Pi$};
+ \coordinate (M) at (1.5,0.6);
+ \fill (M) circle (1.4pt) node[below] {\small$M_0(x_0,y_0,z_0)$};
+ \draw[->,thick,blue] (M)--(1.5,2.3) node[right] {\small$\vec n$};
+ \draw (1.5,0.85)--(1.7,0.85)--(1.7,0.6);
+ \draw[->,thick] (M)--(3.4,1.1) node[right] {\small$P(x,y,z)$};
+\end{tikzpicture}
+\end{minipage}
+\[
+\boxed{\ a(x-x_0)+b(y-y_0)+c(z-z_0)=0\ }\tag{3}
+\]
+\[
+ax+by+cz+\underbrace{(-ax_0-by_0-cz_0)}_{\substack{\text{обозначим }d\text{; зависит от координат}\\\text{выбранной точки на плоскости}}}=0
+\]
+$\Rightarrow$ \emph{общее уравнение плоскости}:
+\[
+\boxed{\ ax+by+cz+d=0\ }\tag{4}
+\]
+\end{enumerate}
+
+\textbf{Вывод:} линейное уравнение с 3 неизвестными (4) определяет плоскость в пространстве координат;
+коэффициенты при неизвестных определяют нормаль плоскости $\vec n=(a,b,c)$.
+
+\zam В $n$-мерном пространстве аналогично (4) получим уравнение \emph{гиперплоскости}:
+\[
+\underbrace{\sum_{s=1}^n a_sx_s}_{(\vec a,\vec x)}+d=0,
+\]
+где $\vec x$~--- произвольный вектор координат точки в плоскости.
+
+\lead{Частные случаи общего уравнения плоскости.}
+\begin{enumerate}[label=\arabic*)]
+\item $a=0\overset{(4)}{\Rightarrow}by+cz+d=0\Rightarrow\vec n=(0,b,c)\perp\vec i=(1,0,0)\Rightarrow\Pi\parallel\vec i\Rightarrow\Pi\parallel Ox$;
+\end{enumerate}
+аналогично получим:
+\begin{enumerate}[label=\arabic*),start=2]
+\item $b=0\Rightarrow\Pi\parallel Oy$;
+\item $c=0\Rightarrow\Pi\parallel Oz$;
+\item $a\ne0$, $b\ne0$, $c\ne0$ $\Rightarrow$ $\Pi$ пересекает все оси координат;
+\item $d=0\Rightarrow\Pi$ проходит через $O(0,0,0)$, как можно легко убедиться подстановкой в (4);
+\item $a\ne0$, $b\ne0$, $c\ne0$, $d\ne0$ $\Rightarrow$ разделим (4) на $(-d)$:
+\[
+\boxed{\ \frac{x}{\underbrace{-d/a}_{\alpha}}+\frac{y}{\underbrace{-d/b}_{\beta}}+\frac{z}{\underbrace{-d/c}_{\gamma}}=1\ }\tag{5}
+\]
+\end{enumerate}
+
+\begin{minipage}[c]{0.58\linewidth}
+Получим \emph{уравнение плоскости в отрезках}, т.\,к. (5) пересекает оси в точках $(\alpha,0,0)$, $(0,\beta,0)$,
+$(0,0,\gamma)$.
+
+$\Downarrow$
+\end{minipage}\hfill
+\begin{minipage}[c]{0.38\linewidth}
+\centering
+\begin{tikzpicture}[>=Stealth,scale=0.9]
+ \coordinate (O) at (0,0); \coordinate (A) at (-1.0,-1.1); \coordinate (B) at (1.8,0); \coordinate (C) at (0,1.8);
+ \draw[->] (O)--(-1.5,-1.65) node[below left] {$x$};
+ \draw[->] (O)--(2.6,0) node[right] {$y$};
+ \draw[->] (O)--(0,2.4) node[left] {$z$};
+ \fill[blue!10] (A)--(B)--(C)--cycle;
+ \draw[thick] (A)--(B)--(C)--cycle;
+ \node[left] at (A) {$\alpha$}; \node[below] at (B) {$\beta$}; \node[right] at (C) {$\gamma$};
+ \node at (0.4,0.3) {\small$\Pi$};
+\end{tikzpicture}
+\end{minipage}
+
+Объём пирамиды, ограниченной координатными плоскостями и плоскостью (5)\ispr{В рукописи~--- $V=\frac13|\alpha\beta\gamma|$. Объём пирамиды $V=\frac13 S_{\text{осн}}h$, где
+$S_{\text{осн}}=\frac12|\alpha\beta|$, $h=|\gamma|$, поэтому $V=\frac16|\alpha\beta\gamma|$.}:
+\[
+V=\frac16|\alpha\beta\gamma|.
+\]
+
+\subsection{Угол между плоскостями}
+\begin{opr}
+\textbf{Определение.} \emph{Угол между плоскостями}~--- это угол между их нормалями.
+\end{opr}
+\begin{center}
+\begin{tikzpicture}[>=Stealth,scale=0.9]
+ \draw (0,0)--(4,0)--(5,1.2)--(1,1.2)--cycle; \node at (0.7,0.3) {$\Pi_1$};
+ \draw (1,1.2)--(5,1.2)--(5.6,3.2)--(1.6,3.2)--cycle; \node at (2.0,2.8) {$\Pi_2$};
+ \coordinate (P) at (3.6,0.6);
+ \draw[->,thick,blue] (P)--++(0,1.4) node[left] {\small$\vec n_1$};
+ \coordinate (Q) at (4.6,2.3);
+ \draw[->,thick,blue] (Q)--++(1.2,-0.36) node[right] {\small$\vec n_2$};
+\end{tikzpicture}
+\end{center}
+\zam У смежных углов косинусы противоположны:
+\(\cos(180^\circ-\varphi)=-\cos\varphi\), поэтому если $(\vec n_1,\vec n_2)<0$, то $\widehat{(\vec n_1,\vec n_2)}$ тупой
+$\Rightarrow$ выберем другую из нормалей ($\vec n_2\to-\vec n_2$) или выберем смежный угол.
+
+\subsection{Уравнение прямой в пространстве}
+\begin{opr}
+\textbf{Определение.} \emph{Уравнения прямой}~--- это уравнения для координат любой точки прямой.
+\end{opr}
+\begin{enumerate}[label=\cn{\arabic*}]
+\item \lead{Универсальный принцип составления уравнения кривой:} кривая~--- это пересечение двух
+поверхностей $\Rightarrow$ прямая~--- это пересечение двух плоскостей.
+
+\begin{minipage}[c]{0.56\linewidth}
+Получим \emph{общее уравнение прямой в пространстве}:
+\[
+\boxed{\ \begin{cases}a_1x+b_1y+c_1z+d_1=0\quad(\Pi_1),\\a_2x+b_2y+c_2z+d_2=0\quad(\Pi_2),\end{cases}\ }\tag{1}
+\]
+$(a_1,b_1,c_1)\nparallel(a_2,b_2,c_2)$~--- нормали плоскостей.
+\end{minipage}\hfill
+\begin{minipage}[c]{0.4\linewidth}
+\centering
+\begin{tikzpicture}[scale=0.85]
+ \draw (0,0)--(3.6,0)--(4.4,1.2)--(0.8,1.2)--cycle; \node at (4.6,0.8) {\small$\Pi_2$};
+ \draw (0.4,0.6)--(1.6,2.2)--(3.8,1.6); \node at (1.4,2.4) {\small$\Pi_1$};
+ \draw[thick] (-0.3,0.15)--(4.6,0.8) node[right] {$l$};
+\end{tikzpicture}
+\end{minipage}
+
+\item \textbf{ХС.} Пусть прямая $l$: $M_0(x_0,y_0,z_0)\in l$, \
+$\underbrace{\vec q=(q_1,q_2,q_3)}_{\text{направляющий вектор }l}\parallel l$. Тогда
+$P\in l\iff\overrightarrow{M_0P}\parallel\vec q$.
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+ \draw (0,0)--(4.5,1.2) node[right] {$l$};
+ \fill (0.8,0.21) circle (1.4pt) node[above] {\small$M_0$};
+ \fill (3.0,0.8) circle (1.4pt) node[above] {\small$P(x,y,z)$};
+ \draw[->,thick] (0.8,0.21)--(3.0,0.8);
+ \draw[->,thick,blue] (1.2,-0.6)--(2.2,-0.33) node[right] {\small$\vec q\parallel l$};
+\end{tikzpicture}
+\end{center}
+ХС $\Rightarrow$ \emph{канонические уравнения прямой} (векторы $\parallel$, если их координаты пропорциональны):
+\[
+\boxed{\ \frac{x-x_0}{q_1}=\frac{y-y_0}{q_2}=\frac{z-z_0}{q_3}\ }\tag{2}
+\]
+ХС $\Rightarrow$ \emph{параметрические уравнения прямой} (векторы $\parallel$, если один получается из другого
+умножением на ненулевое число $t$):
+\[
+\overrightarrow{M_0P}=t\vec q,\qquad t\in\mathbb R\text{~--- параметр}\ \Rightarrow\ \text{в координатной форме:}\quad
+\boxed{\ \begin{cases}x=x_0+q_1t,\\y=y_0+q_2t,\\z=z_0+q_3t.\end{cases}\ }\tag{3}
+\]
+\end{enumerate}
+
+Если прямая $l$ проходит через две точки $M_1(x_1,y_1,z_1)$, $M_2(x_2,y_2,z_2)$, то из (2)
+($\vec q=\overrightarrow{M_1M_2}$) $\Rightarrow$ \emph{уравнение прямой по двум точкам}:
+\[
+\boxed{\ \frac{x-x_1}{x_2-x_1}=\frac{y-y_1}{y_2-y_1}=\frac{z-z_1}{z_2-z_1}\ }\tag{4}
+\]
+Из (3) $\Rightarrow$ параметрические уравнения прямой по 2 точкам:
+\[
+\begin{cases}x=x_1+(x_2-x_1)t,\\y=y_1+(y_2-y_1)t,\\z=z_1+(z_2-z_1)t.\end{cases}\tag{5}
+\]
+\zam Если в (5) $t\in[0,1]$, то получим параметрические уравнения \emph{отрезка} $M_1M_2$, так как в (5)
+\[
+\begin{cases}x=(1-t)x_1+tx_2,\\y=(1-t)y_1+ty_2,\\z=(1-t)z_1+tz_2\end{cases}
+\]
+~--- взвешенные средние координат концов отрезка.
+
+\subsection{Угол между прямыми. Угол между прямой и плоскостью}
+\begin{opr}
+\textbf{Определение.} \emph{Угол между прямыми}~--- это угол между их направляющими векторами:
+$\varphi=\widehat{(\vec q_1,\vec q_2)}$.
+\end{opr}
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+ \draw (-0.5,0)--(4,0) node[right] {$l_1$};
+ \draw (0.3,-0.5)--(2.2,2) node[right] {$l_2$};
+ \coordinate (X) at (0.68,0);
+ \draw[->,very thick] (X)--++(0.9,0) node[below] {\small$\vec q_1$};
+ \draw[->,very thick] (X)--++(0.48,0.63) node[left] {\small$\vec q_2$};
+ \draw ($(X)+(0.45,0)$) arc (0:52.8:0.45); \node at ($(X)+(1.1,0.4)$) {\small$\varphi$};
+\end{tikzpicture}
+\end{center}
+
+\begin{opr}
+\textbf{Определение.} \emph{Угол между прямой и плоскостью}~--- это угол между прямой и её проекцией
+на эту плоскость.
+\end{opr}
+\begin{center}
+\begin{tikzpicture}[>=Stealth,scale=0.95]
+ \draw (0,0)--(4,0)--(4.8,1.6)--(0.8,1.6)--cycle; \node[below left] at (0,0) {$\Pi$};
+ \coordinate (X) at (1.8,0.8);
+ \draw[dashed] (0.9,0.0)--(X);
+ \draw (X)--(3.8,2.8) node[right] {$l$};
+ \draw[->,thick] (X)--(2.5,1.5) node[right] {\small$\vec q$};
+ \draw (X)--(4.6,0.5) node[right] {\small проекция $l$ на $\Pi$};
+ \draw[->,thick,blue] (X)--(1.8,2.6) node[above] {\small$\vec n$};
+ \draw (2.3,0.75) arc (-6:45:0.5); \node at (2.55,0.95) {\scriptsize$\varphi$};
+ \draw (1.8,1.3) arc (90:45:0.5); \node at (2.15,1.55) {\scriptsize$90^\circ-\varphi$};
+\end{tikzpicture}
+\end{center}
+\[
+\underbrace{\cos(90^\circ-\varphi)}_{\sin\varphi}=\frac{(\vec n,\vec q)}{|\vec n|\cdot|\vec q|}.
+\]
+
+\subsection{Уравнение прямой на плоскости}
+(Частный случай уравнения прямой в пространстве.)
 
 \end{document}
