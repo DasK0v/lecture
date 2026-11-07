@@ -1,0 +1,3163 @@
+% Ответы на вопросы к экзамену по математическому анализу, 2026 г. Часть 1.
+% Составлено по конспекту лекций (matan.tex).
+% Собирается XeLaTeX / LuaLaTeX (шрифт с кириллицей) или pdfLaTeX (T2A + babel).
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T2A]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage[russian]{babel}
+\else
+  \usepackage{fontspec}
+  \IfFontExistsTF{Times New Roman}{\setmainfont{Times New Roman}}{\setmainfont{FreeSerif}}
+  \usepackage{babel}
+  \babelprovide[import,main]{russian}
+\fi
+
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage[a4paper,left=20mm,right=18mm,top=17mm,bottom=20mm]{geometry}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\usepackage{array,longtable}
+\usepackage{needspace}
+\usepackage[hidelinks,unicode]{hyperref}
+
+\sloppy
+\emergencystretch=3em
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt plus 1pt}
+\setlist{topsep=2pt,itemsep=1pt,parsep=1pt}
+
+% ---------- обозначения ----------
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\eps}{\varepsilon}
+\DeclareMathOperator{\tg}{tg}
+\DeclareMathOperator{\arctg}{arctg}
+\newcommand{\bm}{\text{б/м}}
+\newcommand{\bb}{\text{б/б}}
+
+% ---------- цвета ----------
+\definecolor{oprc}{RGB}{28,84,160}
+\definecolor{teoc}{RGB}{22,116,64}
+\definecolor{dopc}{RGB}{110,110,110}
+\definecolor{zamc}{RGB}{170,95,0}
+
+% ---------- рамки ----------
+\newtcolorbox{opr}[1][]{breakable, enhanced,
+  colback=oprc!4, colframe=oprc!80!black, boxrule=0.6pt, arc=2pt,
+  left=6pt, right=6pt, top=3pt, bottom=4pt,
+  fonttitle=\bfseries, coltitle=white, colbacktitle=oprc!80!black,
+  toptitle=1pt, bottomtitle=1pt,
+  title={Определение\if\relax\detokenize{#1}\relax\else: #1\fi}}
+
+\newtcolorbox{teo}[1][]{breakable, enhanced,
+  colback=teoc!4, colframe=teoc!85!black, boxrule=0.6pt, arc=2pt,
+  left=6pt, right=6pt, top=3pt, bottom=4pt,
+  fonttitle=\bfseries, coltitle=white, colbacktitle=teoc!85!black,
+  toptitle=1pt, bottomtitle=1pt,
+  title={Теорема\if\relax\detokenize{#1}\relax\else\ (#1)\fi}}
+
+\newtcolorbox{dop}[1][]{breakable, enhanced,
+  colback=black!2, frame hidden, borderline={0.6pt}{0pt}{dopc,dashed},
+  arc=2pt, left=6pt, right=6pt, top=3pt, bottom=4pt,
+  before upper={\textbf{\textcolor{dopc!85!black}{Дополнение (в~лекциях этого нет)\if\relax\detokenize{#1}\relax\else: #1\fi.}}\ }}
+
+\newtcolorbox{planbox}{enhanced, colback=black!3, colframe=black!25,
+  boxrule=0.4pt, arc=2pt, left=6pt, right=6pt, top=2pt, bottom=3pt,
+  fontupper=\small}
+
+% «В кванторах:» — подпись перед формулой
+\newcommand{\kv}{\par\noindent\textbf{\textcolor{oprc!85!black}{В кванторах:}}}
+% Замечание
+\newcommand{\zam}{\par\smallskip\noindent\textbf{\textcolor{zamc}{Замечание.}}\ }
+% Доказательство — как в конспекте: от △ до ▲
+\newenvironment{dok}
+  {\par\smallskip\noindent\textit{Доказательство.}\ $\triangle$\ \ignorespaces}
+  {\unskip\nobreak\hfill$\blacktriangle$\par\smallskip}
+
+% Заголовок вопроса
+\newcommand{\vopros}[2]{%
+  \clearpage\phantomsection
+  \addcontentsline{toc}{section}{\protect\numberline{#1}#2}%
+  \begin{tcolorbox}[enhanced, colback=oprc!12, colframe=oprc!12, arc=3pt,
+    left=8pt, right=8pt, top=5pt, bottom=5pt]
+    {\Large\bfseries\textcolor{oprc!80!black}{Вопрос #1}}\par\smallskip
+    {\large\bfseries #2}
+  \end{tcolorbox}}
+% Заголовок раздела без номера вопроса
+\newcommand{\razdel}[1]{%
+  \clearpage\phantomsection
+  \addcontentsline{toc}{section}{#1}%
+  \begin{tcolorbox}[enhanced, colback=black!8, colframe=black!8, arc=3pt,
+    left=8pt, right=8pt, top=5pt, bottom=5pt]
+    {\Large\bfseries #1}
+  \end{tcolorbox}}
+% Подзаголовок внутри вопроса
+\newcommand{\podr}[1]{\par\needspace{8\baselineskip}\medskip
+  {\large\bfseries\textcolor{oprc!80!black}{#1}}\par\nopagebreak\smallskip}
+% План ответа
+\newcommand{\plan}[1]{\begin{planbox}\textbf{План ответа:}
+  \begin{enumerate}[nosep,leftmargin=*,label=\arabic*)]#1\end{enumerate}\end{planbox}}
+
+% Диаграммы Эйлера--Венна (из конспекта): #1 — заливка, #2 — подпись
+\newcommand{\venn}[2]{%
+\begin{tikzpicture}[scale=0.55]
+  \begin{scope}
+    #1
+  \end{scope}
+  \draw (0,0) circle (1) (1.2,0) circle (1);
+  \node at (-0.45,0) {$A$};
+  \node at (1.65,0) {$B$};
+  \node at (0.6,-1.5) {#2};
+\end{tikzpicture}}
+
+\begin{document}
+
+% ======================= ТИТУЛ =======================
+\thispagestyle{empty}
+\begin{center}
+  {\LARGE\bfseries Математический анализ}\par\medskip
+  {\Large Ответы на вопросы к экзамену 2026 г.\ --- часть 1}\par\medskip
+  {\normalsize по конспекту лекций; каждое определение --- словами и в кванторах}
+\end{center}
+\bigskip
+
+\begin{tcolorbox}[colback=white, colframe=black!40, boxrule=0.4pt, arc=2pt,
+  title={Как устроен этот файл}, fonttitle=\bfseries, colbacktitle=black!8, coltitle=black]
+\begin{itemize}[leftmargin=*]
+  \item Всё взято из конспекта лекций. Где в лекции определение дано только словами,
+        кванторная запись составлена по тем же правилам, что и остальные определения в лекциях.
+  \item \textcolor{oprc}{\textbf{Синие рамки}} --- определения, \textcolor{teoc}{\textbf{зелёные}} --- теоремы.
+        Доказательство идёт от $\triangle$ до $\blacktriangle$, как в конспекте.
+  \item \textbf{Пунктирная рамка} --- дополнение, которого в лекциях нет: доказательства,
+        которые в лекции только упомянуты, недостающие определения, контрпримеры.
+        Учи их, если останется время, --- на экзамене они помогут, но это уже сверх конспекта.
+  \item В начале каждого вопроса --- план ответа. В конце файла --- сводная таблица всех
+        определений в кванторах: закрой правый столбец и проверяй себя.
+  \item Места, где в конспекте описки, исправлены и отмечены.
+\end{itemize}
+\end{tcolorbox}
+
+\textbf{Вопросов 2 и 3 в лекциях нет} --- ответы на них составлены по стандартному курсу (это отмечено в начале вопросов).
+\textbf{Вопрос 16} (односторонние пределы, пределы монотонных функций) в лекциях не разбирался и пропущен.
+Вопросы 20--23 составлены по записям лекции о непрерывности; в вопросе 23 из них есть только
+определение непрерывности на отрезке (теорем Больцано--Коши и Вейерштрасса в записях нет).
+В вопросе 17 из лекций нет сравнения бесконечно больших функций.
+
+\medskip
+\begingroup
+\renewcommand{\contentsname}{Содержание}
+\makeatletter\renewcommand{\@tocrmarg}{3.5em}\makeatother
+\raggedright
+\tableofcontents
+\endgroup
+
+% ======================= 0. КВАНТОРЫ =======================
+\razdel{Перед началом: как читать кванторы}
+
+Все определения курса записываются на языке логики. Обозначения из лекций
+(раздел <<Операции над множествами>>, <<Соглашения>>):
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|c|l|l|}
+\hline
+\textbf{Знак} & \textbf{Читается} & \textbf{Пример} \\ \hline
+$\forall x$ & <<для любого (всякого) $x$>> --- квантор всеобщности & $\forall n \in \N\ (x_n \le M)$ \\
+$\exists x$ & <<существует $x$ такой, что\dots>> --- квантор существования & $\exists M\ \forall n \in \N\ (x_n \le M)$ \\
+$\exists!\,x$ & <<существует единственный $x$>>${}^{*}$ & $\exists!\, c\ \forall n\ \bigl(c \in [a_n;b_n]\bigr)$ \\
+$P \to Q$,\ $P \Rightarrow Q$ & <<если $P$, то $Q$>>, <<из $P$ следует $Q$>> & $n > n_0 \to |x_n - A| < \eps$ \\
+$P \Leftrightarrow Q$ & <<$P$ тогда и только тогда, когда $Q$>> & $A = B \Leftrightarrow A \subseteq B \wedge B \subseteq A$ \\
+$P \wedge Q$ & <<$P$ и $Q$>> (конъюнкция) & $x \in A \wedge x \in B$ \\
+$P \vee Q$ & <<$P$ или $Q$>> (дизъюнкция, хотя бы одно) & $x \in A \vee x \in B$ \\
+$\neg P$,\ $\overline{P}$ & <<не $P$>> (отрицание) & $\neg(x \in A) \Leftrightarrow x \notin A$ \\ \hline
+\end{tabular}
+
+{\small ${}^{*}$ знак $\exists!$ в лекциях не вводился, но им удобно записывать <<единственный>>.}
+\end{center}
+
+\podr{Высказывания и логические операции (из лекций)}
+
+\textbf{Высказывание} --- предложение, которое либо истинно, либо ложно (но не то и другое сразу).
+Функция истинности $\lambda(P) = 1$, если $P$ истинно, и $\lambda(P) = 0$, если $P$ ложно.
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Отрицание} $\neg P$ истинно, когда $P$ ложно, и ложно, когда $P$ истинно.
+  \item \textbf{Конъюнкция} $P \wedge Q$ истинна только тогда, когда истинны оба высказывания (логическое <<$\times$>>).
+  \item \textbf{Дизъюнкция} $P \vee Q$ ложна только тогда, когда оба высказывания ложны (логическое <<$+$>>).
+  \item \textbf{Импликация} $P \Rightarrow Q$ ложна только в одном случае: $P$ истинно, а $Q$ ложно.
+  \item \textbf{Эквиваленция} $P \Leftrightarrow Q$ истинна, когда $P$ и $Q$ оба истинны или оба ложны.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|c|c||c|c|c|c|c|}
+\hline
+$P$ & $Q$ & $\neg P$ & $P \wedge Q$ & $P \vee Q$ & $P \Rightarrow Q$ & $P \Leftrightarrow Q$ \\ \hline
+0 & 0 & 1 & 0 & 0 & 1 & 1 \\
+0 & 1 & 1 & 0 & 1 & 1 & 0 \\
+1 & 0 & 0 & 0 & 1 & 0 & 0 \\
+1 & 1 & 0 & 1 & 1 & 1 & 1 \\ \hline
+\end{tabular}
+\end{center}
+
+Операции над высказываниями аналогичны операциям над множествами
+($\wedge \leftrightarrow \cap$, $\vee \leftrightarrow \cup$, $\neg \leftrightarrow$ дополнение);
+свойства логических операций доказывают таблицами истинности.
+
+\podr{Как читать кванторную формулу}
+
+Формулу читают слева направо, каждый квантор --- отдельный шаг. Пример --- определение предела:
+\[
+  \forall \eps > 0\ \ \exists n_0\ \ \forall n \in \N\ \ \bigl(n > n_0 \to |x_n - A| < \eps\bigr)
+\]
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{r@{\quad---\quad}l}
+$\forall \eps > 0$ & какое бы (сколь угодно малое) $\eps > 0$ ни взяли, \\
+$\exists n_0$ & найдётся номер $n_0$ такой, что \\
+$\forall n \in \N$ & для всех номеров $n$ \\
+$(n > n_0 \to \dots)$ & если $n$ больше $n_0$, то \\
+$|x_n - A| < \eps$ & $x_n$ отличается от $A$ меньше чем на $\eps$.
+\end{tabular}
+\end{center}
+Квантор, стоящий правее, может зависеть от всех кванторов левее: здесь $n_0$ зависит от $\eps$,
+поэтому в лекциях пишут $n_0(\eps)$.
+
+\begin{dop}[отрицание формулы с кванторами]
+Чтобы построить отрицание, каждый $\forall$ меняют на $\exists$, каждый $\exists$ --- на $\forall$,
+а условие в скобках заменяют на противоположное:
+\[
+  \neg\,\forall x\, P(x) \Leftrightarrow \exists x\, \neg P(x), \qquad
+  \neg\,\exists x\, P(x) \Leftrightarrow \forall x\, \neg P(x),
+\]
+\[
+  \neg(P \to Q) \Leftrightarrow P \wedge \neg Q, \qquad
+  \neg(P \wedge Q) \Leftrightarrow \neg P \vee \neg Q, \qquad
+  \neg(P \vee Q) \Leftrightarrow \neg P \wedge \neg Q.
+\]
+Пример из лекций: последовательность ограничена сверху: $\exists M\ \forall n \in \N\ (x_n \le M)$;
+отрицание --- не ограничена сверху: $\forall M\ \exists n \in \N\ (x_n > M)$.
+
+\textbf{Порядок кванторов важен.} Формула $\forall n\ \exists M\ (x_n \le M)$ верна для \emph{любой}
+последовательности (возьми $M = x_n$), а $\exists M\ \forall n\ (x_n \le M)$ --- это ограниченность
+сверху: одно $M$ годится сразу для всех $n$.
+\end{dop}
+
+% ======================= ВОПРОС 1 =======================
+\vopros{1}{Множества, операции над множествами. Свойства операций над множествами. Диаграммы Эйлера--Венна}
+
+\plan{\item что такое множество и элемент; конечное, бесконечное, пустое, универсальное множество;
+\item способы задания множества;
+\item подмножество и равенство множеств;
+\item операции: объединение, пересечение, разность, симметричная разность, дополнение --- формулы и диаграммы;
+\item свойства операций.}
+
+\podr{Множество и элемент}
+
+<<Множество --- произвольная совокупность определённых предметов нашей интуиции или интеллекта,
+которые можно отличить один от другого и которые представляются как единое целое>> (Георг Кантор).
+
+\begin{opr}[множество]
+Под \textbf{множеством} понимают любую определённую совокупность объектов, различимых между собой.
+Объекты, из которых составлено множество, --- \textbf{элементы множества}.
+
+Множества обозначают большими буквами $A, B, X$, элементы --- малыми $a, b, x, y$.
+Запись $x \in X$ --- <<$x$ принадлежит $X$>>, $y \notin X$ --- <<$y$ не принадлежит $X$>>:
+\[
+  y \notin X \Leftrightarrow \neg\,(y \in X).
+\]
+\end{opr}
+
+При построении теории множеств используют интуитивный \textbf{принцип объёмности}
+(аксиому экстенсиональности): множество полностью определяется своими элементами --- два множества
+равны, если они состоят из одних и тех же элементов.
+\kv
+\[
+  A = B \Leftrightarrow \forall x\ (x \in A \Leftrightarrow x \in B).
+\]
+{\small\textcolor{zamc}{(В конспекте фраза записана неудачно: <<каждый элемент множества равен каждому другому элементу>>; смысл --- <<состоят из одних и тех же элементов>>.)}}
+
+\begin{opr}[конечное, бесконечное, пустое множество]
+Множество называется \textbf{конечным}, если оно состоит из конечного числа элементов,
+и \textbf{бесконечным}, если оно содержит бесконечное число элементов.
+Если множество не содержит ни одного элемента, оно называется \textbf{пустым} ($\varnothing$).
+\kv
+\[
+  A \text{ конечно} \Leftrightarrow \exists n \in \N \cup \{0\}:\ A = \{a_1, a_2, \dots, a_n\};
+\]
+\[
+  A \text{ бесконечно} \Leftrightarrow \forall n \in \N\ \exists a_1, \dots, a_n \in A\
+     (a_i \ne a_j \text{ при } i \ne j)
+\]
+(в бесконечном множестве можно выбрать сколько угодно попарно различных элементов);
+\[
+  \varnothing:\quad \forall x\ (x \notin \varnothing).
+\]
+\end{opr}
+
+\begin{opr}[универсальное множество]
+В конкретных задачах элементы всех множеств берутся из одного достаточно широкого множества $U$ ---
+\textbf{универсального множества} (универсума).
+\kv
+\[
+  \forall A\ (A \subseteq U) \quad \text{для всех множеств $A$ данной задачи}.
+\]
+\end{opr}
+
+\podr{Способы задания множества}
+
+\begin{enumerate}
+  \item \textbf{Перечислением элементов:} $A = \{-2;\ -1;\ 0;\ 1;\ 2\}$.
+  \item \textbf{Рекурсивно} (перечисляющей процедурой). Пример из лекции:
+    \begin{enumerate}[label=\alph*)]
+      \item $3 \in X$;
+      \item если $x \in X$, то $\dfrac{1}{x} \in X$ и $(1 - x) \in X$;
+      \item других элементов в $X$ нет.
+    \end{enumerate}
+    Получаем: $3 \to \frac13,\ -2$; \ $\frac13 \to \frac23$; \ $-2 \to -\frac12$; \ $\frac23 \to \frac32$, и дальше новых чисел не появляется:
+    \[
+      X = \left\{ 3;\ \tfrac{1}{3};\ -2;\ -\tfrac{1}{2};\ \tfrac{2}{3};\ \tfrac{3}{2} \right\}.
+    \]
+  \item \textbf{Характеристическим свойством} $\{x : P(x)\}$ --- <<множество всех $x$, для которых верно $P(x)$>>:
+    \[
+      A = \{\, x : x \in \mathbb{Z},\ x^{2} \le 4 \,\} = \{-2;\ -1;\ 0;\ 1;\ 2\}, \qquad
+      B = \{\, x : x \in \N,\ x \,\vdots\, 2 \,\} = \{2;\ 4;\ 6;\ \dots\}.
+    \]
+\end{enumerate}
+
+Чтобы избежать парадоксов, задание множеств ограничивают специальной аксиоматикой.
+В частности, используют \textbf{аксиому регулярности}: запись $X \in X$ недопустима
+(множество не может быть своим собственным элементом).
+
+\begin{dop}[парадокс брадобрея]
+Деревенский брадобрей бреет тех и только тех, кто не бреет себя сам. Бреет ли он себя?
+Если бреет --- то не должен; если не бреет --- то должен. Для множеств то же самое (парадокс Рассела):
+пусть $R = \{X : X \notin X\}$; тогда $R \in R \Leftrightarrow R \notin R$ --- противоречие.
+Запрет $X \in X$ убирает такие конструкции.
+\end{dop}
+
+\podr{Подмножество и равенство множеств}
+
+\begin{opr}[подмножество]
+Множество $A$ называется \textbf{подмножеством} множества $B$, если каждый элемент $A$ является элементом $B$.
+Говорят: <<$A$ содержится в $B$>>, <<$B$ включает $A$>>. Обозначение: $A \subseteq B$ (в лекциях встречается и $A \subset B$).
+\kv
+\[
+  A \subseteq B \Leftrightarrow \forall x \in A\ (x \in B)
+  \Leftrightarrow \forall x\ (x \in A \to x \in B).
+\]
+\end{opr}
+
+\begin{opr}[равенство множеств]
+Если $A \subseteq B$ и $B \subseteq A$, то множества называются \textbf{равными}: $A = B$.
+\kv
+\[
+  A = B \Leftrightarrow (A \subseteq B) \wedge (B \subseteq A)
+  \Leftrightarrow \forall x\ (x \in A \Leftrightarrow x \in B).
+\]
+\end{opr}
+
+Множества удобно изображать кругами Эйлера (диаграммами Венна): прямоугольник --- универсальное
+множество $U$, круги --- множества, закрашенная область --- результат операции.
+
+\begin{center}
+\begin{tikzpicture}[scale=0.55]
+  \draw (0,0) circle (1.6);
+  \draw (-0.4,-0.2) circle (0.8);
+  \node at (-0.4,-0.2) {$A$};
+  \node at (0.9,0.9) {$B$};
+  \node at (0,-2.1) {$A \subseteq B$};
+\end{tikzpicture}
+\end{center}
+
+\podr{Операции над множествами}
+
+\begin{opr}[объединение]
+\textbf{Объединение} $A \cup B$ --- множество элементов, принадлежащих хотя бы одному из множеств $A$, $B$:
+\[
+  A \cup B = \{\, x : x \in A \vee x \in B \,\}.
+\]
+\kv
+\[
+  \forall x\ \bigl(x \in A \cup B \Leftrightarrow x \in A \vee x \in B\bigr).
+\]
+\end{opr}
+
+\begin{opr}[пересечение]
+\textbf{Пересечение} $A \cap B$ (обозначают также $AB$) --- множество элементов, принадлежащих и $A$, и $B$:
+\[
+  A \cap B = \{\, x : x \in A \wedge x \in B \,\}.
+\]
+\kv
+\[
+  \forall x\ \bigl(x \in A \cap B \Leftrightarrow x \in A \wedge x \in B\bigr).
+\]
+\end{opr}
+
+\begin{opr}[разность]
+\textbf{Разность} $A \setminus B$ --- множество элементов $A$, не принадлежащих $B$:
+\[
+  A \setminus B = \{\, x : x \in A \wedge x \notin B \,\}.
+\]
+\kv
+\[
+  \forall x\ \bigl(x \in A \setminus B \Leftrightarrow x \in A \wedge x \notin B\bigr).
+\]
+\end{opr}
+
+\begin{opr}[симметричная разность]
+\textbf{Симметричная разность} --- элементы, принадлежащие ровно одному из множеств:
+\[
+  A \,\triangle\, B = (A \setminus B) \cup (B \setminus A).
+\]
+\kv
+\[
+  \forall x\ \Bigl(x \in A \,\triangle\, B \Leftrightarrow (x \in A \wedge x \notin B) \vee (x \in B \wedge x \notin A)\Bigr).
+\]
+\end{opr}
+
+\begin{opr}[дополнение]
+\textbf{Дополнение} множества $A$ (относительно универсального множества $U$) --- все элементы $U$, не лежащие в $A$:
+\[
+  \overline{A} = U \setminus A = CA.
+\]
+\kv
+\[
+  \forall x \in U\ \bigl(x \in \overline{A} \Leftrightarrow x \notin A\bigr).
+\]
+\end{opr}
+
+\podr{Диаграммы Эйлера--Венна для операций}
+
+\begin{center}
+\venn{\fill[gray!40] (0,0) circle (1) (1.2,0) circle (1);}{$A \cup B$}
+\qquad
+\venn{\clip (0,0) circle (1); \fill[gray!40] (1.2,0) circle (1);}{$A \cap B$}
+\qquad
+\venn{\fill[gray!40, even odd rule] (0,0) circle (1) (1.2,0) circle (1);}{$A \,\triangle\, B$}
+
+\medskip
+\venn{\clip (0,0) circle (1); \fill[gray!40, even odd rule] (0,0) circle (1) (1.2,0) circle (1);}{$A \setminus B$}
+\qquad
+\venn{\clip (1.2,0) circle (1); \fill[gray!40, even odd rule] (0,0) circle (1) (1.2,0) circle (1);}{$B \setminus A$}
+\qquad
+\begin{tikzpicture}[scale=0.55]
+  \fill[gray!40] (-2,-1.4) rectangle (2,1.4);
+  \fill[white] (0,0) circle (0.8);
+  \draw (-2,-1.4) rectangle (2,1.4);
+  \draw (0,0) circle (0.8);
+  \node at (0,0) {$A$};
+  \node at (1.6,1.05) {$U$};
+  \node at (0,-1.9) {$\overline{A}$};
+\end{tikzpicture}
+\end{center}
+
+\podr{Свойства операций}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Коммутативность:}
+    \[ A \cup B = B \cup A, \qquad A \cap B = B \cap A; \]
+  \item \textbf{Ассоциативность:}
+    \[ (A \cup B) \cup C = A \cup (B \cup C), \qquad (A \cap B) \cap C = A \cap (B \cap C); \]
+  \item \textbf{Дистрибутивность:}
+    \[ (A \cup B) \cap C = (A \cap C) \cup (B \cap C), \quad (A \cap B) \cup C = (A \cup C) \cap (B \cup C); \]
+  \item \textbf{Идемпотентность:}
+    \[ A \cup A = A, \qquad A \cap A = A; \]
+  \item \textbf{Законы де Моргана} (правила двойственности):
+    \[ \overline{A \cup B} = \overline{A} \cap \overline{B}, \qquad \overline{A \cap B} = \overline{A} \cup \overline{B}; \]
+  \item \textbf{Поглощение:}
+    \[ A \cup (A \cap B) = A, \qquad A \cap (A \cup B) = A; \]
+  \item \textbf{Свойства $\overline{A}$, $\varnothing$ и $U$:}
+    \[
+      \begin{aligned}
+        A \cup \overline{A} &= U, & A \cup U &= U, & A \cup \varnothing &= A, & U \cup \varnothing &= U, \\
+        A \cap \overline{A} &= \varnothing, & A \cap U &= A, & A \cap \varnothing &= \varnothing, & U \cap \varnothing &= \varnothing.
+      \end{aligned}
+    \]
+\end{enumerate}
+
+\begin{dop}[как доказывать свойства]
+Каждое свойство сводится к логике: по определениям операций переводим <<$x \in \dots$>> в высказывания
+и пользуемся тем же свойством логических операций (его проверяют таблицей истинности).
+
+\textbf{Закон де Моргана} $\overline{A \cup B} = \overline{A} \cap \overline{B}$:
+\[
+  x \in \overline{A \cup B}
+  \Leftrightarrow \neg\,(x \in A \vee x \in B)
+  \Leftrightarrow (x \notin A) \wedge (x \notin B)
+  \Leftrightarrow x \in \overline{A} \wedge x \in \overline{B}
+  \Leftrightarrow x \in \overline{A} \cap \overline{B}.
+\]
+Так как это верно $\forall x$, множества равны (принцип объёмности).
+
+\textbf{Дистрибутивность} $(A \cup B) \cap C = (A \cap C) \cup (B \cap C)$:
+\begin{multline*}
+  x \in (A \cup B) \cap C
+  \Leftrightarrow (x \in A \vee x \in B) \wedge x \in C \Leftrightarrow \\
+  \Leftrightarrow (x \in A \wedge x \in C) \vee (x \in B \wedge x \in C)
+  \Leftrightarrow x \in (A \cap C) \cup (B \cap C).
+\end{multline*}
+
+\textbf{Проверка диаграммой:} у левой и правой части закрашивается одна и та же область.
+Для $\overline{A \cup B} = \overline{A} \cap \overline{B}$ это область вне обоих кругов:
+\begin{center}
+\begin{tikzpicture}[scale=0.55]
+  \fill[gray!40] (-1.6,-1.5) rectangle (2.8,1.5);
+  \fill[white] (0,0) circle (1) (1.2,0) circle (1);
+  \draw (-1.6,-1.5) rectangle (2.8,1.5);
+  \draw (0,0) circle (1) (1.2,0) circle (1);
+  \node at (-0.45,0) {$A$}; \node at (1.65,0) {$B$}; \node at (2.4,1.15) {$U$};
+  \node at (0.6,-2.0) {$\overline{A \cup B} = \overline{A} \cap \overline{B}$};
+\end{tikzpicture}
+\end{center}
+\end{dop}
+
+
+% ======================= ВОПРОС 2 =======================
+\vopros{2}{Понятие функции. Область определения, способы задания, график. Чётные и нечётные, периодические функции}
+
+{\small\textcolor{zamc}{В лекциях этого вопроса нет --- ответ составлен по стандартному курсу математического анализа
+в тех же обозначениях. Сверь с тем, что требует преподаватель.}}
+
+\plan{\item определение функции, аргумент, значение; область определения $D(f)$ и множество значений $E(f)$;
+\item способы задания: аналитический, табличный, графический, словесный (а также параметрический и неявный);
+\item график функции;
+\item чётные и нечётные функции, симметрия графика, примеры;
+\item периодические функции, основной период, примеры.}
+
+\podr{Понятие функции}
+
+\begin{opr}[функция]
+Пусть $X$ и $Y$ --- числовые множества. \textbf{Функцией} $f\colon X \to Y$ называется правило (закон), по которому
+\emph{каждому} элементу $x \in X$ ставится в соответствие \emph{единственный} элемент $y \in Y$. Пишут $y = f(x)$;
+$x$ --- \textbf{аргумент} (независимая переменная), $y$ --- \textbf{значение функции} (зависимая переменная).
+\kv
+\[
+  f\colon X \to Y \text{ --- функция} \Leftrightarrow \forall x \in X\ \exists!\, y \in Y\ \bigl(y = f(x)\bigr).
+\]
+\end{opr}
+
+\begin{opr}[область определения и множество значений]
+\textbf{Область определения} $D(f)$ --- множество всех $x$, для которых функция задана ($D(f) = X$).
+\textbf{Множество значений} $E(f)$ --- множество всех значений, которые функция принимает.
+\kv
+\[
+  E(f) = \{\, y : \exists x \in D(f)\ (y = f(x)) \,\}, \qquad
+  y \in E(f) \Leftrightarrow \exists x \in D(f)\ \bigl(f(x) = y\bigr).
+\]
+\end{opr}
+
+Если функция задана формулой и $D(f)$ не указана, то берут \textbf{естественную область определения} --- все $x$, при которых
+формула имеет смысл (нельзя делить на ноль, извлекать корень чётной степени из отрицательного числа, брать логарифм от неположительного
+числа и т.\,п.). Например, для $y = \dfrac{\sqrt{x - 1}}{x - 3}$: \ $x - 1 \ge 0$ и $x \ne 3$, т.\,е.
+$D(f) = [1; 3) \cup (3; +\infty)$.
+
+Последовательность (вопрос 4) --- частный случай функции, у которой $D(f) = \N$.
+
+\podr{Способы задания функции}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Аналитический} --- формулой: $y = x^2 + 1$, $y = \sin x$. Функция может задаваться разными формулами на разных
+        участках (кусочно), например
+        $y = \operatorname{sign} x = \begin{cases} 1, & x > 0,\\ 0, & x = 0,\\ -1, & x < 0. \end{cases}$
+  \item \textbf{Табличный} --- таблицей значений (результаты измерений, таблицы логарифмов):
+        \begin{tabular}{c|cccc} $x$ & 0 & 1 & 2 & 3 \\ \hline $y$ & 1 & 3 & 2 & 5 \end{tabular}
+  \item \textbf{Графический} --- графиком (например, запись прибора); значения снимают с графика.
+  \item \textbf{Словесный} --- описанием: $y = [x]$ --- целая часть числа $x$ (наибольшее целое, не превосходящее $x$);
+        функция Дирихле $D(x) = 1$ при рациональных $x$ и $0$ при иррациональных.
+  \item \textbf{Параметрический} --- $x = \varphi(t)$, $y = \psi(t)$, $t \in T$; например, $x = \cos t$, $y = \sin t$, $t \in [0; \pi]$ ---
+        верхняя половина окружности.
+  \item \textbf{Неявный} --- уравнением $F(x, y) = 0$, не разрешённым относительно $y$ (вопрос 3).
+\end{enumerate}
+
+\podr{График функции}
+
+\begin{opr}[график функции]
+\textbf{Графиком} функции $y = f(x)$ называется множество точек плоскости $Oxy$ с координатами $(x; f(x))$, где $x \in D(f)$.
+\kv
+\[
+  \Gamma_f = \{\, (x; y) \in \R^2 : x \in D(f) \wedge y = f(x) \,\}.
+\]
+\end{opr}
+
+Так как каждому $x$ соответствует только одно $y$, любая вертикальная прямая $x = a$ пересекает график не более чем в одной точке.
+Поэтому, например, окружность $x^2 + y^2 = 1$ --- не график функции $y = f(x)$, а объединение графиков двух функций $y = \pm\sqrt{1 - x^2}$.
+
+\podr{Чётные и нечётные функции}
+
+\begin{opr}[чётная функция]
+Функция $f$ называется \textbf{чётной}, если её область определения симметрична относительно нуля и $f(-x) = f(x)$ для всех $x \in D(f)$.
+\kv
+\[
+  \forall x \in D(f)\ \bigl( -x \in D(f) \ \wedge\ f(-x) = f(x) \bigr).
+\]
+\end{opr}
+
+\begin{opr}[нечётная функция]
+Функция $f$ называется \textbf{нечётной}, если её область определения симметрична относительно нуля и $f(-x) = -f(x)$ для всех $x \in D(f)$.
+\kv
+\[
+  \forall x \in D(f)\ \bigl( -x \in D(f) \ \wedge\ f(-x) = -f(x) \bigr).
+\]
+\end{opr}
+
+\begin{itemize}[leftmargin=*]
+  \item График чётной функции \textbf{симметричен относительно оси $Oy$}, нечётной --- \textbf{относительно начала координат}.
+  \item Чётные: $x^2$, $|x|$, $\cos x$, $x^4 - 3x^2$. \ Нечётные: $x^3$, $\sin x$, $\tg x$, $\operatorname{sign} x$, $\frac1x$.
+  \item Ни чётные, ни нечётные (функции общего вида): $x + 1$, $e^x$, $\sqrt{x}$ (у последней $D(f) = [0; +\infty)$ не симметрична).
+  \item Отрицание (функция не чётная): $\exists x \in D(f)\ \bigl(-x \notin D(f) \ \vee\ f(-x) \ne f(x)\bigr)$.
+\end{itemize}
+
+\textbf{Свойства.}
+\begin{enumerate}[leftmargin=*]
+  \item Если $f$ нечётная и $0 \in D(f)$, то $f(0) = 0$: из $f(-0) = -f(0)$ получаем $f(0) = -f(0)$.
+  \item Произведение двух чётных или двух нечётных функций --- чётная функция; произведение чётной и нечётной --- нечётная.
+        Например, $x \sin x$ --- чётная, $x^2 \sin x$ --- нечётная.
+  \item Любую функцию с симметричной $D(f)$ можно разложить в сумму чётной и нечётной:
+        \[
+          f(x) = \underbrace{\frac{f(x) + f(-x)}{2}}_{\text{чётная}} + \underbrace{\frac{f(x) - f(-x)}{2}}_{\text{нечётная}}.
+        \]
+\end{enumerate}
+
+\begin{center}
+\begin{tikzpicture}[font=\small, >=stealth, scale=0.75]
+  \draw[->] (-2.3,0) -- (2.4,0) node[below] {$x$};
+  \draw[->] (0,-0.4) -- (0,3) node[left] {$y$};
+  \draw[thick, domain=-1.6:1.6, samples=50, smooth] plot (\x,{\x*\x});
+  \node at (0,-1.1) {чётная: $y = x^2$};
+\end{tikzpicture}
+\qquad\qquad
+\begin{tikzpicture}[font=\small, >=stealth, scale=0.75]
+  \draw[->] (-2.3,0) -- (2.4,0) node[below] {$x$};
+  \draw[->] (0,-2.2) -- (0,2.4) node[left] {$y$};
+  \draw[thick, domain=-1.25:1.25, samples=50, smooth] plot (\x,{\x*\x*\x});
+  \node at (0,-2.7) {нечётная: $y = x^3$};
+\end{tikzpicture}
+\end{center}
+
+\podr{Периодические функции}
+
+\begin{opr}[периодическая функция]
+Функция $f$ называется \textbf{периодической}, если существует число $T \ne 0$ такое, что для любого $x \in D(f)$ числа $x \pm T$
+тоже лежат в $D(f)$ и $f(x + T) = f(x)$. Число $T$ называется \textbf{периодом} функции.
+\kv
+\[
+  \exists T \ne 0\ \forall x \in D(f)\ \bigl( x + T \in D(f) \ \wedge\ x - T \in D(f) \ \wedge\ f(x + T) = f(x) \bigr).
+\]
+Наименьший положительный период (если он существует) называется \textbf{основным периодом}.
+\end{opr}
+
+\begin{itemize}[leftmargin=*]
+  \item Если $T$ --- период, то $-T$, $2T$, \dots, $nT$ ($n \in \mathbb{Z}$, $n \ne 0$) --- тоже периоды.
+  \item Если $f$ имеет основной период $T$, то $f(kx + b)$ ($k \ne 0$) имеет основной период $\dfrac{T}{|k|}$.
+        Например, $\sin 3x$ имеет период $\frac{2\pi}{3}$.
+  \item График периодической функции получается сдвигами одного <<куска>> длиной $T$ вдоль оси $Ox$.
+\end{itemize}
+
+Примеры: $\sin x$, $\cos x$ --- основной период $2\pi$; \ $\tg x$, $\operatorname{ctg} x$ --- $\pi$; \
+$\{x\} = x - [x]$ (дробная часть) --- $1$. \
+Постоянная функция и функция Дирихле периодичны, но \emph{основного периода не имеют}: у постоянной периодом служит
+любое $T \ne 0$, у функции Дирихле --- любое рациональное $T \ne 0$, а наименьшего положительного среди них нет.
+Не периодичны: $x^2$, $e^x$, $\sin x^2$.
+
+% ======================= ВОПРОС 3 =======================
+\vopros{3}{Сложные, обратные и неявные функции. Ограниченные и монотонные функции}
+
+{\small\textcolor{zamc}{В лекциях этого вопроса нет --- ответ составлен по стандартному курсу математического анализа
+в тех же обозначениях. Сверь с тем, что требует преподаватель.}}
+
+\plan{\item сложная функция (композиция), её область определения;
+\item обратная функция: условие существования, свойства, график;
+\item неявная функция;
+\item ограниченные функции (сверху, снизу, ограниченные) --- в кванторах;
+\item монотонные функции (возрастающие, убывающие, неубывающие, невозрастающие) --- в кванторах.}
+
+\podr{Сложная функция}
+
+\begin{opr}[сложная функция (композиция)]
+Пусть $u = \varphi(x)$ --- функция с областью определения $D(\varphi)$, а $y = f(u)$ --- функция, определённая на множестве,
+содержащем значения $\varphi$. Тогда функция $y = f\bigl(\varphi(x)\bigr)$ называется \textbf{сложной функцией} (композицией,
+суперпозицией) функций $f$ и $\varphi$ и обозначается $f \circ \varphi$; $u = \varphi(x)$ --- \textbf{внутренняя} функция
+(промежуточный аргумент), $f$ --- \textbf{внешняя}.
+\kv
+\[
+  (f \circ \varphi)(x) = f\bigl(\varphi(x)\bigr), \qquad
+  D(f \circ \varphi) = \{\, x \in D(\varphi) : \varphi(x) \in D(f) \,\}.
+\]
+\end{opr}
+
+Примеры:
+\begin{itemize}[leftmargin=*]
+  \item $y = \sin^2 x$: \ $u = \sin x$, $y = u^2$; \quad $y = \sin(x^2)$: \ $u = x^2$, $y = \sin u$ --- \textbf{порядок важен}, $f \circ \varphi \ne \varphi \circ f$.
+  \item $y = \ln \cos x$: \ $u = \cos x$, $y = \ln u$; область определения: $\cos x > 0$, т.\,е.
+        $x \in \left(-\frac\pi2 + 2\pi k;\ \frac\pi2 + 2\pi k\right)$, $k \in \mathbb{Z}$.
+  \item Композиция может быть многоступенчатой: $y = e^{\sin \sqrt{x}}$ --- это $x \mapsto \sqrt{x} \mapsto \sin \sqrt{x} \mapsto e^{\sin\sqrt{x}}$.
+\end{itemize}
+Непрерывность сложной функции --- вопрос 21.
+
+\podr{Обратная функция}
+
+\begin{opr}[взаимно однозначная функция]
+Функция $f\colon X \to Y$ с $E(f) = Y$ называется \textbf{взаимно однозначной} (обратимой), если разным значениям аргумента
+соответствуют разные значения функции.
+\kv
+\[
+  \forall x_1, x_2 \in X\ \bigl( x_1 \ne x_2 \to f(x_1) \ne f(x_2) \bigr)
+  \quad\Leftrightarrow\quad
+  \forall y \in Y\ \exists!\, x \in X\ \bigl( f(x) = y \bigr).
+\]
+\end{opr}
+
+\begin{opr}[обратная функция]
+Пусть $f\colon X \to Y$ взаимно однозначна. Функция $f^{-1}\colon Y \to X$, которая каждому $y \in Y$ ставит в соответствие
+\emph{тот единственный} $x \in X$, для которого $f(x) = y$, называется \textbf{обратной} к $f$.
+\kv
+\[
+  x = f^{-1}(y) \Leftrightarrow y = f(x); \qquad
+  \forall x \in X\ \bigl(f^{-1}(f(x)) = x\bigr), \quad \forall y \in Y\ \bigl(f(f^{-1}(y)) = y\bigr).
+\]
+\end{opr}
+
+\textbf{Свойства.}
+\begin{enumerate}[leftmargin=*]
+  \item $D(f^{-1}) = E(f)$, \ $E(f^{-1}) = D(f)$; функции $f$ и $f^{-1}$ взаимно обратны: $(f^{-1})^{-1} = f$.
+  \item Если у обратной функции аргумент снова обозначить $x$ ($y = f^{-1}(x)$), то графики $y = f(x)$ и $y = f^{-1}(x)$
+        \textbf{симметричны относительно прямой $y = x$}.
+  \item \textbf{Строго монотонная функция имеет обратную, монотонную в ту же сторону}: если $f$ возрастает, то
+        $x_1 \ne x_2$, скажем $x_1 < x_2$, даёт $f(x_1) < f(x_2)$, т.\,е. $f(x_1) \ne f(x_2)$ --- $f$ взаимно однозначна;
+        и $f^{-1}$ тоже возрастает.
+\end{enumerate}
+
+\textbf{Как найти обратную:} решить уравнение $y = f(x)$ относительно $x$ и переобозначить переменные.
+\begin{itemize}[leftmargin=*]
+  \item $y = 2x + 3$ \ $\Rightarrow$ \ $x = \frac{y - 3}{2}$ \ $\Rightarrow$ \ $f^{-1}(x) = \frac{x - 3}{2}$.
+  \item $y = x^2$ на всей оси обратной не имеет ($f(-1) = f(1)$), а на $[0; +\infty)$ имеет: $f^{-1}(x) = \sqrt{x}$.
+  \item $y = a^x$ и $y = \log_a x$; \ $y = \sin x$ на $\left[-\frac\pi2; \frac\pi2\right]$ и $y = \arcsin x$;
+        \ $y = \tg x$ на $\left(-\frac\pi2; \frac\pi2\right)$ и $y = \arctg x$.
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[font=\small, >=stealth, scale=0.8]
+  \draw[->] (-1.6,0) -- (3.6,0) node[below] {$x$};
+  \draw[->] (0,-1.6) -- (0,3.6) node[left] {$y$};
+  \draw[dashed, gray] (-1.4,-1.4) -- (3.4,3.4) node[above right] {$y = x$};
+  \draw[thick, domain=-1.5:1.25, samples=60, smooth] plot (\x,{exp(\x)}) node[above] {$y = e^x$};
+  \draw[thick, domain=-1.5:1.25, samples=60, smooth] plot ({exp(\x)},\x) node[right] {$y = \ln x$};
+\end{tikzpicture}
+\end{center}
+
+\podr{Неявная функция}
+
+\begin{opr}[неявно заданная функция]
+Говорят, что функция $y = f(x)$, $x \in X$, \textbf{задана неявно} уравнением $F(x, y) = 0$, если при подстановке $y = f(x)$
+уравнение обращается в тождество на $X$.
+\kv
+\[
+  \forall x \in X\ \bigl( F(x, f(x)) = 0 \bigr).
+\]
+Функция, заданная формулой $y = f(x)$, называется \textbf{явной}.
+\end{opr}
+
+Примеры:
+\begin{itemize}[leftmargin=*]
+  \item $x + y^3 = 0$ задаёт неявно функцию $y = -\sqrt[3]{x}$ (её можно выразить явно).
+  \item $x^2 + y^2 = 1$ задаёт \emph{две} непрерывные функции $y = \sqrt{1 - x^2}$ и $y = -\sqrt{1 - x^2}$, $x \in [-1; 1]$:
+        уравнение не обязано определять функцию однозначно.
+  \item $y^5 + y - x = 0$ задаёт функцию $y(x)$ на всей оси (левая часть строго возрастает по $y$, поэтому при каждом $x$ корень
+        единственный), но выразить $y$ формулой нельзя.
+\end{itemize}
+
+\podr{Ограниченные функции}
+
+Пусть $X \subseteq D(f)$.
+
+\begin{opr}[ограниченная сверху, снизу, ограниченная функция]
+Функция $f$ называется \textbf{ограниченной сверху (снизу)} на $X$, если все её значения на $X$ не больше (не меньше) некоторого числа;
+\textbf{ограниченной} --- если она ограничена и сверху, и снизу.
+\kv
+\[
+  \text{сверху: } \exists M\ \forall x \in X\ \bigl(f(x) \le M\bigr); \qquad
+  \text{снизу: } \exists m\ \forall x \in X\ \bigl(f(x) \ge m\bigr);
+\]
+\[
+  \text{ограниченная: } \exists M > 0\ \forall x \in X\ \bigl(|f(x)| \le M\bigr).
+\]
+\end{opr}
+
+\begin{opr}[неограниченная функция --- отрицание]
+\[
+  f \text{ не ограничена на } X \Leftrightarrow \forall M > 0\ \exists x \in X\ \bigl(|f(x)| > M\bigr).
+\]
+\end{opr}
+
+Примеры: $\sin x$, $\cos x$ ограничены на $\R$ ($|\sin x| \le 1$); \ $x^2$ ограничена снизу ($x^2 \ge 0$), но не сверху; \
+$\frac1x$ не ограничена на $(0; 1]$ (для любого $M$ возьмём $x = \frac{1}{M + 1}$, тогда $\frac1x = M + 1 > M$), но ограничена на $[1; +\infty)$.
+\emph{Ограниченность зависит от множества $X$.}
+
+Точная верхняя (нижняя) грань функции на $X$ --- это $\sup$ ($\inf$) множества её значений (вопрос 13):
+$\sup\limits_{X} f = \sup\{f(x) : x \in X\}$, \ $\inf\limits_{X} f = \inf\{f(x) : x \in X\}$.
+
+\podr{Монотонные функции}
+
+\begin{opr}[возрастающая, убывающая, неубывающая, невозрастающая функция на $X$]
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Название} & \textbf{В кванторах} \\ \hline
+возрастающая & $\forall x_1, x_2 \in X\ \bigl(x_1 < x_2 \to f(x_1) < f(x_2)\bigr)$ \\
+убывающая & $\forall x_1, x_2 \in X\ \bigl(x_1 < x_2 \to f(x_1) > f(x_2)\bigr)$ \\
+неубывающая & $\forall x_1, x_2 \in X\ \bigl(x_1 < x_2 \to f(x_1) \le f(x_2)\bigr)$ \\
+невозрастающая & $\forall x_1, x_2 \in X\ \bigl(x_1 < x_2 \to f(x_1) \ge f(x_2)\bigr)$ \\ \hline
+\end{tabular}
+\end{center}
+Функции всех четырёх видов называются \textbf{монотонными} на $X$, возрастающие и убывающие --- \textbf{строго монотонными}.
+Словами: возрастающая --- большему значению аргумента соответствует большее значение функции.
+\end{opr}
+
+Отрицание (функция \emph{не} возрастает на $X$): $\exists x_1, x_2 \in X\ \bigl(x_1 < x_2 \wedge f(x_1) \ge f(x_2)\bigr)$.
+
+Примеры:
+\begin{itemize}[leftmargin=*]
+  \item $x^3$, $e^x$, $\ln x$ возрастают на своих областях определения; \ $\left(\frac12\right)^x$ убывает на $\R$.
+  \item $x^2$ убывает на $(-\infty; 0]$ и возрастает на $[0; +\infty)$, а на всей оси не монотонна.
+  \item $\frac1x$ убывает на $(-\infty; 0)$ и на $(0; +\infty)$, но \emph{не убывает} на их объединении:
+        $-1 < 1$ и $f(-1) = -1 < f(1) = 1$. Монотонность зависит от множества.
+  \item $[x]$ (целая часть) --- неубывающая, но не возрастающая; постоянная функция одновременно неубывающая и невозрастающая.
+\end{itemize}
+
+\textbf{Свойства.} Сумма двух возрастающих функций возрастает; композиция двух возрастающих (или двух убывающих) функций возрастает;
+композиция возрастающей и убывающей --- убывает. Например, $e^{-x}$ убывает, $\ln(x^2 + 1)$ возрастает на $[0; +\infty)$.
+Связь с обратной функцией: строго монотонная функция обратима (см.\ выше). Монотонность через производную --- часть 2, вопрос 17.
+% ======================= ВОПРОС 4 =======================
+\vopros{4}{Числовые последовательности: определение, способы задания, ограниченные, монотонные}
+
+\plan{\item последовательность как функция натурального аргумента, обозначения, примеры;
+\item способы задания;
+\item ограниченная сверху / снизу / ограниченная и неограниченная --- в кванторах;
+\item возрастающая, убывающая, неубывающая, невозрастающая; монотонная;
+\item разбор примеров из лекции.}
+
+\podr{Определение}
+
+\begin{opr}[последовательность]
+\textbf{Последовательность} --- функция, заданная на множестве натуральных чисел: $y = f(n)$, $n \in \N$.
+Значение $x_n = f(n)$ называют $n$-м (общим) членом последовательности.
+Обозначения: $(x_n)$, $(y_n)$, $(a_n)$ или $\{x_n\}$, $\{y_n\}$, $\{a_n\}$.
+\kv
+\[
+  (x_n) \text{ --- последовательность} \Leftrightarrow
+  \forall n \in \N\ \exists!\, x_n \in \R\ \bigl(x_n = f(n)\bigr)
+\]
+(каждому номеру $n$ сопоставлено ровно одно число $x_n$).
+\end{opr}
+
+Примеры последовательностей --- арифметическая и геометрическая прогрессии. Ещё примеры из лекции:
+\[
+  (x_n) = \left( \frac{2 + (-1)^n}{n} \right):\ 1,\ \tfrac32,\ \tfrac13,\ \tfrac34,\ \tfrac15,\ \tfrac12,\ \dots;
+  \qquad
+  (n^2):\ 1,\ 4,\ 9,\ 16,\ \dots
+\]
+
+\begin{dop}[способы задания последовательности]
+В лекции способы отдельно не перечислялись; в примерах последовательности заданы формулой общего члена.
+\begin{enumerate}
+  \item \textbf{Аналитически} --- формулой общего члена: $x_n = \dfrac{2 + (-1)^n}{n}$, $x_n = n^2$.
+  \item \textbf{Рекуррентно} --- задают первый член(ы) и правило, как получить следующий член из предыдущих:
+    арифметическая прогрессия $a_1 = a$, $a_{n+1} = a_n + d$; геометрическая $b_1 = b$, $b_{n+1} = b_n q$;
+    числа Фибоначчи $F_1 = F_2 = 1$, $F_{n+2} = F_{n+1} + F_n$.
+  \item \textbf{Словесно (описанием)}: $x_n$ --- $n$-е простое число: $2, 3, 5, 7, 11, \dots$
+  \item \textbf{Перечислением первых членов}, если закономерность ясна: $1, \frac12, \frac13, \dots$
+\end{enumerate}
+\end{dop}
+
+\podr{Ограниченные и неограниченные последовательности}
+
+\begin{opr}[ограниченная сверху]
+Последовательность $(x_n)$ \textbf{ограничена сверху}, если существует число $M$, которое не меньше всех её членов.
+\kv
+\[
+  \exists M\ \forall n \in \N\ (x_n \le M).
+\]
+\end{opr}
+
+\begin{opr}[ограниченная снизу]
+Последовательность \textbf{ограничена снизу}, если существует число $M$, которое не больше всех её членов.
+\kv
+\[
+  \exists M\ \forall n \in \N\ (x_n \ge M).
+\]
+\end{opr}
+
+\begin{opr}[ограниченная]
+Последовательность \textbf{ограничена}, если она ограничена и сверху, и снизу, т.\,е. все её члены
+по модулю не больше некоторого числа (так ограниченность записывается в доказательствах лекций).
+\kv
+\[
+  \exists L > 0\ \forall n \in \N\ \bigl(|x_n| \le L\bigr)
+  \quad\Leftrightarrow\quad
+  \exists m\ \exists M\ \forall n \in \N\ (m \le x_n \le M).
+\]
+\end{opr}
+
+\begin{opr}[неограниченная сверху / снизу --- отрицания]
+Последовательность \textbf{не ограничена сверху}, если какое бы число $M$ ни взять, найдётся член больше $M$;
+\textbf{не ограничена снизу} --- найдётся член меньше $M$.
+\kv
+\[
+  \text{не огр. сверху: } \forall M\ \exists n \in \N\ (x_n > M); \qquad
+  \text{не огр. снизу: } \forall M\ \exists n \in \N\ (x_n < M);
+\]
+\[
+  \text{неограниченная: } \forall L > 0\ \exists n \in \N\ \bigl(|x_n| > L\bigr).
+\]
+\end{opr}
+
+\begin{dop}[почему две записи ограниченности равносильны]
+Если $\forall n\ (|x_n| \le L)$, то $-L \le x_n \le L$ --- берём $m = -L$, $M = L$.
+Обратно, если $m \le x_n \le M$, то $|x_n| \le \max(|m|, |M|) = L$.
+\end{dop}
+
+\podr{Монотонные последовательности}
+
+В лекции дано определение возрастающей последовательности; остальные виды (они используются в теореме
+о пределе монотонной последовательности, вопрос 13) записываются так же:
+
+\begin{opr}[возрастающая, убывающая, неубывающая, невозрастающая]
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Название} & \textbf{Словами} & \textbf{В кванторах} \\ \hline
+возрастающая & каждый следующий член больше предыдущего & $\forall n \in \N\ (x_n < x_{n+1})$ \\
+убывающая & каждый следующий член меньше предыдущего & $\forall n \in \N\ (x_n > x_{n+1})$ \\
+неубывающая & каждый следующий член не меньше предыдущего & $\forall n \in \N\ (x_n \le x_{n+1})$ \\
+невозрастающая & каждый следующий член не больше предыдущего & $\forall n \in \N\ (x_n \ge x_{n+1})$ \\ \hline
+\end{tabular}
+\end{center}
+Последовательности всех четырёх видов называются \textbf{монотонными};
+возрастающие и убывающие --- \textbf{строго монотонными}.
+\end{opr}
+
+\zam Возрастающая последовательность является и неубывающей. Неубывающая последовательность всегда
+ограничена снизу своим первым членом: $\forall n\ (x_n \ge x_1)$; невозрастающая --- ограничена сверху: $\forall n\ (x_n \le x_1)$.
+
+\podr{Разбор примеров}
+
+\begin{itemize}[leftmargin=*]
+  \item $x_n = \dfrac{2 + (-1)^n}{n}$: при нечётных $n$ это $\frac1n \le 1$, при чётных $\frac3n \le \frac32$; все члены положительны.
+    Значит, $\forall n\ \bigl(0 < x_n \le \frac32\bigr)$ --- \textbf{ограничена}.
+    Не монотонна: $x_1 = 1 < x_2 = \frac32$, но $x_2 > x_3 = \frac13$.
+  \item $x_n = n^2$: $x_{n+1} - x_n = 2n + 1 > 0$ --- \textbf{возрастающая}; ограничена снизу ($x_n \ge 1$);
+    не ограничена сверху: $\forall M\ \exists n\ (n^2 > M)$ --- возьмём $n > \sqrt{|M|}$.
+  \item Арифметическая прогрессия с $d > 0$ возрастает, с $d < 0$ убывает;
+    геометрическая с $b_1 > 0$ и $q > 1$ возрастает, с $0 < q < 1$ убывает.
+\end{itemize}
+
+% ======================= ВОПРОС 5 =======================
+\vopros{5}{Предел числовой последовательности}
+
+\plan{\item определение предела словами и в кванторах, что значит $n_0(\eps)$;
+\item геометрический смысл ($\eps$-окрестность);
+\item пример доказательства по определению;
+\item сходящиеся и расходящиеся последовательности; отрицание определения.}
+
+\podr{Определение}
+
+\begin{opr}[предел последовательности]
+Число $A$ называется \textbf{пределом} последовательности $(x_n)$ при $n \to +\infty$, если для любого
+числа $\eps > 0$ найдётся номер $n_0(\eps)$ такой, что при всех номерах $n > n_0$ выполняется
+неравенство $|x_n - A| < \eps$.
+\kv
+\[
+  \lim_{n \to +\infty} x_n = A \Leftrightarrow
+  \forall \eps > 0\ \exists n_0(\eps)\ \forall n \in \N\ \bigl(n > n_0 \to |x_n - A| < \eps\bigr).
+\]
+Обозначение: $\lim\limits_{n \to +\infty} x_n = A$, или $x_n \to A$ при $n \to +\infty$.
+\end{opr}
+
+Пояснения:
+\begin{itemize}[leftmargin=*]
+  \item $n_0$ \textbf{зависит от $\eps$}: чем меньше $\eps$, тем дальше обычно приходится идти по последовательности;
+  \item $|x_n - A| < \eps \iff -\eps < x_n - A < \eps \iff A - \eps < x_n < A + \eps$, т.\,е. $x_n$ лежит
+    в \textbf{$\eps$-окрестности} точки $A$ --- интервале $(A - \eps;\ A + \eps)$.
+\end{itemize}
+
+То же определение через окрестность:
+\[
+  \lim_{n \to +\infty} x_n = A \Leftrightarrow
+  \forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to x_n \in (A - \eps;\ A + \eps)\bigr).
+\]
+
+\podr{Геометрический смысл предела}
+
+Какую бы узкую $\eps$-окрестность точки $A$ ни взять, \textbf{начиная с номера $n_0 + 1$ все члены
+последовательности попадают в неё}; вне окрестности остаётся лишь конечное число членов
+(не больше $n_0$).
+
+\begin{center}
+\begin{tikzpicture}[x=1cm, font=\small]
+  \draw[->] (0,0) -- (9,0) node[right] {$x$};
+  \foreach \x/\l in {0.5/x_1, 1.3/x_3, 2.0/x_2, 8.2/x_4}
+    \fill (\x,0) circle (1.2pt) node[below=2pt] {$\l$};
+  \foreach \x/\l in {3.2/A-\varepsilon, 5.0/A, 6.8/A+\varepsilon}
+    \draw (\x,0.12) -- (\x,-0.12) node[below=2pt] {$\l$};
+  \foreach \x/\l in {4.0/x_{n_0+1}, 5.8/x_{n_0+2}}
+    \fill (\x,0) circle (1.2pt) node[above=2pt] {$\l$};
+  \draw[decorate, decoration={brace, mirror, amplitude=4pt}] (3.2,-0.55) -- (5.0,-0.55) node[midway, below=4pt] {$\varepsilon$};
+  \draw[decorate, decoration={brace, mirror, amplitude=4pt}] (5.0,-0.55) -- (6.8,-0.55) node[midway, below=4pt] {$\varepsilon$};
+\end{tikzpicture}
+\qquad
+\begin{tikzpicture}[x=0.55cm, y=0.55cm, font=\small]
+  \draw[->] (0,0) -- (8,0) node[right] {$n$};
+  \draw[->] (0,0) -- (0,5.5) node[above] {$x$};
+  \foreach \y/\l in {2.4/A-\varepsilon, 3.2/A, 4.0/A+\varepsilon}
+    \draw[dashed] (0,\y) node[left] {$\l$} -- (7.5,\y);
+  \fill (1,1.2) circle (1.2pt) node[below] {$x_1$};
+  \fill (2,4.9) circle (1.2pt) node[above] {$x_2$};
+  \fill (3,0.9) circle (1.2pt) node[below] {$x_3$};
+  \fill (5,3.6) circle (1.2pt) node[above right] {$x_{n_0+1}$};
+  \fill (6,2.9) circle (1.2pt) node[below right] {$x_{n_0+2}$};
+\end{tikzpicture}
+\end{center}
+
+\podr{Пример: доказать по определению, что $\lim\limits_{n \to +\infty} \frac{2n + 5}{n + 1} = 2$}
+
+Здесь $x_n = \dfrac{2n + 5}{n + 1}$, $A = 2$. Возьмём произвольное $\eps > 0$ и решим неравенство $|x_n - A| < \eps$:
+\[
+  |x_n - A| = \left| \frac{2n + 5}{n + 1} - 2 \right|
+            = \left| \frac{2n + 5 - 2n - 2}{n + 1} \right|
+            = \frac{3}{n + 1} < \eps
+  \iff n + 1 > \frac{3}{\eps}
+  \iff n > \frac{3}{\eps} - 1.
+\]
+Возьмём $n_0(\eps) = \max\left\{1,\ \left[\tfrac{3}{\eps} - 1\right]\right\}$ ($[\,\cdot\,]$ --- целая часть).
+Тогда при $n > n_0$ имеем $n > \frac3\eps - 1$, значит $|x_n - A| = \frac{3}{n + 1} < \eps$. Получили
+\[
+  \forall \eps > 0\ \exists n_0(\eps) = \max\left\{1,\ \left[\tfrac{3}{\eps} - 1\right]\right\}\
+  \forall n \in \N\ \bigl(n > n_0 \to |x_n - 2| < \eps\bigr),
+\]
+следовательно, по определению предела $\lim\limits_{n \to +\infty} x_n = 2$.
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+  $\eps$ & 1 & $\frac{1}{10}$ & $\frac{1}{100}$ & \dots \\ \hline
+  $n_0$  & 2 & 29             & 299             & \dots \\
+\end{tabular}
+\end{center}
+
+\podr{Сходящиеся и расходящиеся последовательности}
+
+\begin{opr}[сходящаяся / расходящаяся последовательность]
+Если последовательность имеет \textbf{конечный} предел, она называется \textbf{сходящейся}.
+В остальных случаях (предела нет или он бесконечный) --- \textbf{расходящейся}.
+\kv
+\[
+  (x_n) \text{ сходится} \Leftrightarrow
+  \exists A \in \R\ \forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |x_n - A| < \eps\bigr).
+\]
+Отрицание (по правилам из раздела <<Перед началом>>):
+\[
+  (x_n) \text{ расходится} \Leftrightarrow
+  \forall A \in \R\ \exists \eps > 0\ \forall n_0\ \exists n \in \N\ \bigl(n > n_0 \wedge |x_n - A| \ge \eps\bigr).
+\]
+Словами: какое число $A$ ни возьми, найдётся такое $\eps$, что сколь угодно далеко в последовательности
+есть члены, отстоящие от $A$ не меньше чем на $\eps$.
+\end{opr}
+
+Отдельно полезно отрицание <<$A$ --- не предел $(x_n)$>>:
+\[
+  \lim_{n \to +\infty} x_n \ne A \Leftrightarrow
+  \exists \eps > 0\ \forall n_0\ \exists n \in \N\ \bigl(n > n_0 \wedge |x_n - A| \ge \eps\bigr).
+\]
+
+\begin{dop}[пример расходящейся последовательности $x_n = (-1)^n$]
+Члены: $-1, 1, -1, 1, \dots$ Возьмём любое $A$ и $\eps = 1$. Так как
+$|1 - A| + |{-1} - A| \ge |1 - (-1)| = 2$, хотя бы одно из расстояний $|1 - A|$, $|{-1} - A|$ не меньше $1$.
+Числа $1$ и $-1$ встречаются при сколь угодно больших $n$, значит
+$\forall n_0\ \exists n > n_0\ (|x_n - A| \ge 1)$. Это верно для любого $A$ --- последовательность расходится.
+\end{dop}
+
+% ======================= ВОПРОС 6 =======================
+\vopros{6}{Свойства сходящихся последовательностей}
+
+\plan{\item $1^\circ$ сходящаяся последовательность ограничена;
+\item $2^\circ$ члены <<отделяются>> от чисел меньше/больше предела; следствие о знаке;
+\item $3^\circ$ единственность предела;
+\item $4^\circ$ переход к пределу в неравенствах;
+\item $5^\circ$ теорема о двух полицейских.}
+
+Напоминание: $(x_n)$ \textbf{сходится}, если у неё есть конечный предел:
+$\exists A \in \R\ \forall \eps > 0\ \exists n_0\ \forall n\ \bigl(n > n_0 \to |x_n - A| < \eps\bigr)$.
+
+\podr{$1^\circ$. Сходящаяся последовательность ограничена}
+
+\begin{teo}[$1^\circ$]
+Если последовательность сходится, то она ограничена.
+\kv
+\[
+  \exists \lim_{n \to +\infty} x_n = A \in \R \ \Longrightarrow\
+  \exists m\ \exists M\ \forall n \in \N\ (m \le x_n \le M).
+\]
+\end{teo}
+
+\begin{dok}
+Пусть $\lim\limits_{n \to +\infty} x_n = A$. Применим определение предела для конкретного $\eps = 1$:
+\[
+  \exists n_0(1)\ \forall n \in \N\ \bigl(n > n_0 \to A - 1 < x_n < A + 1\bigr).
+\]
+Итак, все члены с номерами $n > n_0$ лежат в интервале $(A - 1;\ A + 1)$, а вне его может оказаться только
+\emph{конечное} число членов $x_1, x_2, \dots, x_{n_0}$. В качестве верхней границы выберем
+\[
+  M = \max(A + 1,\ x_1,\ x_2,\ \dots,\ x_{n_0}),
+\]
+тогда $\forall n \in \N\ (x_n \le M)$: при $n \le n_0$ член $x_n$ сам входит в список под максимумом,
+а при $n > n_0$ имеем $x_n < A + 1 \le M$. В качестве нижней границы выберем
+\[
+  m = \min(A - 1,\ x_1,\ x_2,\ \dots,\ x_{n_0}),
+\]
+тогда аналогично $\forall n \in \N\ (x_n \ge m)$. Значит, $(x_n)$ ограничена.
+\end{dok}
+
+\begin{dop}[обратное неверно]
+Ограниченная последовательность не обязана сходиться: $x_n = (-1)^n$ ограничена ($|x_n| \le 1$), но расходится
+(см.\ вопрос 5). Ограниченность --- \emph{необходимое}, но не достаточное условие сходимости.
+\end{dop}
+
+\podr{$2^\circ$. Сравнение членов с числами, меньшими и большими предела}
+
+\begin{teo}[$2^\circ$]
+Если $\lim\limits_{n \to +\infty} x_n = A$, то для любого числа $P < A$ (любого $R > A$) начиная с некоторого номера
+все члены последовательности больше $P$ (меньше $R$).
+\kv
+\[
+  \forall P < A\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to x_n > P\bigr), \qquad
+  \forall R > A\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to x_n < R\bigr).
+\]
+\end{teo}
+
+\begin{dok}
+Докажем для $P < A$. Выберем $\forall P < A$. Так как $\lim\limits_{n \to +\infty} x_n = A$, то по определению предела
+для $\eps = A - P > 0$
+\[
+  \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to A - \eps < x_n < A + \eps\bigr).
+\]
+Так как $\eps = A - P$, то $x_n > A - \eps = A - (A - P) = P$. Получили
+\[
+  \forall P < A\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to x_n > P\bigr).
+\]
+Для $R > A$ так же: берём $\eps = R - A > 0$, тогда при $n > n_0$ имеем $x_n < A + \eps = R$.
+\end{dok}
+
+{\small\textcolor{zamc}{(В конспекте в итоговой строке доказательства написано $\forall P > A$ --- это описка, должно быть $\forall P < A$.)}}
+
+\zam Из свойства $2^\circ$ следует: если предел последовательности положительный (отрицательный), то начиная
+с некоторого номера все члены последовательности положительны (отрицательны). Это случай $P = 0$ (или $R = 0$):
+\[
+  A > 0 \ \Longrightarrow\ \exists n_0\ \forall n\ \bigl(n > n_0 \to x_n > 0\bigr).
+\]
+
+\podr{$3^\circ$. Единственность предела}
+
+\begin{teo}[$3^\circ$]
+Сходящаяся последовательность имеет единственный предел.
+\kv
+\[
+  \Bigl(\lim_{n \to +\infty} x_n = A\Bigr) \wedge \Bigl(\lim_{n \to +\infty} x_n = B\Bigr) \ \Longrightarrow\ A = B.
+\]
+\end{teo}
+
+\begin{dok}
+Предположим противное: $\lim\limits_{n \to +\infty} x_n = A$ и $\lim\limits_{n \to +\infty} x_n = B$, где $A < B$.
+Возьмём число посередине: $R = \dfrac{A + B}{2}$. Очевидно, $A < R < B$.
+
+Так как $\lim x_n = A$ и $R > A$, то по свойству $2^\circ$
+\[
+  \exists n_1\ \forall n \in \N\ \bigl(n > n_1 \to x_n < R\bigr);
+\]
+так как $\lim x_n = B$ и $R < B$, то по свойству $2^\circ$
+\[
+  \exists n_2\ \forall n \in \N\ \bigl(n > n_2 \to x_n > R\bigr).
+\]
+Возьмём $n_0 = \max(n_1, n_2)$. Тогда
+\[
+  \forall n \in \N\ \left(n > n_0 \to
+  \begin{cases} x_n > R,\\ x_n < R \end{cases}\right)
+  \ \Longrightarrow\ \text{противоречие}.
+\]
+Предположение неверно, значит $A = B$: сходящаяся последовательность имеет единственный предел.
+\end{dok}
+
+\podr{$4^\circ$. Переход к пределу в неравенствах}
+
+\begin{teo}[$4^\circ$]
+Пусть $\lim\limits_{n \to +\infty} x_n = A$, $\lim\limits_{n \to +\infty} y_n = B$ и $\forall n \in \N\ (x_n \le y_n)$. Тогда $A \le B$.
+\kv
+\[
+  \Bigl(\lim x_n = A\Bigr) \wedge \Bigl(\lim y_n = B\Bigr) \wedge \bigl(\forall n \in \N\ (x_n \le y_n)\bigr)
+  \ \Longrightarrow\ A \le B.
+\]
+\end{teo}
+
+\begin{dok}
+Предположим противное: $A > B$. Возьмём $R = \dfrac{A + B}{2}$, тогда $B < R < A$.
+
+Так как $R < A$ и $\lim x_n = A$, то по $2^\circ$: $\exists n_1\ \forall n \in \N\ \bigl(n > n_1 \to x_n > R\bigr)$.
+
+Так как $R > B$ и $\lim y_n = B$, то по $2^\circ$: $\exists n_2\ \forall n \in \N\ \bigl(n > n_2 \to y_n < R\bigr)$.
+
+Пусть $n_0 = \max(n_1, n_2)$:
+\[
+  \forall n \in \N\ \left(n > n_0 \to
+  \begin{cases} x_n > R,\\ y_n < R \end{cases}\right),
+\]
+следовательно, при $n > n_0$: $y_n < R < x_n$, что противоречит условию $x_n \le y_n$.
+Предположение неверно, и $A \le B$.
+\end{dok}
+
+Это свойство называется \textbf{переходом к пределу в неравенствах}.
+
+\begin{dop}[строгое неравенство может стать нестрогим]
+Из $x_n < y_n$ следует только $A \le B$, но не $A < B$: например, $x_n = 0 < y_n = \frac1n$, а пределы равны: $0 = 0$.
+\end{dop}
+
+\podr{$5^\circ$. Теорема о двух полицейских}
+
+\begin{teo}[$5^\circ$, о двух полицейских]
+Пусть $\lim\limits_{n \to +\infty} x_n = A$, $\lim\limits_{n \to +\infty} y_n = A$ и $\forall n \in \N\ (x_n \le z_n \le y_n)$.
+Тогда $\lim\limits_{n \to +\infty} z_n = A$.
+\kv
+\[
+  \Bigl(\lim x_n = A\Bigr) \wedge \Bigl(\lim y_n = A\Bigr) \wedge \bigl(\forall n\ (x_n \le z_n \le y_n)\bigr)
+  \ \Longrightarrow\ \lim z_n = A.
+\]
+\end{teo}
+
+\begin{dok}
+Выберем $\forall \eps > 0$. Так как $\lim x_n = A$, то
+\[
+  \exists n_1\ \forall n \in \N\ \bigl(n > n_1 \to A - \eps < x_n < A + \eps\bigr).
+\]
+Так как $\lim y_n = A$, то
+\[
+  \exists n_2\ \forall n \in \N\ \bigl(n > n_2 \to A - \eps < y_n < A + \eps\bigr).
+\]
+Возьмём $n_0 = \max(n_1, n_2)$. Тогда при $n > n_0$ одновременно
+\[
+  A - \eps < x_n, \qquad x_n \le z_n \le y_n, \qquad y_n < A + \eps,
+\]
+откуда
+\[
+  A - \eps < x_n \le z_n \le y_n < A + \eps \ \Longrightarrow\ A - \eps < z_n < A + \eps.
+\]
+Итак,
+$\forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to A - \eps < z_n < A + \eps\bigr)$,
+и по определению предела $\lim\limits_{n \to +\infty} z_n = A$.
+\end{dok}
+
+\zam В свойствах $4^\circ$ и $5^\circ$ неравенства $x_n \le y_n$ ($x_n \le z_n \le y_n$) достаточно требовать
+начиная с некоторого фиксированного номера, не обязательно с первого.
+
+\begin{dop}[пример на <<двух полицейских>>]
+$\lim\limits_{n \to \infty} \dfrac{\sin n}{n} = 0$: так как $-1 \le \sin n \le 1$, то
+$-\dfrac1n \le \dfrac{\sin n}{n} \le \dfrac1n$, а $-\dfrac1n \to 0$ и $\dfrac1n \to 0$.
+\end{dop}
+
+% ======================= ВОПРОС 7 =======================
+\vopros{7}{Бесконечно малые последовательности и их свойства}
+
+\plan{\item определение б/м последовательности, примеры;
+\item $1^\circ$ сумма двух б/м --- б/м (и конечного числа);
+\item $2^\circ$ произведение ограниченной на б/м --- б/м;
+\item следствия: $C \cdot \alpha_n$, $\alpha_n \cdot \beta_n$.}
+
+\begin{opr}[бесконечно малая последовательность]
+Последовательность $(x_n)$ называется \textbf{бесконечно малой} (б/м), если её предел равен нулю:
+$\lim\limits_{n \to +\infty} x_n = 0$. Словами: для любого $\eps > 0$ начиная с некоторого номера все члены по модулю меньше $\eps$.
+\kv
+\[
+  (x_n) \text{ --- б/м} \Leftrightarrow
+  \forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |x_n| < \eps\bigr).
+\]
+Обозначения б/м: $(\alpha_n)$, $(\beta_n)$, \dots
+\end{opr}
+
+Примеры: $\left(\dfrac{1}{n}\right)$, $\left(\left(\dfrac{2}{5}\right)^n\right)$.
+Например, для $\frac1n$: $\left|\frac1n\right| < \eps \iff n > \frac1\eps$, берём $n_0 = \left[\frac1\eps\right]$.
+
+\podr{$1^\circ$. Сумма двух б/м есть б/м}
+
+\begin{teo}[$1^\circ$]
+Если $(\alpha_n)$ и $(\beta_n)$ --- б/м, то $(\gamma_n) = (\alpha_n + \beta_n)$ --- б/м.
+\kv
+\[
+  \lim \alpha_n = 0 \ \wedge\ \lim \beta_n = 0 \ \Longrightarrow\ \lim (\alpha_n + \beta_n) = 0.
+\]
+\end{teo}
+
+\begin{dok}
+Пусть $(\alpha_n)$ и $(\beta_n)$ --- б/м, $\forall n\ (\gamma_n = \alpha_n + \beta_n)$. Докажем, что $(\gamma_n)$ --- б/м.
+
+Выберем $\forall \eps > 0$. Так как $(\alpha_n)$ --- б/м, то для числа $\frac{\eps}{2} > 0$
+\[
+  \exists n_1\ \forall n \in \N\ \bigl(n > n_1 \to |\alpha_n| < \tfrac{\eps}{2}\bigr).
+\]
+Так как $(\beta_n)$ --- б/м, то для $\frac{\eps}{2} > 0$
+\[
+  \exists n_2\ \forall n \in \N\ \bigl(n > n_2 \to |\beta_n| < \tfrac{\eps}{2}\bigr).
+\]
+Пусть $n_0 = \max(n_1, n_2)$. Тогда при $n > n_0$ выполнены оба неравенства, и по неравенству треугольника
+\[
+  |\gamma_n| = |\alpha_n + \beta_n| \le |\alpha_n| + |\beta_n| < \frac{\eps}{2} + \frac{\eps}{2} = \eps.
+\]
+Получили
+$\forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |\gamma_n| < \eps\bigr)$, т.\,е. $(\gamma_n)$ --- б/м.
+\end{dok}
+
+\zam Сумма любого \textbf{конечного} числа б/м последовательностей является б/м (применяем $1^\circ$ несколько раз).
+Для <<бесконечных>> сумм свойство не выполняется.
+
+\begin{dop}[почему для бесконечных сумм не работает]
+Возьмём
+\[
+  \gamma_n = \underbrace{\tfrac1n + \tfrac1n + \dots + \tfrac1n}_{n \text{ слагаемых}} = 1.
+\]
+Каждое слагаемое --- б/м, но число слагаемых растёт вместе с $n$, и сумма равна $1 \not\to 0$.
+\end{dop}
+
+\podr{$2^\circ$. Произведение ограниченной последовательности на б/м есть б/м}
+
+\begin{teo}[$2^\circ$]
+Пусть $(\alpha_n)$ --- б/м, $(x_n)$ --- ограниченная, $\forall n \in \N\ (\beta_n = x_n \alpha_n)$. Тогда $(\beta_n)$ --- б/м.
+\kv
+\[
+  \lim \alpha_n = 0 \ \wedge\ \exists L > 0\ \forall n\ (|x_n| \le L) \ \Longrightarrow\ \lim (x_n \alpha_n) = 0.
+\]
+\end{teo}
+
+\begin{dok}
+Выберем $\forall \eps > 0$. Так как $(x_n)$ ограничена, то $\exists L > 0\ \forall n \in \N\ \bigl(|x_n| \le L\bigr)$.
+Так как $(\alpha_n)$ --- б/м, то для числа $\frac{\eps}{L} > 0$
+\[
+  \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |\alpha_n| < \tfrac{\eps}{L}\bigr).
+\]
+Тогда при $n > n_0$
+\[
+  |\beta_n| = |x_n \cdot \alpha_n| = |x_n| \cdot |\alpha_n| \le L \cdot |\alpha_n| < L \cdot \frac{\eps}{L} = \eps.
+\]
+Получили
+$\forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |\beta_n| < \eps\bigr)$, т.\,е. $(\beta_n)$ --- б/м.
+\end{dok}
+
+\podr{Следствия (используются в лекции при доказательстве теоремы о пределе произведения)}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Произведение константы на б/м есть б/м}: $(C \cdot \alpha_n)$ --- б/м, так как постоянная последовательность
+    $x_n = C$ ограничена ($|x_n| \le |C| + 1$).
+  \item \textbf{Произведение двух б/м есть б/м}: $(\alpha_n \beta_n)$ --- б/м, так как $(\alpha_n)$ сходится (к нулю),
+    а значит ограничена (свойство $1^\circ$ из вопроса 6), и работает свойство $2^\circ$.
+\end{enumerate}
+
+Б/м последовательности --- основной инструмент: в вопросе 10 доказано, что
+$\lim x_n = A \iff x_n = A + \alpha_n$, где $(\alpha_n)$ --- б/м.
+
+% ======================= ВОПРОС 8 =======================
+\vopros{8}{Бесконечно большие последовательности и их свойства}
+
+\plan{\item определение б/б; пределы $+\infty$ и $-\infty$ --- в кванторах; примеры;
+\item свойства: сумма б/б одного знака, б/б + ограниченная, произведение б/б, б/б $\cdot$ константа;
+\item неопределённость $[\infty - \infty]$.}
+
+\begin{opr}[бесконечно большая последовательность]
+Последовательность $(x_n)$ называется \textbf{бесконечно большой} (б/б), если для любого $\eps > 0$ начиная с некоторого
+номера все её члены по модулю больше $\eps$.
+\kv
+\[
+  \lim_{n \to \infty} x_n = \infty \Leftrightarrow
+  \forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |x_n| > \eps\bigr).
+\]
+Обозначение: $\lim\limits_{n \to \infty} x_n = \infty$.
+\end{opr}
+
+\begin{opr}[предел $+\infty$ и $-\infty$]
+\[
+  \lim_{n \to +\infty} x_n = +\infty \Leftrightarrow
+  \forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to x_n > \eps\bigr),
+\]
+\[
+  \lim_{n \to +\infty} x_n = -\infty \Leftrightarrow
+  \forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to x_n < -\eps\bigr).
+\]
+Словами: члены становятся и остаются больше любого заданного числа (меньше любого отрицательного).
+\end{opr}
+
+Примеры: $(n^2) \to +\infty$, $(2^n) \to +\infty$, $\bigl((-1)^n n\bigr) \to \infty$ (знак чередуется,
+поэтому ни $+\infty$, ни $-\infty$, но модуль растёт), $(2 - 5n) \to -\infty$.
+
+\zam Б/б последовательность \emph{расходится}: её предел бесконечен, а сходящейся называют только последовательность
+с конечным пределом.
+
+\begin{dop}[б/б и неограниченная --- не одно и то же]
+Б/б последовательность всегда неограничена. Обратное неверно: $x_n = n$ при чётных $n$ и $x_n = 0$ при нечётных ---
+неограниченная, но не б/б (сколь угодно далеко встречаются нули, и $|x_n| > \eps$ нарушается).
+\end{dop}
+
+\podr{Свойства бесконечно больших последовательностей}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Сумма б/б одного знака есть б/б того же знака:}
+    \[ \lim x_n = +\infty \wedge \lim y_n = +\infty \ \Longrightarrow\ \lim (x_n + y_n) = +\infty \quad (\text{и так же для } -\infty). \]
+  \item \textbf{Сумма б/б и ограниченной есть б/б:}
+    \[ \lim x_n = \infty \wedge \exists L\ \forall n\ (|y_n| \le L) \ \Longrightarrow\ \lim (x_n + y_n) = \infty. \]
+  \item \textbf{Произведение б/б есть б/б:}
+    \[ \lim x_n = \infty \wedge \lim y_n = \infty \ \Longrightarrow\ \lim (x_n y_n) = \infty. \]
+  \item \textbf{Произведение б/б на константу $C \ne 0$ есть б/б:}
+    \[ \lim x_n = \infty \wedge C \ne 0 \ \Longrightarrow\ \lim (C x_n) = \infty. \]
+\end{enumerate}
+
+\zam $[\infty - \infty]$ является \textbf{неопределённостью} и требует дополнительного исследования
+(сумма б/б \emph{разных} знаков может вести себя как угодно).
+
+\begin{dop}[доказательства свойств и примеры к $\lbrack\infty - \infty\rbrack$]
+\textbf{1.} $\forall \eps > 0$: $\exists n_1\ (n > n_1 \to x_n > \frac\eps2)$, $\exists n_2\ (n > n_2 \to y_n > \frac\eps2)$;
+при $n > \max(n_1, n_2)$: $x_n + y_n > \eps$.
+
+\textbf{2.} Пусть $|y_n| \le L$. $\forall \eps > 0$ для числа $\eps + L$: $\exists n_0\ (n > n_0 \to |x_n| > \eps + L)$; тогда
+$|x_n + y_n| \ge |x_n| - |y_n| > \eps + L - L = \eps$.
+
+\textbf{3.} $\forall \eps > 0$: $\exists n_1\ (n > n_1 \to |x_n| > \eps)$, $\exists n_2\ (n > n_2 \to |y_n| > 1)$;
+при $n > \max(n_1, n_2)$: $|x_n y_n| > \eps \cdot 1 = \eps$.
+
+\textbf{4.} $\forall \eps > 0$ для числа $\frac{\eps}{|C|}$: $\exists n_0\ (n > n_0 \to |x_n| > \frac{\eps}{|C|})$, тогда $|C x_n| > \eps$.
+
+\textbf{$[\infty - \infty]$:} $n - n = 0 \to 0$; \ $(n + 1) - n = 1 \to 1$; \ $n^2 - n \to +\infty$ --- везде $[\infty - \infty]$, а ответы разные.
+\end{dop}
+
+% ======================= ВОПРОС 9 =======================
+\vopros{9}{Связь бесконечно малых и бесконечно больших последовательностей}
+
+\plan{\item $1^\circ$ величина, обратная б/м (без нулей), --- б/б;
+\item $2^\circ$ величина, обратная б/б, --- б/м;
+\item правила $\left[\frac{\text{const}}{0}\right] = \infty$, $\left[\frac{\text{const}}{\infty}\right] = 0$.}
+
+\begin{teo}[$1^\circ$]
+Пусть $(\alpha_n)$ --- б/м и $\forall n \in \N\ \bigl(\alpha_n \ne 0 \wedge x_n = \frac{1}{\alpha_n}\bigr)$. Тогда $(x_n)$ --- б/б.
+\kv
+\[
+  \lim \alpha_n = 0 \ \wedge\ \forall n\ (\alpha_n \ne 0) \ \Longrightarrow\ \lim \frac{1}{\alpha_n} = \infty.
+\]
+\end{teo}
+
+\begin{dok}
+Выберем $\forall \eps > 0$. Так как $(\alpha_n)$ --- б/м, то для числа $\frac{1}{\eps} > 0$
+\[
+  \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |\alpha_n| < \tfrac{1}{\eps}\bigr).
+\]
+Так как $0 < |\alpha_n| < \frac{1}{\eps}$, то $\dfrac{1}{|\alpha_n|} > \dfrac{1}{\;\frac{1}{\eps}\;} = \eps$, т.\,е.
+\[
+  |x_n| = \left|\frac{1}{\alpha_n}\right| > \eps.
+\]
+Получили $\forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |x_n| > \eps\bigr)$, т.\,е. $(x_n)$ --- б/б.
+\end{dok}
+
+\begin{teo}[$2^\circ$]
+Пусть $(x_n)$ --- б/б и $\forall n \in \N\ \bigl(\alpha_n = \frac{1}{x_n}\bigr)$. Тогда $(\alpha_n)$ --- б/м.
+\kv
+\[
+  \lim x_n = \infty \ \Longrightarrow\ \lim \frac{1}{x_n} = 0.
+\]
+\end{teo}
+
+\begin{dop}[доказательство $2^\circ$ --- в лекции его нет, оно зеркально $1^\circ$]
+Выберем $\forall \eps > 0$. Так как $(x_n)$ --- б/б, то для числа $\frac1\eps > 0$
+$\exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |x_n| > \frac1\eps\bigr)$.
+Тогда при $n > n_0$: $|\alpha_n| = \dfrac{1}{|x_n|} < \dfrac{1}{\;\frac1\eps\;} = \eps$.
+Получили $\forall \eps > 0\ \exists n_0\ \forall n\ \bigl(n > n_0 \to |\alpha_n| < \eps\bigr)$ --- $(\alpha_n)$ б/м.
+(Начиная с $n_0$ члены $x_n \ne 0$, так как $|x_n| > \frac1\eps > 0$, поэтому дробь $\frac1{x_n}$ имеет смысл.)
+\end{dop}
+
+Из свойств $1^\circ$ и $2^\circ$ следуют правила, которыми пользуются при вычислении пределов:
+\[
+  \left[\frac{\mathrm{const}}{0}\right] = \infty \quad (\mathrm{const} \ne 0), \qquad
+  \left[\frac{\mathrm{const}}{\infty}\right] = 0.
+\]
+Примеры: $\frac1n$ --- б/м, значит $n$ --- б/б; \ $\left(\frac25\right)^n$ --- б/м, значит $\left(\frac52\right)^n$ --- б/б;
+\ $n^2$ --- б/б, значит $\frac1{n^2}$ --- б/м.
+
+% ======================= ВОПРОС 10 =======================
+\vopros{10}{Свойства пределов суммы, произведения и частного}
+
+\plan{\item теорема: $\lim x_n = A \iff x_n = A + \alpha_n$, где $\alpha_n$ --- б/м;
+\item предел суммы и произведения (доказательство через б/м);
+\item предел частного;
+\item следствия: $\lim C a_n$, $\lim |a_n|$;
+\item примеры с неопределённостью $\left[\frac\infty\infty\right]$.}
+
+\podr{Связь предела с бесконечно малыми}
+
+\begin{teo}[представление через б/м]
+Число $A$ --- предел последовательности $(x_n)$ тогда и только тогда, когда $x_n = A + \alpha_n$, где $(\alpha_n)$ --- б/м.
+\kv
+\[
+  \lim_{n \to +\infty} x_n = A \Leftrightarrow
+  \exists (\alpha_n)\ \Bigl(\lim_{n \to \infty} \alpha_n = 0 \ \wedge\ \forall n \in \N\ (x_n = A + \alpha_n)\Bigr).
+\]
+\end{teo}
+
+\begin{dok}
+\textit{Необходимость} ($\Rightarrow$). Пусть $\lim\limits_{n \to +\infty} x_n = A$. Обозначим $\alpha_n = x_n - A$, тогда $x_n = A + \alpha_n$.
+По определению предела
+\[
+  \forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |x_n - A| < \eps\bigr),
+\]
+а $|\alpha_n| = |x_n - A|$, значит $|\alpha_n| < \eps$ при $n > n_0$, т.\,е. $(\alpha_n)$ --- б/м.
+
+\textit{Достаточность} ($\Leftarrow$). Пусть $\forall n \in \N\ (x_n = A + \alpha_n)$, где $(\alpha_n)$ --- б/м. Тогда
+\[
+  \forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |\alpha_n| < \eps\bigr),
+  \qquad
+  |x_n - A| = |(A + \alpha_n) - A| = |\alpha_n| < \eps.
+\]
+Следовательно, $\lim\limits_{n \to +\infty} x_n = A$.
+\end{dok}
+
+\podr{Арифметические свойства пределов}
+
+\begin{teo}[о пределе суммы, произведения, частного]
+Пусть $\lim\limits_{n \to +\infty} x_n = A$, $\lim\limits_{n \to +\infty} y_n = B$ (конечные пределы). Тогда
+\begin{enumerate}
+  \item $\lim\limits_{n \to +\infty} (x_n + y_n) = A + B$;
+  \item $\lim\limits_{n \to +\infty} (x_n \cdot y_n) = A \cdot B$;
+  \item $\lim\limits_{n \to +\infty} \dfrac{x_n}{y_n} = \dfrac{A}{B}$, если $B \ne 0$ и $\forall n \in \N\ (y_n \ne 0)$.
+\end{enumerate}
+Коротко: предел суммы (произведения, частного) равен сумме (произведению, частному) пределов, если эти пределы конечны
+(и предел знаменателя не ноль).
+\end{teo}
+
+\begin{dok}
+Так как $\lim x_n = A$, то по предыдущей теореме $\forall n \in \N\ (x_n = A + \alpha_n)$, где $(\alpha_n)$ --- б/м.
+Аналогично $y_n = B + \beta_n$, где $(\beta_n)$ --- б/м.
+{\small\textcolor{zamc}{(В конспекте здесь описка <<$x_n = B + \beta_n$>>.)}}
+
+\textbf{1)} $x_n + y_n = (A + \alpha_n) + (B + \beta_n) = (A + B) + (\alpha_n + \beta_n)$.
+Так как $(\alpha_n + \beta_n)$ --- б/м (сумма б/м, вопрос 7), то по предыдущей теореме $\lim (x_n + y_n) = A + B$.
+
+\textbf{2)} $x_n \cdot y_n = (A + \alpha_n)(B + \beta_n) = AB + \underbrace{(A\beta_n + B\alpha_n + \alpha_n \beta_n)}_{\gamma_n}$.
+\begin{itemize}
+  \item $(A \cdot \beta_n)$ --- б/м (произведение ограниченной, т.\,е. константы, на б/м);
+  \item $(B \cdot \alpha_n)$ --- б/м (аналогично);
+  \item $(\alpha_n)$ --- сходящаяся $\Rightarrow$ ограниченная, поэтому $(\alpha_n \cdot \beta_n)$ --- б/м (произведение ограниченной на б/м);
+  \item $(\gamma_n)$ --- б/м (сумма трёх б/м).
+\end{itemize}
+Так как $\forall n \in \N\ (x_n y_n = AB + \gamma_n)$, то по предыдущей теореме $\lim (x_n y_n) = AB$.
+\end{dok}
+
+\begin{dop}[доказательство пункта 3 --- предел частного]
+\textbf{Шаг 1: $\left(\frac{1}{y_n}\right)$ ограничена.} Так как $y_n \to B \ne 0$, то $|y_n| \to |B| > 0$ (следствие 2 ниже).
+По свойству $2^\circ$ (вопрос 6) для $P = \frac{|B|}{2} < |B|$: $\exists n_1\ \forall n\ \bigl(n > n_1 \to |y_n| > \frac{|B|}{2}\bigr)$,
+значит при $n > n_1$: $\left|\frac{1}{y_n}\right| < \frac{2}{|B|}$. Первые $n_1$ членов $\frac{1}{y_1}, \dots, \frac{1}{y_{n_1}}$ --- конечный набор
+чисел (все $y_n \ne 0$), поэтому
+$\forall n\ \left|\frac1{y_n}\right| \le \max\left(\frac2{|B|}, \frac1{|y_1|}, \dots, \frac1{|y_{n_1}|}\right)$.
+
+\textbf{Шаг 2.} Запишем разность:
+\[
+  \frac{x_n}{y_n} - \frac{A}{B} = \frac{B x_n - A y_n}{B y_n}
+  = \frac{B(A + \alpha_n) - A(B + \beta_n)}{B y_n}
+  = (B\alpha_n - A\beta_n) \cdot \frac{1}{B y_n}.
+\]
+$(B\alpha_n - A\beta_n)$ --- б/м (константы на б/м и их сумма), $\frac{1}{B y_n}$ --- ограниченная (шаг 1),
+значит произведение --- б/м. Итак, $\frac{x_n}{y_n} = \frac{A}{B} + \text{б/м}$, и по теореме о представлении через б/м
+$\lim \frac{x_n}{y_n} = \frac{A}{B}$.
+\end{dop}
+
+\podr{Следствия}
+
+\begin{enumerate}[leftmargin=*]
+  \item Если существует конечный $\lim\limits_{n \to +\infty} a_n = a$, то существует $\lim\limits_{n \to +\infty} (C a_n) = Ca$ при любом $C \in \R$
+        (константу можно выносить за знак предела).
+  \item Если $\lim\limits_{n \to +\infty} a_n = a$, то $\lim\limits_{n \to +\infty} |a_n| = |a|$.
+\end{enumerate}
+
+\begin{dop}[доказательства следствий]
+\textbf{1.} Постоянная последовательность $c_n = C$ имеет предел $C$ ($|c_n - C| = 0 < \eps$ всегда); по пункту 2 теоремы
+$\lim (C a_n) = C \cdot a$.
+
+\textbf{2.} Из неравенства $\bigl||a_n| - |a|\bigr| \le |a_n - a|$: если при $n > n_0$ $|a_n - a| < \eps$, то и $\bigl||a_n| - |a|\bigr| < \eps$.
+\end{dop}
+
+\begin{dop}[когда теорема не работает]
+Теорема только для \textbf{конечных} пределов. Если пределы бесконечны или знаменатель стремится к нулю, возникают
+неопределённости $\left[\frac{\infty}{\infty}\right]$, $\left[\frac00\right]$, $[\infty - \infty]$, $[0 \cdot \infty]$, $[1^\infty]$ ---
+выражение сначала преобразуют, как в примерах ниже.
+\end{dop}
+
+\podr{Примеры из лекции}
+
+Приём для $\left[\frac\infty\infty\right]$: выносим (или делим на) самое быстро растущее слагаемое; дроби вида $\frac{c}{n^k}$ стремятся к нулю.
+
+\textbf{1)}
+\[
+  \lim_{n \to +\infty} \frac{2n^3 + 5n - 7}{7n^3 + n^2}
+  = \left[\frac{\infty}{\infty}\right]
+  = \lim_{n \to +\infty} \frac{n^3 \left(2 + \frac{5}{n^2} - \frac{7}{n^3}\right)}{n^3 \left(7 + \frac{1}{n}\right)}
+  = \lim_{n \to +\infty} \frac{2 + \frac{5}{n^2} - \frac{7}{n^3}}{7 + \frac{1}{n}} = \frac{2}{7}.
+\]
+
+\textbf{2)}
+\begin{multline*}
+  \lim_{n \to \infty} \frac{(n + 2)^4 - (n - 3)^4}{4n^3 + 7n}
+  = \left[\frac{\infty}{\infty}\right] = \\
+  = \lim_{n \to \infty} \frac{(n^4 + 8n^3 + 24n^2 + 32n + 16) - (n^4 - 12n^3 + 54n^2 - 108n + 81)}{4n^3 + 7n} = \\
+  = \lim_{n \to \infty} \frac{20n^3 - 30n^2 + 140n - 65}{4n^3 + 7n}
+  = \lim_{n \to \infty} \frac{20 - \frac{30}{n} + \frac{140}{n^2} - \frac{65}{n^3}}{4 + \frac{7}{n^2}}
+  = \frac{20}{4} = 5.
+\end{multline*}
+
+\textbf{3)} Используем $(n + 1)! = n!\,(n + 1)$:
+\begin{multline*}
+  \lim_{n \to +\infty} \frac{2(n + 1)! - 3n!}{(n + 1)! - 2n!}
+  = \left[\frac{\infty}{\infty}\right]
+  = \lim_{n \to +\infty} \frac{n!\,\bigl(2(n + 1) - 3\bigr)}{n!\,\bigl((n + 1) - 2\bigr)}
+  = \lim_{n \to +\infty} \frac{2n - 1}{n - 1}
+  = \lim_{n \to +\infty} \frac{2 - \frac{1}{n}}{1 - \frac{1}{n}} = 2.
+\end{multline*}
+
+\textbf{4)} Выносим самую быструю степень $5^n$:
+\[
+  \lim_{n \to \infty} \frac{2^n + 3^n}{3^n + 5^n}
+  = \left[\frac{\infty}{\infty}\right]
+  = \lim_{n \to \infty} \frac{5^n \left(\left(\frac{2}{5}\right)^n + \left(\frac{3}{5}\right)^n\right)}{5^n \left(\left(\frac{3}{5}\right)^n + 1\right)}
+  = \frac{0 + 0}{0 + 1} = 0
+\]
+(так как $q^n \to 0$ при $|q| < 1$).
+
+% ======================= ВОПРОС 11 =======================
+\vopros{11}{Аксиома непрерывности. Принцип вложенных и стягивающихся отрезков}
+
+\plan{\item сравнение множеств $A < B$ и аксиома непрерывности;
+\item последовательность вложенных отрезков; стягивающиеся отрезки;
+\item теорема: вложенные и стягивающиеся отрезки имеют единственную общую точку --- доказательство существования и единственности.}
+
+\podr{Аксиома непрерывности}
+
+\begin{opr}[множество $A$ левее множества $B$]
+Пусть $A$ и $B$ --- непустые множества действительных чисел. Говорят, что $A < B$, если любой элемент $A$ меньше любого элемента $B$.
+\kv
+\[
+  A < B \Leftrightarrow \forall a \in A\ \forall b \in B\ (a < b).
+\]
+\end{opr}
+
+\begin{opr}[аксиома непрерывности]
+Если $A < B$, то существует число $c$, разделяющее эти множества: $A \le c \le B$.
+\kv
+\[
+  A < B \ \Longrightarrow\ \exists c \in \R\ \forall a \in A\ \forall b \in B\ (a \le c \le b).
+\]
+\end{opr}
+
+\zam В доказательстве принципа вложенных отрезков в лекции множества сравниваются нестрого:
+$A \le B \Leftrightarrow \forall a \in A\ \forall b \in B\ (a \le b)$. Аксиома верна и в такой форме
+(обычно её так и формулируют): если $A \le B$, то $\exists c \in \R\ \forall a \in A\ \forall b \in B\ (a \le c \le b)$.
+
+\begin{dop}[зачем нужна аксиома]
+Именно она отличает $\R$ от $\mathbb{Q}$. Для рациональных чисел аксиома неверна:
+$A = \{q \in \mathbb{Q} : q > 0,\ q^2 < 2\}$, $B = \{q \in \mathbb{Q} : q > 0,\ q^2 > 2\}$ --- здесь $A < B$,
+но единственное <<разделяющее>> число $\sqrt2$ не рационально. На аксиоме непрерывности держатся принцип вложенных
+отрезков, существование граней, теорема о монотонной последовательности и число $e$.
+\end{dop}
+
+\podr{Вложенные и стягивающиеся отрезки}
+
+\begin{opr}[последовательность вложенных отрезков]
+Последовательность отрезков $([a_n; b_n])$ называется \textbf{последовательностью вложенных отрезков}, если каждый следующий
+отрезок содержится в предыдущем.
+\kv
+\[
+  \forall n \in \N\ \bigl([a_{n+1}; b_{n+1}] \subseteq [a_n; b_n]\bigr)
+  \ \Leftrightarrow\ \forall n \in \N\ \bigl(a_n \le a_{n+1} \le b_{n+1} \le b_n\bigr).
+\]
+То есть левые концы $(a_n)$ не убывают, правые концы $(b_n)$ не возрастают.
+\end{opr}
+
+\begin{opr}[стягивающиеся отрезки]
+Последовательность отрезков $([a_n; b_n])$ называется \textbf{стягивающейся}, если длины отрезков стремятся к нулю:
+$\lim\limits_{n \to \infty} (b_n - a_n) = 0$ (последовательность длин бесконечно малая).
+\kv
+\[
+  \forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to b_n - a_n < \eps\bigr)
+\]
+(модуль не нужен, так как длина $b_n - a_n \ge 0$).
+\end{opr}
+
+\begin{center}
+\begin{tikzpicture}[x=1.1cm, font=\small]
+  \draw[->] (-0.3,0) -- (10.3,0);
+  \foreach \a/\b/\y/\k in {0/10/1.5/1, 1.5/8/1.0/2, 3/6.5/0.5/3} {
+    \draw[thick] (\a,\y) -- (\b,\y);
+    \draw[thick] (\a,\y-0.1) -- (\a,\y+0.1) (\b,\y-0.1) -- (\b,\y+0.1);
+    \draw[gray, densely dotted] (\a,\y) -- (\a,0) (\b,\y) -- (\b,0);
+    \node[above, font=\footnotesize] at ({(\a+\b)/2},\y) {$[a_\k;\,b_\k]$};
+  }
+  \foreach \x/\l in {0/a_1, 1.5/a_2, 3/a_3, 6.5/b_3, 8/b_2, 10/b_1}
+    \draw (\x,0.08) -- (\x,-0.08) node[below] {$\l$};
+  \fill (4.6,0) circle (1.6pt) node[below] {$c$};
+\end{tikzpicture}
+\end{center}
+
+\podr{Принцип вложенных и стягивающихся отрезков}
+
+\begin{teo}[принцип вложенных и стягивающихся отрезков]
+Любая последовательность вложенных и стягивающихся отрезков имеет единственную общую точку.
+\kv
+\[
+  \Bigl(\forall n\ \bigl([a_{n+1}; b_{n+1}] \subseteq [a_n; b_n]\bigr)\Bigr) \wedge \Bigl(\lim_{n \to \infty} (b_n - a_n) = 0\Bigr)
+  \ \Longrightarrow\ \exists!\, c \in \R\ \forall n \in \N\ \bigl(a_n \le c \le b_n\bigr).
+\]
+\end{teo}
+
+\begin{dok}
+Рассмотрим последовательность вложенных и стягивающихся отрезков $([a_n; b_n])$.
+
+\textbf{1. Существование общей точки.} Пусть $A = \{a_n\}$ --- множество левых концов, $B = \{b_n\}$ --- множество правых концов.
+Покажем, что $A \le B$, т.\,е. $\forall n, m\ (a_n \le b_m)$ --- любой левый конец не больше любого правого:
+\begin{itemize}
+  \item если $n \le m$, то $[a_m; b_m] \subseteq [a_n; b_n]$, значит $a_n \le a_m \le b_m$;
+  \item если $n > m$, то $[a_n; b_n] \subseteq [a_m; b_m]$, значит $a_n \le b_n \le b_m$.
+\end{itemize}
+Тогда по \textbf{аксиоме непрерывности} $\exists c\ (A \le c \le B)$, т.\,е. $\forall n, m\ (a_n \le c \le b_m)$.
+В частности, при $m = n$: $\forall n\ (a_n \le c \le b_n)$, т.\,е. $c$ --- общая точка всех отрезков.
+
+\textbf{2. Единственность общей точки.} Предположим противное: все отрезки имеют две общие точки $c$ и $d$, причём $c \ne d$. Тогда
+\[
+  \forall n \left(\begin{cases}
+    a_n \le c \le b_n, \\
+    a_n \le d \le b_n
+  \end{cases} \to\ 0 \le |c - d| \le b_n - a_n\right)
+\]
+(две точки одного отрезка отстоят друг от друга не больше чем на его длину).
+Перейдём в неравенстве $0 \le |c - d| \le b_n - a_n$ к пределу при $n \to \infty$ (переход к пределу в неравенствах, вопрос 6).
+Так как отрезки стягивающиеся, $\lim\limits_{n \to \infty} (b_n - a_n) = 0$, поэтому $0 \le |c - d| \le 0$, т.\,е. $c = d$ ---
+противоречие с $c \ne d$. Значит, общая точка единственная.
+\end{dok}
+
+\zam Существование общей точки использует только вложенность; стягивание нужно для единственности.
+
+\begin{dop}[без каких условий теорема перестаёт работать]
+\begin{itemize}
+  \item \textbf{Интервалы вместо отрезков:} $\left(0; \frac1n\right)$ вложены и стягиваются, но общей точки нет
+        ($0$ не входит ни в один интервал, а любое $x > 0$ выпадает при $\frac1n < x$).
+  \item \textbf{Без стягивания:} отрезки $\left[0; 1 + \frac1n\right]$ вложены, общих точек --- целый отрезок $[0; 1]$.
+\end{itemize}
+\end{dop}
+
+% ======================= ВОПРОС 12 =======================
+\vopros{12}{Понятие подпоследовательности. Связь предела последовательности и её подпоследовательностей}
+
+\plan{\item определение подпоследовательности, пример;
+\item теорема: если последовательность сходится к $A$, то любая её подпоследовательность сходится к $A$;
+\item следствие: две подпоследовательности с разными пределами $\Rightarrow$ расходится; пример $(-1)^n$;
+\item теорема Больцано--Вейерштрасса.}
+
+\begin{opr}[подпоследовательность]
+Пусть задана последовательность $(a_n)$ и возрастающая последовательность натуральных чисел $(n_k)$.
+Тогда последовательность $(a_{n_k})$ называется \textbf{подпоследовательностью} последовательности $(a_n)$.
+\kv
+\[
+  (a_{n_k}) \text{ --- подпоследовательность } (a_n) \Leftrightarrow
+  \forall k \in \N\ \bigl(n_k \in \N \ \wedge\ n_k < n_{k+1}\bigr),\quad k\text{-й член равен } a_{n_k}.
+\]
+Словами: из последовательности вычёркивают часть членов (возможно, бесконечно много), а оставшиеся, сохраняя порядок,
+нумеруют заново: $k = 1, 2, 3, \dots$
+\end{opr}
+
+Пример из лекции:
+\[
+  (a_n) = (n^2):\ 1, 4, 9, 16, \dots; \qquad (n_k) = (2k):\ 2, 4, 6, \dots; \qquad
+  (a_{n_k}) = \bigl((2k)^2\bigr):\ 4, 16, 36, \dots
+\]
+
+\begin{dop}[полезная лемма: $n_k \ge k$]
+Так как $(n_k)$ --- возрастающая последовательность натуральных чисел: $n_1 \ge 1$, и если $n_k \ge k$, то
+$n_{k+1} > n_k \ge k$, т.\,е. $n_{k+1} \ge k + 1$. По индукции $\forall k\ (n_k \ge k)$.
+\end{dop}
+
+\podr{Предел подпоследовательности}
+
+\begin{teo}[о пределе подпоследовательности]
+Если последовательность сходится к некоторому числу, то любая её подпоследовательность сходится к этому же числу.
+\kv
+\[
+  \lim_{n \to \infty} a_n = A \ \Longrightarrow\ \forall (n_k)\ \Bigl(\lim_{k \to \infty} a_{n_k} = A\Bigr).
+\]
+\end{teo}
+
+\begin{dop}[доказательство --- в лекции не приводилось]
+Выберем $\forall \eps > 0$. Так как $\lim a_n = A$, то $\exists n_0\ \forall n\ \bigl(n > n_0 \to |a_n - A| < \eps\bigr)$.
+Возьмём $k_0 = n_0$. Тогда при $k > k_0$ по лемме $n_k \ge k > n_0$, значит $|a_{n_k} - A| < \eps$. Получили
+\[
+  \forall \eps > 0\ \exists k_0\ \forall k \in \N\ \bigl(k > k_0 \to |a_{n_k} - A| < \eps\bigr),
+  \quad\text{т.\,е.}\quad \lim_{k \to \infty} a_{n_k} = A. \qquad \blacktriangle
+\]
+\end{dop}
+
+\zam Из теоремы следует: если из последовательности можно выделить \textbf{две подпоследовательности, имеющие разные пределы},
+то последовательность расходится, т.\,е. не имеет конечного предела.
+\kv
+\[
+  \exists (n_k)\ \exists (m_k)\ \Bigl(\lim_{k \to \infty} a_{n_k} = A \ \wedge\ \lim_{k \to \infty} a_{m_k} = B \ \wedge\ A \ne B\Bigr)
+  \ \Longrightarrow\ (a_n) \text{ расходится}.
+\]
+(Если бы $a_n \to C$, то по теореме обе подпоследовательности стремились бы к $C$, и $A = C = B$.)
+
+\begin{dop}[пример]
+$a_n = (-1)^n$: подпоследовательность чётных членов $a_{2k} = 1 \to 1$, нечётных $a_{2k-1} = -1 \to -1$.
+Пределы разные, значит $(a_n)$ расходится. Это короче, чем доказывать расходимость по определению (вопрос 5).
+\end{dop}
+
+\podr{Теорема Больцано--Вейерштрасса}
+
+\begin{teo}[Больцано--Вейерштрасса]
+Из всякой ограниченной последовательности можно выделить сходящуюся подпоследовательность.
+\kv
+\[
+  \exists M\ \forall n\ \bigl(|a_n| \le M\bigr) \ \Longrightarrow\ \exists (n_k)\ \exists A \in \R\ \Bigl(\lim_{k \to \infty} a_{n_k} = A\Bigr).
+\]
+\end{teo}
+
+Пример: $(-1)^n$ ограничена и расходится, но из неё выделяются сходящиеся подпоследовательности $1, 1, 1, \dots$ и $-1, -1, \dots$
+
+\begin{dop}[идея доказательства --- методом деления пополам]
+Все члены лежат на отрезке $[a_1'; b_1'] = [-M; M]$. Делим его пополам; хотя бы в одной половине лежит бесконечно много членов
+последовательности --- берём её за $[a_2'; b_2']$. Повторяем. Получаем вложенные отрезки длины $\frac{2M}{2^{k-1}} \to 0$ ---
+стягивающиеся, и по принципу вложенных отрезков (вопрос 11) у них есть общая точка $A$. Выбираем $n_1 < n_2 < \dots$ так, чтобы
+$a_{n_k} \in [a_k'; b_k']$ (это возможно, ведь в каждом отрезке бесконечно много членов). Тогда
+$|a_{n_k} - A| \le b_k' - a_k' \to 0$, и по теореме о двух полицейских $a_{n_k} \to A$.
+\end{dop}
+
+Связанная теорема о множествах --- <<любое бесконечное ограниченное множество имеет хотя бы одну предельную точку>> ---
+в вопросе 15.
+
+% ======================= ВОПРОС 13 =======================
+\vopros{13}{Верхняя и нижняя грани множества. Монотонные последовательности. Условия существования предела монотонной последовательности}
+
+\plan{\item верхняя/нижняя граница, верхняя грань $\sup E$, нижняя грань $\inf E$ --- в кванторах;
+\item теорема о существовании граней ограниченного множества;
+\item монотонные последовательности (напоминание);
+\item теорема о пределе монотонной последовательности с доказательством;
+\item итог: монотонная последовательность сходится $\iff$ ограничена.}
+
+Пусть $E$ --- непустое числовое множество.
+
+\podr{Границы и грани}
+
+\begin{opr}[верхняя и нижняя граница множества]
+Число $M$ --- \textbf{верхняя граница} множества $E$, если все элементы $E$ не больше $M$;
+число $m$ --- \textbf{нижняя граница}, если все элементы $E$ не меньше $m$.
+Множество, у которого есть верхняя (нижняя) граница, называется \textbf{ограниченным сверху (снизу)}.
+\kv
+\[
+  M \text{ --- верхняя граница } E \Leftrightarrow \forall x \in E\ (x \le M); \qquad
+  m \text{ --- нижняя граница } E \Leftrightarrow \forall x \in E\ (x \ge m);
+\]
+\[
+  E \text{ огр. сверху} \Leftrightarrow \exists M\ \forall x \in E\ (x \le M); \qquad
+  E \text{ огр. снизу} \Leftrightarrow \exists m\ \forall x \in E\ (x \ge m).
+\]
+\end{opr}
+
+\begin{opr}[верхняя грань --- $\sup E$]
+Число $M_0$ называется \textbf{верхней гранью} (наименьшей верхней границей, супремумом) множества $E$, если
+\begin{enumerate}
+  \item $\forall x \in E\ (x \le M_0)$ --- т.\,е. $M_0$ --- верхняя граница;
+  \item $\forall \eps > 0\ \exists x_1 \in E\ (x_1 > M_0 - \eps)$ --- т.\,е. $M_0$ --- наименьшая верхняя граница:
+        любое меньшее число $M_0 - \eps$ уже не является верхней границей.
+\end{enumerate}
+Обозначение: $M_0 = \sup E$.
+\kv
+\[
+  M_0 = \sup E \Leftrightarrow \forall x \in E\ (x \le M_0)\ \wedge\ \forall \eps > 0\ \exists x_1 \in E\ (x_1 > M_0 - \eps).
+\]
+\end{opr}
+
+\begin{opr}[нижняя грань --- $\inf E$]
+Число $m_0$ называется \textbf{нижней гранью} (наибольшей нижней границей, инфимумом) множества $E$, если
+\begin{enumerate}
+  \item $\forall x \in E\ (x \ge m_0)$ --- т.\,е. $m_0$ --- нижняя граница;
+  \item $\forall \eps > 0\ \exists x_2 \in E\ (x_2 < m_0 + \eps)$ --- т.\,е. $m_0$ --- наибольшая нижняя граница:
+        любое большее число $m_0 + \eps$ уже не является нижней границей.
+\end{enumerate}
+Обозначение: $m_0 = \inf E$.
+\kv
+\[
+  m_0 = \inf E \Leftrightarrow \forall x \in E\ (x \ge m_0)\ \wedge\ \forall \eps > 0\ \exists x_2 \in E\ (x_2 < m_0 + \eps).
+\]
+\end{opr}
+
+{\small\textcolor{zamc}{(В конспекте в определении нижней грани описки: вместо $m_0$ написано $M_0$, и пункты подписаны
+<<верхняя граница>>, <<наименьшая верхняя граница>>. Выше --- исправленный вариант.)}}
+
+\begin{dop}[примеры]
+\begin{itemize}
+  \item $E = (0; 1)$: $\sup E = 1$, $\inf E = 0$, и оба \emph{не принадлежат} $E$ (наибольшего и наименьшего элемента нет).
+  \item $E = [0; 1]$: $\sup E = 1 = \max E$, $\inf E = 0 = \min E$.
+  \item $E = \left\{\frac1n : n \in \N\right\}$: $\sup E = 1$ (это $\max$), $\inf E = 0$ (не достигается).
+        Проверка пункта 2 для $\inf$: $\forall \eps > 0$ берём $n > \frac1\eps$, тогда $x_2 = \frac1n < 0 + \eps$.
+\end{itemize}
+Грань может принадлежать множеству, а может и нет; если принадлежит --- это наибольший (наименьший) элемент.
+\end{dop}
+
+\begin{teo}[существование граней]
+Любое (непустое) ограниченное сверху множество имеет единственную верхнюю грань, ограниченное снизу --- единственную нижнюю грань.
+Ограниченное множество имеет и верхнюю, и нижнюю грань.
+\kv
+\[
+  E \ne \varnothing \ \wedge\ \exists M\ \forall x \in E\ (x \le M) \ \Longrightarrow\ \exists!\, M_0\ (M_0 = \sup E).
+\]
+\end{teo}
+
+\begin{dop}[доказательство через аксиому непрерывности]
+Пусть $B$ --- множество всех верхних границ $E$ (оно не пусто, так как $E$ ограничено сверху). Тогда $E \le B$:
+$\forall x \in E\ \forall b \in B\ (x \le b)$. По аксиоме непрерывности $\exists c\ \forall x \in E\ \forall b \in B\ (x \le c \le b)$.
+Из $x \le c$ --- $c$ верхняя граница (пункт 1). Из $c \le b$ для всех верхних границ --- $c$ наименьшая, поэтому
+$\forall \eps > 0$ число $c - \eps$ не верхняя граница, т.\,е. $\exists x_1 \in E\ (x_1 > c - \eps)$ (пункт 2). Значит, $c = \sup E$.
+
+\textbf{Единственность:} пусть $M_0 < M_0'$ --- две верхние грани. По пункту 2 для $M_0'$ при $\eps = M_0' - M_0$ найдётся
+$x_1 \in E$, $x_1 > M_0' - \eps = M_0$ --- противоречие с пунктом 1 для $M_0$.
+\end{dop}
+
+\podr{Монотонные последовательности (напоминание из вопроса 4)}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|l|l||l|l|}
+\hline
+неубывающая & $\forall n\ (a_n \le a_{n+1})$ & возрастающая & $\forall n\ (a_n < a_{n+1})$ \\
+невозрастающая & $\forall n\ (a_n \ge a_{n+1})$ & убывающая & $\forall n\ (a_n > a_{n+1})$ \\ \hline
+\end{tabular}
+\end{center}
+Все они называются \textbf{монотонными}.
+
+\podr{Теорема о пределе монотонной последовательности}
+
+\begin{teo}[о пределе монотонной последовательности]
+Любая монотонная последовательность имеет предел (конечный или бесконечный).
+Причём если последовательность неубывающая (невозрастающая) и \textbf{ограничена сверху (снизу)}, то этот предел \textbf{конечный}.
+Если последовательность неубывающая (невозрастающая) и \textbf{не ограничена сверху (снизу)}, то этот предел равен $+\infty$ ($-\infty$).
+\kv\ (для неубывающей)
+\[
+  \forall n\ (a_n \le a_{n+1}) \ \wedge\ \exists M\ \forall n\ (a_n \le M) \ \Longrightarrow\ \lim_{n \to \infty} a_n = \sup\{a_n\} \in \R;
+\]
+\[
+  \forall n\ (a_n \le a_{n+1}) \ \wedge\ \forall M\ \exists n\ (a_n > M) \ \Longrightarrow\ \lim_{n \to \infty} a_n = +\infty.
+\]
+\end{teo}
+
+\begin{dok}
+Рассмотрим случай неубывающей последовательности $(a_n)$, т.\,е. $\forall n \in \N\ (a_n \le a_{n+1})$.
+
+\textbf{1. Последовательность ограничена сверху.} Тогда множество её значений имеет верхнюю грань (теорема о существовании граней).
+Пусть $A = \sup\{a_n\}$. Выберем $\forall \eps > 0$.
+\begin{itemize}
+  \item По определению верхней грани (пункт 1): $\forall n\ (a_n \le A < A + \eps)$.
+  \item По определению верхней грани (пункт 2): $\exists n_0\ (a_{n_0} > A - \eps)$.
+  \item Так как последовательность неубывающая, то $\forall n\ (n > n_0 \to a_n \ge a_{n_0})$.
+\end{itemize}
+Следовательно, при $n > n_0$:
+\[
+  A - \eps < a_{n_0} \le a_n \le A < A + \eps \ \Longrightarrow\ |a_n - A| < \eps.
+\]
+Получили $\forall \eps > 0\ \exists n_0\ \forall n\ \bigl(n > n_0 \to |a_n - A| < \eps\bigr)$, т.\,е. $\lim\limits_{n \to \infty} a_n = A = \sup\{a_n\}$ --- конечный предел.
+
+\textbf{2. Последовательность $(a_n)$ не ограничена сверху.} Тогда по определению неограниченной сверху последовательности
+\[
+  \forall \eps > 0\ \exists n_0 \in \N\ (a_{n_0} > \eps).
+\]
+Так как последовательность неубывающая, то
+\[
+  \forall n\ \bigl(n > n_0 \to a_n \ge a_{n_0} > \eps\bigr).
+\]
+Получили $\forall \eps > 0\ \exists n_0\ \forall n\ \bigl(n > n_0 \to a_n > \eps\bigr)$, т.\,е. $\lim\limits_{n \to \infty} a_n = +\infty$.
+
+Для невозрастающей последовательности рассуждение то же самое с $\inf\{a_n\}$ вместо $\sup$ и $-\infty$ вместо $+\infty$.
+\end{dok}
+
+{\small\textcolor{zamc}{(В конспекте в доказательстве не дописаны итоговые строки обоих случаев --- выше они восстановлены.)}}
+
+\podr{Условия существования конечного предела монотонной последовательности}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Достаточное:} монотонная и ограниченная последовательность сходится (неубывающая и ограниченная сверху ---
+        к $\sup$, невозрастающая и ограниченная снизу --- к $\inf$).
+  \item \textbf{Необходимое:} любая сходящаяся последовательность ограничена (вопрос 6, свойство $1^\circ$).
+  \item Итог: \textbf{монотонная последовательность сходится $\iff$ она ограничена.}
+\end{itemize}
+Эта теорема --- основной инструмент доказательства существования предела, когда сам предел заранее неизвестен
+(так доказывается существование числа $e$ в вопросе 14).
+
+% ======================= ВОПРОС 14 =======================
+\vopros{14}{Второй замечательный предел. Число \texorpdfstring{$e$}{e}}
+
+\plan{\item теорема: $a_n = \left(1 + \frac1n\right)^n$ имеет конечный предел;
+\item доказательство: бином Ньютона $\to$ ограниченность ($a_n < 3$) $\to$ возрастание $\to$ теорема о монотонной последовательности;
+\item определение числа $e$; второй замечательный предел для последовательностей и функций; следствия;
+\item раскрытие неопределённости $[1^\infty]$ на примере.}
+
+\begin{teo}[существование второго замечательного предела]
+Последовательность $(a_n)$, где $a_n = \left(1 + \dfrac{1}{n}\right)^n$, имеет конечный предел.
+\end{teo}
+
+\begin{dok}
+\textbf{Шаг 1. Бином Ньютона.}
+\begin{multline*}
+  (a + b)^n = a^n + n \cdot a^{n-1}b + \frac{n(n-1)}{2!}\,a^{n-2}b^2
+    + \frac{n(n-1)(n-2)}{3!}\,a^{n-3}b^3 + {}\\
+  + \ldots + \frac{n(n-1)(n-2)\cdot\ldots\cdot(n-n+1)}{n!}\,b^n.
+\end{multline*}
+У нас $a = 1$, $b = \frac{1}{n}$. Слагаемое с номером $k$ (содержащее $b^k$) равно
+\[
+  \frac{n(n-1)\cdots(n-k+1)}{k!} \cdot \frac{1}{n^k}
+  = \frac{1}{k!} \cdot \frac{n}{n} \cdot \frac{n-1}{n} \cdots \frac{n-k+1}{n}
+  = \frac{1}{k!}\left(1 - \frac{1}{n}\right)\left(1 - \frac{2}{n}\right)\cdots\left(1 - \frac{k-1}{n}\right).
+\]
+Поэтому (первые два слагаемых: $1 + n \cdot \frac1n = 2$):
+\begin{multline*}
+  a_n = \left(1 + \frac{1}{n}\right)^n
+  = 2 + \frac{1}{2!}\underbrace{\left(1 - \frac{1}{n}\right)}_{<1}
+       + \frac{1}{3!}\underbrace{\left(1 - \frac{1}{n}\right)}_{<1}\underbrace{\left(1 - \frac{2}{n}\right)}_{<1}
+       + \ldots + {}\\
+  + \frac{1}{n!}\left(1 - \frac{1}{n}\right)\left(1 - \frac{2}{n}\right)\cdots\left(1 - \frac{n-1}{n}\right).
+\end{multline*}
+
+\textbf{Шаг 2. Ограниченность сверху.} Заменим каждую скобку большим числом --- единицей; затем учтём, что
+$k! = 1 \cdot 2 \cdot 3 \cdots k \ge 2^{k-1}$ (каждый из $k - 1$ множителей $2, 3, \dots, k$ не меньше $2$):
+\[
+  a_n < 2 + \frac{1}{2!} + \frac{1}{3!} + \ldots + \frac{1}{n!}
+  \le 2 + \frac{1}{2} + \frac{1}{2^2} + \ldots + \frac{1}{2^{n-1}}
+  = 2 + \frac{\frac{1}{2}\left(1 - \left(\frac{1}{2}\right)^{n-1}\right)}{1 - \frac{1}{2}}
+  = 3 - \left(\frac{1}{2}\right)^{n-1} < 3
+\]
+(сумма геометрической прогрессии $S_n = \frac{b_1(1 - q^n)}{1 - q}$ с $b_1 = \frac12$, $q = \frac12$, $n - 1$ слагаемых).
+Таким образом, $\forall n\ (a_n < 3)$ --- последовательность ограничена сверху.
+
+\textbf{Шаг 3. Возрастание.} Запишем $a_{n+1}$ тем же способом:
+\begin{multline*}
+  a_{n+1} = 2 + \frac{1}{2!}\underbrace{\left(1 - \frac{1}{n+1}\right)}_{>\,1 - \frac{1}{n}}
+    + \frac{1}{3!}\left(1 - \frac{1}{n+1}\right)\left(1 - \frac{2}{n+1}\right) + \ldots + {}\\
+  + \frac{1}{n!}\left(1 - \frac{1}{n+1}\right)\cdots\left(1 - \frac{n-1}{n+1}\right)
+  + \underbrace{\frac{1}{(n+1)!}\left(1 - \frac{1}{n+1}\right)\cdots\left(1 - \frac{n}{n+1}\right)}_{>0}.
+\end{multline*}
+Так как $1 - \frac{j}{n+1} > 1 - \frac{j}{n}$, каждое слагаемое в $a_{n+1}$ больше соответствующего слагаемого в $a_n$,
+и в $a_{n+1}$ есть ещё одно положительное слагаемое. Следовательно, $\forall n\ (a_n < a_{n+1})$ --- последовательность возрастающая.
+
+\textbf{Шаг 4.} Последовательность $(a_n)$ возрастающая и ограничена сверху $\Rightarrow$ по теореме о пределе монотонной
+последовательности (вопрос 13) она имеет конечный предел.
+\end{dok}
+
+{\small\textcolor{zamc}{(В конспекте во второй оценке стоит строгое <<$<$>>; точнее <<$\le$>>: при $n = 2$ суммы равны. На вывод $a_n < 3$ это не влияет.)}}
+
+\begin{opr}[число $e$]
+Предел последовательности $\left(1 + \frac1n\right)^n$ обозначается буквой $e$:
+\[
+  \boxed{\lim_{n \to \infty} \left( 1 + \frac{1}{n} \right)^n = e}\,, \qquad e \approx 2{,}718281828\ldots
+  \quad \text{--- \textbf{второй замечательный предел}.}
+\]
+\kv
+\[
+  \forall \eps > 0\ \exists n_0\ \forall n \in \N\ \left(n > n_0 \to \left|\left(1 + \frac1n\right)^n - e\right| < \eps\right).
+\]
+\end{opr}
+
+Так как $a_1 = 2$, последовательность возрастает и $a_n < 3$, то $2 < e \le 3$ (переход к пределу в неравенстве).
+Число $e$ --- основание натурального логарифма: $\ln x = \log_e x$.
+
+\begin{dop}[как быстро сходится]
+\begin{center}
+\begin{tabular}{c|cccccc}
+$n$ & 1 & 2 & 3 & 10 & 100 & 1000 \\ \hline
+$\left(1 + \frac1n\right)^n$ & 2 & 2{,}25 & 2{,}370 & 2{,}594 & 2{,}705 & 2{,}717
+\end{tabular}
+\end{center}
+\end{dop}
+
+\podr{Следствия и второй замечательный предел для функций}
+
+\textbf{Для последовательностей:}
+\[
+  1)\ \lim_{\substack{n \to \infty\\ (\beta(n) \to \infty)}} \left( 1 + \frac{1}{\beta(n)} \right)^{\beta(n)} = e; \qquad
+  2)\ \lim_{\substack{n \to \infty\\ (\alpha(n) \to 0)}} \bigl( 1 + \alpha(n) \bigr)^{\frac{1}{\alpha(n)}} = e.
+\]
+
+\textbf{Для функций} (из лекции <<Второй замечательный предел для функций>>):
+\[
+  \lim_{x \to \pm\infty} \left(1 + \frac{1}{x}\right)^x = e,
+\]
+\[
+  1)\ \lim_{\substack{x \to x_0\\ (f(x) \to \infty)}} \left(1 + \frac{1}{f(x)}\right)^{f(x)} = e; \qquad
+  2)\ \lim_{\substack{x \to x_0\\ (\alpha(x) \to 0)}} \bigl(1 + \alpha(x)\bigr)^{\frac{1}{\alpha(x)}} = e.
+\]
+Следствия позволяют раскрывать неопределённость $[1^\infty]$: основание стремится к $1$, показатель --- к бесконечности.
+
+\begin{dop}[почему $\lbrack 1^\infty\rbrack$ --- неопределённость]
+$1^n = 1 \to 1$, а $\left(1 + \frac1n\right)^n \to e$, $\left(1 + \frac2n\right)^n \to e^2$ --- везде $[1^\infty]$, а ответы разные.
+Удобная формула, которая получается из следствия 2 (именно так решается пример ниже): если $u \to 1$, $v \to \infty$, то
+$\lim u^v = e^{\lim (u - 1) v}$.
+\end{dop}
+
+\podr{Пример из лекции}
+
+\begin{align*}
+  \lim_{n \to \infty} \left( \frac{n^2 + n}{n^2 + 3} \right)^{5n}
+    &= \left[\, \lim_{n \to \infty} \frac{n^2 + n}{n^2 + 3} = \lim_{n \to \infty} \frac{1 + \frac{1}{n}}{1 + \frac{3}{n^2}} = 1 \,\right]
+     = \left[ 1^\infty \right] = \\
+    &= \lim_{n \to \infty} \left( 1 + \frac{n^2 + n}{n^2 + 3} - 1 \right)^{5n}
+     = \lim_{n \to \infty} \Bigl( 1 + \underbrace{\frac{n - 3}{n^2 + 3}}_{\alpha(n) \to 0} \Bigr)^{5n} = \\
+    &= \lim_{n \to \infty} \Biggl( \underbrace{\Bigl( 1 + \frac{n - 3}{n^2 + 3} \Bigr)^{\frac{n^2 + 3}{n - 3}}}_{\to\, e} \Biggr)^{\frac{n - 3}{n^2 + 3} \cdot 5n}
+     = e^{\lim\limits_{n \to \infty} \frac{5n^2 - 15n}{n^2 + 3}} = \\
+    &= \left[\, \lim_{n \to \infty} \frac{5n^2 - 15n}{n^2 + 3} = \lim_{n \to \infty} \frac{5 - \frac{15}{n}}{1 + \frac{3}{n^2}} = 5 \,\right] = e^5.
+\end{align*}
+Схема: выделили $1 + \alpha$, возвели в $\frac1\alpha$ (получили $e$), а показатель домножили на $\alpha$, чтобы ничего не изменилось.
+
+% ======================= ВОПРОС 15 =======================
+\vopros{15}{Предельная точка и предел функции в точке. Определение предела на языке \texorpdfstring{$\eps$--$\delta$}{эпсилон-дельта} (по Коши) и на языке последовательностей (по Гейне). Свойства пределов функции}
+
+\plan{\item окрестность, проколотая окрестность; предельная точка множества; теорема о предельной точке;
+\item предел функции по Гейне (словами и в кванторах);
+\item предел по Коши (словами и в кванторах); равносильность определений; геометрический смысл;
+\item пределы на бесконечности и бесконечные пределы --- общая схема <<16 определений>>;
+\item свойства пределов функции; примеры.}
+
+\podr{Окрестность и предельная точка}
+
+\begin{opr}[$\delta$-окрестность точки]
+Пусть на числовой оси задана точка $x_0$ и число $\delta > 0$. \textbf{$\delta$-окрестностью} точки $x_0$ называется интервал
+\[
+  U(x_0, \delta) = \{x \in \R : |x - x_0| < \delta\} = (x_0 - \delta;\ x_0 + \delta).
+\]
+\kv
+\[
+  x \in U(x_0, \delta) \Leftrightarrow |x - x_0| < \delta \Leftrightarrow x_0 - \delta < x < x_0 + \delta.
+\]
+\textbf{Проколотая} окрестность --- та же окрестность без самой точки $x_0$:
+$\mathring{U}(x_0, \delta) = \{x : 0 < |x - x_0| < \delta\}$. Именно она стоит в определении предела по Коши
+(условие $0 < |x - x_0| < \delta$).
+\end{opr}
+
+\begin{opr}[предельная точка множества]
+Пусть задано непустое числовое множество $E$. Точка $x_0$ называется \textbf{предельной точкой} множества $E$, если в любой
+её окрестности есть бесконечно много точек из множества $E$.
+\kv
+\[
+  x_0 \text{ --- предельная точка } E \Leftrightarrow \forall \delta > 0\ \bigl(U(x_0, \delta) \cap E \text{ --- бесконечное множество}\bigr)
+\]
+\[
+  \Leftrightarrow\ \forall \delta > 0\ \exists x \in E\ \bigl(0 < |x - x_0| < \delta\bigr).
+\]
+Сама точка $x_0$ может и не принадлежать $E$.
+\end{opr}
+
+\begin{dop}[почему две записи равносильны, и примеры]
+Если в каждой проколотой окрестности есть хоть одна точка $E$, то их бесконечно много: если бы их было конечное число
+$x_1, \dots, x_k$, то окрестность радиуса $\delta < \min |x_i - x_0|$ не содержала бы ни одной --- противоречие.
+
+\textbf{Примеры.} $E = \left\{\frac1n : n \in \N\right\}$: точка $0$ --- предельная (в $(-\delta; \delta)$ лежат все $\frac1n$ с $n > \frac1\delta$),
+хотя $0 \notin E$; а сами точки $\frac1n$ предельными не являются. Для $E = (0; 1)$ предельные точки --- весь отрезок $[0; 1]$.
+\end{dop}
+
+\begin{teo}[о предельной точке]
+Любое бесконечное ограниченное множество имеет хотя бы одну предельную точку.
+\kv
+\[
+  E \text{ бесконечно} \ \wedge\ \exists M\ \forall x \in E\ (|x| \le M) \ \Longrightarrow\ \exists x_0 \in \R\ \bigl(x_0 \text{ --- предельная точка } E\bigr).
+\]
+\end{teo}
+(Это вариант теоремы Больцано--Вейерштрасса для множеств, вопрос 12; доказывается тем же делением отрезка пополам.)
+
+\podr{Предел функции в точке по Гейне}
+
+Рассмотрим функцию $f(x)$, заданную в некоторой окрестности точки $x_0$. \textbf{Точка $x_0$ не обязательно входит в область
+определения функции}: предел описывает поведение $f$ \emph{около} $x_0$, значение $f(x_0)$ на него не влияет.
+
+\begin{opr}[предел функции по Гейне --- на языке последовательностей]
+Число $A$ называется пределом функции $f(x)$ в точке $x_0$, если для любой последовательности $(x_n)$, сходящейся к точке $x_0$
+($\lim\limits_{n \to \infty} x_n = x_0$), у которой $x_n \in D(f)$ и $x_n \ne x_0$ при всех номерах $n$, последовательность
+соответствующих значений функции $y_n = f(x_n)$ сходится к числу $A$. Пишут $\lim\limits_{x \to x_0} f(x) = A$.
+\kv
+\begin{gather*}
+  \lim_{x \to x_0} f(x) = A \Leftrightarrow \\
+  \forall (x_n)\ \Bigl( \bigl( \forall n\ (x_n \in D(f) \wedge x_n \ne x_0) \bigr)
+    \wedge \bigl( \lim_{n \to \infty} x_n = x_0 \bigr)
+    \to \bigl( \lim_{n \to \infty} f(x_n) = A \bigr) \Bigr).
+\end{gather*}
+\end{opr}
+
+\podr{Предел функции в точке по Коши}
+
+\begin{opr}[предел функции по Коши --- на языке $\eps$--$\delta$]
+Число $A$ называется пределом функции $f(x)$ в точке $x_0$, если для любого числа $\eps > 0$ существует число $\delta(\eps) > 0$
+такое, что при всех $x \in D(f)$, удовлетворяющих условию $0 < |x - x_0| < \delta(\eps)$, выполняется неравенство $|f(x) - A| < \eps$.
+\kv
+\[
+  \lim_{x \to x_0} f(x) = A \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\
+  \forall x \in D(f)\ \bigl( 0 < |x - x_0| < \delta(\eps) \to |f(x) - A| < \eps \bigr).
+\]
+\end{opr}
+
+Пояснения:
+\begin{itemize}[leftmargin=*]
+  \item $0 < |x - x_0|$ --- точку $x_0$ исключаем ($x \ne x_0$); \ $|x - x_0| < \delta$ --- $x$ близко к $x_0$;
+  \item $|f(x) - A| < \eps$ --- значение функции близко к $A$;
+  \item $\delta$ зависит от $\eps$ (как $n_0(\eps)$ у последовательностей).
+\end{itemize}
+
+Можно доказать, что \textbf{определения по Гейне и по Коши равносильны}. По Коши удобно доказывать, что предел равен $A$;
+по Гейне --- что предела \emph{нет} и переносить на функции свойства пределов последовательностей.
+
+\begin{dop}[как по Гейне доказать, что предела нет: $f(x) = \sin\frac1x$ при $x \to 0$]
+Возьмём $x_n = \frac{1}{\pi n} \to 0$: $f(x_n) = \sin \pi n = 0 \to 0$.
+Возьмём $x_n' = \frac{1}{\frac\pi2 + 2\pi n} \to 0$: $f(x_n') = \sin\left(\frac\pi2 + 2\pi n\right) = 1 \to 1$.
+Две последовательности, стремящиеся к $0$, дают разные пределы значений --- по Гейне предела нет.
+\end{dop}
+
+\podr{Геометрический смысл предела функции}
+
+Построим график $y = f(x)$ и точку $M_0(x_0; A)$. Выберем $\eps > 0$ и проведём прямые $y = A + \eps$, $y = A - \eps$.
+Число $A$ --- предел $f(x)$ в точке $x_0$, если для любой такой полосы найдётся $\delta(\eps)$-окрестность точки $x_0$, такая, что
+часть графика при $x \in (x_0 - \delta;\ x_0 + \delta)$, $x \ne x_0$, целиком попадает внутрь горизонтальной полосы между прямыми
+$y = A - \eps$ и $y = A + \eps$.
+
+\begin{center}
+\begin{tikzpicture}[font=\small]
+  \draw[->] (-0.2,0) -- (7.2,0) node[below] {$x$};
+  \draw[->] (0,-0.2) -- (0,4.3) node[left] {$y$};
+  \foreach \y/\l in {2.8/A+\varepsilon, 2.2/A, 1.6/A-\varepsilon}
+    \draw[dashed] (0,\y) node[left] {$\l$} -- (6.8,\y);
+  \foreach \x/\l in {2.0/x_0-\delta, 3.4/x_0, 4.8/x_0+\delta}
+    \draw[dashed] (\x,0) node[below] {$\l$} -- (\x,3.9);
+  \draw[thick,->,>=stealth] plot[smooth] coordinates {(0.4,3.3) (1.2,3.1) (2.0,2.5) (2.6,2.05) (3.27,2.2)};
+  \draw[thick,<-,>=stealth] plot[smooth] coordinates {(3.53,2.2) (4.1,2.0) (4.8,2.45) (5.6,3.2) (6.4,3.5)};
+  \draw[thick,fill=white] (3.4,2.2) circle (2.3pt);
+  \node[above right=1pt] at (3.4,2.2) {$M_0$};
+  \node[above] at (6.1,3.6) {$y = f(x)$};
+\end{tikzpicture}
+\end{center}
+
+\podr{Предел на бесконечности и бесконечные пределы}
+
+\begin{opr}[предел функции при $x \to +\infty$, $x \to -\infty$, $x \to \infty$]
+Пусть $f(x)$ задана на $(a; +\infty)$. Число $A$ называется пределом $f(x)$ на $+\infty$, если для любого $\eps > 0$ существует
+$\delta(\eps) > 0$ такое, что при всех $x \in D(f)$, $x > \delta(\eps)$, выполняется $|f(x) - A| < \eps$.
+\kv
+\[
+  \lim_{x \to +\infty} f(x) = A \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\
+  \forall x \in D(f)\ \bigl( x > \delta(\eps) \to |f(x) - A| < \eps \bigr),
+\]
+\[
+  \lim_{x \to -\infty} f(x) = A \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\
+  \forall x \in D(f)\ \bigl( x < -\delta(\eps) \to |f(x) - A| < \eps \bigr).
+\]
+Если $A$ --- предел и на $+\infty$, и на $-\infty$, то пишут $\lim\limits_{x \to \infty} f(x) = A$:
+\[
+  \lim_{x \to \infty} f(x) = A \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\
+  \forall x \in D(f)\ \bigl( |x| > \delta(\eps) \to |f(x) - A| < \eps \bigr).
+\]
+\end{opr}
+
+\podr{Все 16 определений предела функции}
+
+Все определения устроены одинаково:
+\[
+  \lim_{x \to a} f(x) = b \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\
+  \forall x \in D(f)\ \bigl( \text{<<$x$ близко к $a$>>} \to \text{<<$f(x)$ близко к $b$>>} \bigr).
+\]
+Меняются только два условия:
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|c|}
+  \hline
+  $a$ & условие на $x$ \\ \hline
+  $x_0$ & $0 < |x - x_0| < \delta(\eps)$ \\
+  $+\infty$ & $x > \delta(\eps)$ \\
+  $-\infty$ & $x < -\delta(\eps)$ \\
+  $\infty$ & $|x| > \delta(\eps)$ \\ \hline
+\end{tabular}
+\qquad
+\begin{tabular}{|c|c|}
+  \hline
+  $b$ & условие на $f(x)$ \\ \hline
+  $A$ & $|f(x) - A| < \eps$ \\
+  $+\infty$ & $f(x) > \eps$ \\
+  $-\infty$ & $f(x) < -\eps$ \\
+  $\infty$ & $|f(x)| > \eps$ \\ \hline
+\end{tabular}
+\end{center}
+Четыре условия на $x$ и четыре условия на $f(x)$ дают $4 \cdot 4 = 16$ определений. Везде
+$\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)$, а в скобках:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabular}{|r|l|l|}
+\hline
+\textbf{№} & \textbf{Предел} & \textbf{Условие в скобках} \\ \hline
+1 & $\lim\limits_{x \to x_0} f(x) = A$ & $\bigl(0 < |x - x_0| < \delta \to |f(x) - A| < \eps\bigr)$ \\
+2 & $\lim\limits_{x \to x_0} f(x) = +\infty$ & $\bigl(0 < |x - x_0| < \delta \to f(x) > \eps\bigr)$ \\
+3 & $\lim\limits_{x \to x_0} f(x) = -\infty$ & $\bigl(0 < |x - x_0| < \delta \to f(x) < -\eps\bigr)$ \\
+4 & $\lim\limits_{x \to x_0} f(x) = \infty$ & $\bigl(0 < |x - x_0| < \delta \to |f(x)| > \eps\bigr)$ \\ \hline
+5 & $\lim\limits_{x \to +\infty} f(x) = A$ & $\bigl(x > \delta \to |f(x) - A| < \eps\bigr)$ \\
+6 & $\lim\limits_{x \to +\infty} f(x) = +\infty$ & $\bigl(x > \delta \to f(x) > \eps\bigr)$ \\
+7 & $\lim\limits_{x \to +\infty} f(x) = -\infty$ & $\bigl(x > \delta \to f(x) < -\eps\bigr)$ \\
+8 & $\lim\limits_{x \to +\infty} f(x) = \infty$ & $\bigl(x > \delta \to |f(x)| > \eps\bigr)$ \\ \hline
+9 & $\lim\limits_{x \to -\infty} f(x) = A$ & $\bigl(x < -\delta \to |f(x) - A| < \eps\bigr)$ \\
+10 & $\lim\limits_{x \to -\infty} f(x) = +\infty$ & $\bigl(x < -\delta \to f(x) > \eps\bigr)$ \\
+11 & $\lim\limits_{x \to -\infty} f(x) = -\infty$ & $\bigl(x < -\delta \to f(x) < -\eps\bigr)$ \\
+12 & $\lim\limits_{x \to -\infty} f(x) = \infty$ & $\bigl(x < -\delta \to |f(x)| > \eps\bigr)$ \\ \hline
+13 & $\lim\limits_{x \to \infty} f(x) = A$ & $\bigl(|x| > \delta \to |f(x) - A| < \eps\bigr)$ \\
+14 & $\lim\limits_{x \to \infty} f(x) = +\infty$ & $\bigl(|x| > \delta \to f(x) > \eps\bigr)$ \\
+15 & $\lim\limits_{x \to \infty} f(x) = -\infty$ & $\bigl(|x| > \delta \to f(x) < -\eps\bigr)$ \\
+16 & $\lim\limits_{x \to \infty} f(x) = \infty$ & $\bigl(|x| > \delta \to |f(x)| > \eps\bigr)$ \\ \hline
+\end{tabular}
+\end{center}
+
+Например, полностью определение 10:
+\[
+  \lim_{x \to -\infty} f(x) = +\infty \Leftrightarrow \forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ \bigl(x < -\delta \to f(x) > \eps\bigr).
+\]
+
+\podr{Свойства предела функции}
+
+Пусть существуют конечные пределы $\lim\limits_{x \to x_0} f(x) = A$ и (где нужно) $\lim\limits_{x \to x_0} g(x) = B$.
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Сохранение неравенства с числом.} Если $A < Q$ ($A > P$), то около $x_0$ функция меньше $Q$ (больше $P$):
+    \[
+      \exists \delta > 0\ \forall x \in D(f)\ \bigl( 0 < |x - x_0| < \delta \Rightarrow f(x) < Q \bigr)
+      \quad \bigl(\text{соотв. } f(x) > P\bigr).
+    \]
+  \item \textbf{Локальная ограниченность.} Функция, имеющая конечный предел, ограничена около $x_0$:
+    \[
+      \exists M > 0\ \exists \delta > 0\ \forall x \in D(f)\ \bigl( 0 < |x - x_0| < \delta \Rightarrow |f(x)| \le M \bigr).
+    \]
+  \item \textbf{Переход к пределу в неравенствах.}
+    \[
+      \forall x \in D(f) \cap D(g)\ \bigl( f(x) \le g(x) \bigr) \ \Longrightarrow\ A \le B.
+    \]
+  \item \textbf{Единственность.} Если предел функции в точке существует, то он единственный.
+  \item \textbf{О промежуточной функции (о двух полицейских).} Если $\lim\limits_{x \to x_0} f(x) = A$, $\lim\limits_{x \to x_0} g(x) = A$ и
+    \[
+      \forall x \in D(f) \cap D(g) \cap D(h)\ \bigl( f(x) \le h(x) \le g(x) \bigr),
+    \]
+    то существует конечный $\lim\limits_{x \to x_0} h(x) = A$.
+  \item \textbf{Арифметические свойства.}
+    \begin{enumerate}
+      \item $\lim\limits_{x \to x_0} \bigl( f(x) \pm g(x) \bigr) = A \pm B$;
+      \item $\lim\limits_{x \to x_0} \bigl( f(x) \cdot g(x) \bigr) = A \cdot B$;
+      \item $\lim\limits_{x \to x_0} \dfrac{f(x)}{g(x)} = \dfrac{A}{B}$, если $B \ne 0$ и $\forall x \in D(g)\ (g(x) \ne 0)$.
+    \end{enumerate}
+\end{enumerate}
+{\small\textcolor{zamc}{(В конспекте в пункте 6в не записано условие $B \ne 0$ --- без него делить на предел нельзя.)}}
+
+\begin{dop}[как доказываются эти свойства]
+Через определение по Гейне все свойства сводятся к свойствам последовательностей (вопросы 6 и 10). Например, для суммы:
+возьмём любую $(x_n)$, $x_n \to x_0$, $x_n \ne x_0$; по Гейне $f(x_n) \to A$, $g(x_n) \to B$, значит
+$f(x_n) + g(x_n) \to A + B$ (предел суммы последовательностей). Так как $(x_n)$ любая, по Гейне $\lim (f + g) = A + B$.
+\end{dop}
+
+\podr{Примеры из лекции}
+
+\textbf{Пр.~1} ($\left[\frac\infty\infty\right]$, как с многочленами: выносим старшую степень).
+\[
+  \lim_{x \to \infty} \frac{3 + x - x^2 - 7x^3}{2x + 15x^3}
+  = \left[\frac{\infty}{\infty}\right]
+  = \lim_{x \to \infty} \frac{x^3 \bigl(\tfrac{3}{x^3} + \tfrac{1}{x^2} - \tfrac{1}{x} - 7\bigr)}{x^3 \bigl(\tfrac{2}{x^2} + 15\bigr)}
+  = -\frac{7}{15}.
+\]
+
+\textbf{Пр.~2} ($\left[\frac00\right]$: раскладываем на множители и сокращаем $x - 2$; это можно, потому что $x \ne 2$).
+\[
+  \lim_{x \to 2} \frac{x^3 - 8}{x^3 - 4x}
+  = \left[\frac{0}{0}\right]
+  = \lim_{x \to 2} \frac{(x - 2)(x^2 + 2x + 4)}{x(x - 2)(x + 2)}
+  = \lim_{x \to 2} \frac{x^2 + 2x + 4}{x(x + 2)}
+  = \frac{4 + 4 + 4}{2 \cdot 4} = \frac{3}{2}.
+\]
+
+\textbf{Пр.~3} ($\left[\frac00\right]$ с корнем: домножаем на сопряжённое).
+\begin{multline*}
+  \lim_{x \to -3} \frac{\sqrt{x + 4} - 1}{x^2 - 9}
+  = \left[\frac{0}{0}\right]
+  = \lim_{x \to -3} \frac{\bigl(\sqrt{x + 4} - 1\bigr)\bigl(\sqrt{x + 4} + 1\bigr)}{(x - 3)(x + 3)\bigl(\sqrt{x + 4} + 1\bigr)} = \\
+  = \lim_{x \to -3} \frac{x + 3}{(x - 3)(x + 3)\bigl(\sqrt{x + 4} + 1\bigr)}
+  = \lim_{x \to -3} \frac{1}{(x - 3)\bigl(\sqrt{x + 4} + 1\bigr)}
+  = \frac{1}{-6 \cdot 2} = -\frac{1}{12}.
+\end{multline*}
+
+% ======================= ВОПРОС 17 =======================
+\vopros{17}{Бесконечно малые и бесконечно большие функции и их свойства. Сравнение б.м.ф. и б.б.ф. Символы \texorpdfstring{$o$ и $O$}{o и O}}
+
+\plan{\item б/м функция; критерий $f(x) = A + \alpha(x)$;
+\item б/б функция; бесконечные пределы;
+\item свойства б/м и б/б функций (по аналогии с последовательностями);
+\item сравнение б/м: одного порядка ($O$), эквивалентные ($\sim$), более высокого порядка ($o$); примеры.}
+
+{\small\textcolor{zamc}{В лекциях нет сравнения бесконечно больших функций и отдельного списка свойств б/м и б/б функций ---
+они даны ниже в пунктирных рамках.}}
+
+\podr{Бесконечно малые функции}
+
+\begin{opr}[бесконечно малая функция]
+Функция $f(x)$ называется \textbf{бесконечно малой в точке $x_0$} (при $x \to x_0$), если её предел в точке $x_0$ равен нулю:
+$\lim\limits_{x \to x_0} f(x) = 0$. Б/м функции обозначают $\alpha(x)$, $\beta(x)$, \dots
+\kv
+\[
+  \alpha(x) \text{ --- б/м при } x \to x_0 \Leftrightarrow
+  \forall \eps > 0\ \exists \delta(\eps) > 0\ \forall x \in D(\alpha)\ \bigl( 0 < |x - x_0| < \delta \to |\alpha(x)| < \eps \bigr).
+\]
+Так же определяются б/м при $x \to \pm\infty$, $x \to \infty$ (условие на $x$ берётся из таблицы 16 определений).
+Примеры: $x^2$ при $x \to 0$; \ $\frac1x$ при $x \to \infty$; \ $\sin x$ при $x \to 0$.
+\end{opr}
+
+\begin{teo}[критерий существования предела функции]
+Число $A$ есть предел функции $f(x)$ в точке $x_0$ тогда и только тогда, когда существует б/м в точке $x_0$ функция $\alpha(x)$ такая,
+что $f(x) = A + \alpha(x)$.
+\kv
+\[
+  \lim_{x \to x_0} f(x) = A \Leftrightarrow \exists \alpha(x)\ \Bigl(\lim_{x \to x_0} \alpha(x) = 0 \ \wedge\ f(x) = A + \alpha(x)\Bigr).
+\]
+\end{teo}
+(Доказательство такое же, как для последовательностей в вопросе 10: $\alpha(x) = f(x) - A$, и $|\alpha(x)| = |f(x) - A|$.)
+
+\begin{dop}[свойства б/м функций --- аналогично последовательностям (вопрос 7)]
+\begin{enumerate}
+  \item Сумма конечного числа б/м функций (при $x \to x_0$) --- б/м.
+  \item Произведение б/м на функцию, ограниченную около $x_0$, --- б/м. В частности, $C \cdot \alpha(x)$ и $\alpha(x)\beta(x)$ --- б/м.
+\end{enumerate}
+Пример: $x \sin\frac1x \to 0$ при $x \to 0$, так как $x$ --- б/м, а $\left|\sin\frac1x\right| \le 1$.
+\end{dop}
+
+\podr{Бесконечно большие функции}
+
+\begin{opr}[бесконечно большая функция]
+Функция $f(x)$ называется \textbf{бесконечно большой в точке $x_0$} (при $x \to x_0$), если абсолютное значение $f(x)$ остаётся
+больше любого заданного положительного числа $\eps$ всякий раз, как $|x - x_0|$ меньше некоторого положительного числа $\delta$,
+зависящего от $\eps$. Пишут $\lim\limits_{x \to x_0} f(x) = \infty$ (<<$f(x)$ стремится к бесконечности при $x \to x_0$>>).
+\kv
+\[
+  \lim_{x \to x_0} f(x) = \infty \Leftrightarrow
+  \forall \eps > 0\ \exists \delta(\eps) > 0\ \forall x \in D(f)\ \bigl( 0 < |x - x_0| < \delta \to |f(x)| > \eps \bigr).
+\]
+\end{opr}
+
+Аналогично формулируются пределы, равные $\pm\infty$, и пределы при $x \to \pm\infty$, $\infty$ (таблица 16 определений, вопрос 15).
+Например (из лекции):
+\[
+  \lim_{x \to -\infty} f(x) = +\infty \Leftrightarrow \forall \eps > 0\ \exists \delta > 0\
+  \forall x \in D(f)\ \bigl( x < -\delta \Rightarrow f(x) > \eps \bigr).
+\]
+Примеры: $\frac1x$ при $x \to 0$; \ $x^2$ при $x \to \infty$ ($\to +\infty$); \ $\tg x$ при $x \to \frac\pi2$.
+
+\begin{dop}[свойства б/б функций и связь с б/м --- как у последовательностей (вопросы 8, 9)]
+\begin{itemize}
+  \item сумма б/б одного знака --- б/б того же знака; б/б + ограниченная --- б/б; произведение б/б --- б/б; $C \cdot$б/б при $C \ne 0$ --- б/б;
+  \item если $\alpha(x)$ --- б/м и $\alpha(x) \ne 0$ около $x_0$, то $\frac{1}{\alpha(x)}$ --- б/б; если $f(x)$ --- б/б, то $\frac{1}{f(x)}$ --- б/м.
+\end{itemize}
+\end{dop}
+
+\podr{Сравнение бесконечно малых функций}
+
+Предел отношения двух б/м функций --- неопределённость $\left(\frac00\right)$. Отсюда задача сравнения б/м:
+\textbf{сравнить две б/м функции в точке --- значит найти предел их отношения}.
+Пусть далее $\alpha_1(x)$, $\alpha_2(x)$ --- б/м в точке $x_0$: $\lim\limits_{x \to x_0} \alpha_1(x) = 0$, $\lim\limits_{x \to x_0} \alpha_2(x) = 0$.
+
+\begin{opr}[б/м одного порядка малости, символ $O$]
+Если предел отношения $\dfrac{\alpha_1(x)}{\alpha_2(x)}$ в точке $x_0$ равен числу $k \ne 0$, то $\alpha_1$ и $\alpha_2$ называются
+\textbf{б/м одного порядка малости} в точке $x_0$. Пишут $\alpha_1(x) = O\bigl(\alpha_2(x)\bigr)$.
+\kv
+\[
+  \alpha_1 = O(\alpha_2) \Leftrightarrow \exists k \ne 0\ \forall \eps > 0\ \exists \delta > 0\ \forall x\
+  \left( 0 < |x - x_0| < \delta \to \left|\frac{\alpha_1(x)}{\alpha_2(x)} - k\right| < \eps \right).
+\]
+\end{opr}
+
+\begin{opr}[эквивалентные б/м, $\sim$]
+В частности, при $k = 1$, т.\,е. если $\lim\limits_{x \to x_0} \dfrac{\alpha_1(x)}{\alpha_2(x)} = 1$, функции называются
+\textbf{эквивалентными} (асимптотически равными) в точке $x_0$: $\alpha_1(x) \sim \alpha_2(x)$.
+\kv
+\[
+  \alpha_1 \sim \alpha_2 \Leftrightarrow \forall \eps > 0\ \exists \delta > 0\ \forall x\
+  \left( 0 < |x - x_0| < \delta \to \left|\frac{\alpha_1(x)}{\alpha_2(x)} - 1\right| < \eps \right).
+\]
+\end{opr}
+
+\begin{opr}[б/м более высокого порядка, символ $o$]
+Если $\lim\limits_{x \to x_0} \dfrac{\alpha_1(x)}{\alpha_2(x)} = 0$, то $\alpha_1(x)$ называется \textbf{величиной более высокого порядка малости},
+чем $\alpha_2(x)$ (стремится к нулю <<быстрее>>). Пишут $\alpha_1(x) = o\bigl(\alpha_2(x)\bigr)$.
+\kv
+\[
+  \alpha_1 = o(\alpha_2) \Leftrightarrow \forall \eps > 0\ \exists \delta > 0\ \forall x\
+  \left( 0 < |x - x_0| < \delta \to \left|\frac{\alpha_1(x)}{\alpha_2(x)}\right| < \eps \right).
+\]
+\end{opr}
+
+\zam В лекции $O$ означает именно <<одного порядка>> (предел отношения --- число $k \ne 0$). Если предел отношения не существует,
+б/м называют несравнимыми (например, $x \sin\frac1x$ и $x$ при $x \to 0$: отношение $\sin\frac1x$ предела не имеет).
+
+\podr{Примеры из лекции}
+
+\textbf{Пр.~1.} $\alpha_1(x) = x^2 + 2x$, $\alpha_2(x) = x^2 - 3x$ --- б/м одного порядка в точке $x_0 = 0$.
+Обе б/м: $\lim\limits_{x \to 0} (x^2 + 2x) = 0$, $\lim\limits_{x \to 0} (x^2 - 3x) = 0$. Предел отношения:
+\[
+  \lim_{x \to 0} \frac{x^2 + 2x}{x^2 - 3x}
+  = \left[\frac{0}{0}\right]
+  = \lim_{x \to 0} \frac{x(x + 2)}{x(x - 3)}
+  = \frac{0 + 2}{0 - 3} = -\frac{2}{3} \ne 0
+  \ \Longrightarrow\ \alpha_1 = O(\alpha_2).
+\]
+
+\textbf{Пр.~2.} $\alpha_1(x) = \frac{1}{x}$, $\alpha_2(x) = \frac{1}{x + 1}$ --- эквивалентные б/м при $x \to \infty$.
+Обе б/м при $x \to \infty$. Предел отношения:
+\[
+  \lim_{x \to \infty} \left(\frac{1}{x} : \frac{1}{x + 1}\right)
+  = \lim_{x \to \infty} \frac{x + 1}{x}
+  = \lim_{x \to \infty} \left(1 + \frac{1}{x}\right) = 1
+  \ \Longrightarrow\ \alpha_1 \sim \alpha_2 \text{ при } x \to \infty.
+\]
+
+\textbf{Пр.~3.} Сравнить $\alpha_1(x) = x^3 + x^2$ и $\alpha_2(x) = x^2 - 2x$ в точке $x_0 = 0$. Обе б/м.
+\[
+  \lim_{x \to 0} \frac{x^3 + x^2}{x^2 - 2x}
+  = \lim_{x \to 0} \frac{x(x^2 + x)}{x(x - 2)}
+  = \frac{0 + 0}{0 - 2} = 0
+  \ \Longrightarrow\ \alpha_1 = o(\alpha_2) \text{ при } x \to 0.
+\]
+
+\begin{dop}[сравнение бесконечно больших функций]
+Б/б функции сравнивают так же --- по пределу отношения. Если $\lim\limits_{x \to x_0} \frac{f(x)}{g(x)} = k \ne 0$, то $f$ и $g$ ---
+б/б одного порядка роста ($k = 1$ --- эквивалентные); если предел равен $\infty$, то $f$ --- б/б более высокого порядка (растёт быстрее);
+если $0$ --- более низкого. Пример: $x^3$ и $x^2$ при $x \to \infty$: $\frac{x^3}{x^2} = x \to \infty$, $x^3$ растёт быстрее.
+\end{dop}
+
+% ======================= ВОПРОС 18 =======================
+\vopros{18}{Эквивалентные бесконечно малые функции в пределах. Таблица эквивалентных б.м.ф.}
+
+\plan{\item определение эквивалентных б/м;
+\item теорема о замене эквивалентными (с доказательством);
+\item таблица эквивалентностей при $x \to 0$; замена $x$ на $\alpha(x) \to 0$;
+\item примеры из лекции.}
+
+\begin{opr}[эквивалентные б/м функции]
+Б/м в точке $x_0$ функции $\alpha_1(x)$ и $\alpha_2(x)$ называются \textbf{эквивалентными} (асимптотически равными), если предел их
+отношения равен единице. Обозначение: $\alpha_1(x) \sim \alpha_2(x)$ при $x \to x_0$.
+\kv
+\[
+  \alpha_1 \sim \alpha_2 \Leftrightarrow \lim_{x \to x_0} \frac{\alpha_1(x)}{\alpha_2(x)} = 1 \Leftrightarrow
+  \forall \eps > 0\ \exists \delta > 0\ \forall x\ \left( 0 < |x - x_0| < \delta \to \left|\frac{\alpha_1(x)}{\alpha_2(x)} - 1\right| < \eps \right).
+\]
+\end{opr}
+
+\begin{teo}[принцип замены эквивалентными б/м функциями]
+Если $\alpha_1(x)$, $\alpha_2(x)$, $\alpha_3(x)$, $\alpha_4(x)$ --- б/м в точке $x_0$ функции, причём $\alpha_1(x) \sim \alpha_3(x)$,
+$\alpha_2(x) \sim \alpha_4(x)$ в точке $x_0$, то
+\[
+  \boxed{\lim_{x \to x_0} \frac{\alpha_1(x)}{\alpha_2(x)} = \lim_{x \to x_0} \frac{\alpha_3(x)}{\alpha_4(x)}}
+\]
+Словами: в пределе отношения (произведения) б/м можно заменить эквивалентными, предел не изменится.
+\kv
+\[
+  \alpha_1 \sim \alpha_3 \ \wedge\ \alpha_2 \sim \alpha_4 \ \Longrightarrow\
+  \lim_{x \to x_0} \frac{\alpha_1(x)}{\alpha_2(x)} = \lim_{x \to x_0} \frac{\alpha_3(x)}{\alpha_4(x)}.
+\]
+\end{teo}
+
+\begin{dok}
+Домножим и разделим на $\alpha_3$ и $\alpha_4$ и воспользуемся пределом произведения:
+\begin{multline*}
+  \lim_{x \to x_0} \frac{\alpha_1(x)}{\alpha_2(x)}
+  = \lim_{x \to x_0} \left(\frac{\alpha_1(x)}{\alpha_3(x)} \cdot \frac{\alpha_3(x)}{\alpha_4(x)} \cdot \frac{\alpha_4(x)}{\alpha_2(x)}\right)
+  = \underbrace{\lim_{x \to x_0} \frac{\alpha_1(x)}{\alpha_3(x)}}_{=1\ (\alpha_1 \sim \alpha_3)} \cdot
+    \lim_{x \to x_0} \frac{\alpha_3(x)}{\alpha_4(x)} \cdot
+    \underbrace{\lim_{x \to x_0} \frac{\alpha_4(x)}{\alpha_2(x)}}_{=1\ (\alpha_2 \sim \alpha_4)} = \\
+  = 1 \cdot \lim_{x \to x_0} \frac{\alpha_3(x)}{\alpha_4(x)} \cdot 1
+  = \lim_{x \to x_0} \frac{\alpha_3(x)}{\alpha_4(x)}.
+\end{multline*}
+\end{dok}
+
+\podr{Таблица эквивалентных б/м}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.7}
+\begin{tabular}{|c|c|}
+  \hline
+  $\sin x \sim x$ & $\ln(1 + x) \sim x$ \\ \hline
+  $\tg x \sim x$ & $e^x - 1 \sim x$ \\ \hline
+  $\arcsin x \sim x$ & $a^x - 1 \sim x \ln a$ \\ \hline
+  $\arctg x \sim x$ & $(1 + x)^\mu - 1 \sim \mu x$ \\ \hline
+  $1 - \cos x \sim \dfrac{x^2}{2}$ & $\sqrt{1 + x} - 1 \sim \dfrac{x}{2}$ \\ \hline
+\end{tabular}
+\end{center}
+Все формулы верны при \textbf{$x \to 0$}.
+
+\zam Эквивалентности справедливы, если вместо $x$ стоит любая функция $\alpha(x) \to 0$. Например,
+$\sin 5x \sim 5x$, \ $\tg(x^2) \sim x^2$, \ $e^{\sin x} - 1 \sim \sin x \sim x$ при $x \to 0$.
+
+\begin{dop}[откуда берутся эквивалентности таблицы]
+\begin{itemize}
+  \item $\sin x \sim x$ --- это первый замечательный предел (вопрос 19).
+  \item $\tg x \sim x$: \ $\dfrac{\tg x}{x} = \dfrac{\sin x}{x} \cdot \dfrac{1}{\cos x} \to 1 \cdot 1 = 1$.
+  \item $\arcsin x \sim x$: замена $t = \arcsin x \to 0$, $x = \sin t$: \ $\dfrac{\arcsin x}{x} = \dfrac{t}{\sin t} \to 1$. Аналогично $\arctg x \sim x$.
+  \item $1 - \cos x = 2\sin^2\dfrac{x}{2} \sim 2\left(\dfrac{x}{2}\right)^2 = \dfrac{x^2}{2}$.
+  \item $\ln(1 + x) \sim x$: \ $\dfrac{\ln(1 + x)}{x} = \ln (1 + x)^{\frac1x} \to \ln e = 1$ (второй замечательный предел и непрерывность логарифма).
+  \item $e^x - 1 \sim x$: замена $t = e^x - 1 \to 0$, $x = \ln(1 + t)$: \ $\dfrac{e^x - 1}{x} = \dfrac{t}{\ln(1 + t)} \to 1$.
+  \item $a^x - 1 = e^{x \ln a} - 1 \sim x \ln a$; \quad $(1 + x)^\mu - 1 = e^{\mu \ln(1 + x)} - 1 \sim \mu \ln(1 + x) \sim \mu x$;
+        \quad при $\mu = \frac12$: $\sqrt{1 + x} - 1 \sim \frac{x}{2}$.
+\end{itemize}
+\end{dop}
+
+\begin{dop}[заменять можно только множители, но не слагаемые]
+Теорема говорит о частном (и произведении). В сумме и разности заменять нельзя:
+\[
+  \lim_{x \to 0} \frac{\tg x - \sin x}{x^3} \ne \lim_{x \to 0} \frac{x - x}{x^3} = 0 \quad\text{(неверно!)}.
+\]
+Правильно: $\tg x - \sin x = \tg x\,(1 - \cos x) \sim x \cdot \frac{x^2}{2}$, поэтому предел равен $\frac12$.
+\end{dop}
+
+\podr{Примеры из лекции}
+
+\textbf{Пр.~1.}
+\[
+  \lim_{x \to 0} \frac{\arcsin(\tg 6x)}{1 - \cos 3x} = \left[\frac{0}{0}\right];
+  \qquad
+  \arcsin(\underbrace{\tg 6x}_{\to 0}) \sim \tg \underbrace{6x}_{\to 0} \sim 6x,
+  \qquad
+  1 - \cos 3x \sim \frac{(3x)^2}{2} = \frac{9x^2}{2};
+\]
+\[
+  \lim_{x \to 0} \frac{\arcsin(\tg 6x)}{1 - \cos 3x}
+  = \lim_{x \to 0} \frac{6x}{\frac{9x^2}{2}}
+  = \lim_{x \to 0} \frac{12}{9x}
+  = \frac{4}{3} \cdot \lim_{x \to 0} \frac{1}{x} = \infty.
+\]
+
+\textbf{Пр.~2.} $L = \lim\limits_{x \to \frac{\pi}{2}} \dfrac{3^{\cos^2 x} - 1}{\ln \sin x} = \left[\dfrac{0}{0}\right]$.
+Таблица работает при стремлении к нулю, поэтому сделаем замену $t = x - \frac{\pi}{2}$: $x = t + \frac{\pi}{2}$, $t \to 0$ при $x \to \frac{\pi}{2}$;
+$\cos\left(t + \frac\pi2\right) = -\sin t$, $\sin\left(t + \frac\pi2\right) = \cos t$.
+\begin{multline*}
+  L = \lim_{t \to 0} \frac{3^{\sin^2 t} - 1}{\ln \cos t}
+  = \lim_{t \to 0} \frac{3^{\sin^2 t} - 1}{\ln\bigl(1 + (\cos t - 1)\bigr)}
+  = \left|\begin{array}{l}
+      3^{\sin^2 t} - 1 \sim \ln 3 \cdot \sin^2 t,\\
+      \ln\bigl(1 + (\cos t - 1)\bigr) \sim \cos t - 1
+    \end{array}\right|
+  = \lim_{t \to 0} \frac{\ln 3 \cdot \sin^2 t}{\cos t - 1} = \\
+  = \lim_{t \to 0} \frac{\ln 3\,(1 - \cos^2 t)}{\cos t - 1}
+  = -\ln 3 \cdot \lim_{t \to 0} \frac{(\cos t - 1)(\cos t + 1)}{\cos t - 1}
+  = -\ln 3 \cdot \lim_{t \to 0} (\cos t + 1)
+  = -2 \ln 3.
+\end{multline*}
+{\small\textcolor{zamc}{(В тетради ответ записан как $2\ln 3$ --- потерян минус. Проверено численно: при $x$, близких к $\frac\pi2$, дробь $\approx -2{,}197 = -2\ln 3$.)}}
+
+% ======================= ВОПРОС 19 =======================
+\vopros{19}{Первый замечательный предел}
+
+\plan{\item формулировка;
+\item доказательство: единичная окружность, сравнение площадей, $\sin x < x < \tg x$, $\cos x < \frac{\sin x}{x} < 1$, чётность, теорема о двух полицейских;
+\item следствие и пример.}
+
+\begin{teo}[первый замечательный предел]
+\[
+  \boxed{\lim_{x \to 0} \frac{\sin x}{x} = 1}
+\]
+\kv
+\[
+  \forall \eps > 0\ \exists \delta > 0\ \forall x\ \left(0 < |x| < \delta \to \left|\frac{\sin x}{x} - 1\right| < \eps\right).
+\]
+\end{teo}
+
+\begin{dok}
+Рассмотрим окружность радиуса $R = 1$ с центром в начале координат. Выберем произвольный угол $\angle MOA = x$, $0 < x < \frac{\pi}{2}$
+(угол в радианах). $MB \perp OA$, $AC$ --- касательная к окружности в точке $A$.
+
+\begin{center}
+\begin{tikzpicture}[scale=3.6, font=\small, >=stealth]
+  \pgfmathsetmacro\a{35}
+  \coordinate (O) at (0,0);
+  \coordinate (A) at (1,0);
+  \coordinate (M) at ({cos(\a)},{sin(\a)});
+  \coordinate (B) at ({cos(\a)},0);
+  \coordinate (C) at (1,{tan(\a)});
+  \draw[->] (-0.08,0) -- (1.25,0) node[below] {$x$};
+  \draw[->] (0,-0.08) -- (0,1.15) node[left] {$y$};
+  \node[left] at (0,1) {$1$};
+  \draw[thick] (1,0) arc (0:90:1);
+  \draw[thick] (O) -- (C);
+  \draw[thick] (M) -- (B);
+  \draw[thick] (A) -- (C);
+  \draw (M) -- (A);
+  \draw ({cos(\a)-0.05},0) -- ++(0,0.05) -- ++(0.05,0);
+  \draw (0.95,0) -- (0.95,0.05) -- (1,0.05);
+  \draw (0.22,0) arc (0:\a:0.22);
+  \node at ({0.3*cos(\a/2)},{0.3*sin(\a/2)}) {$x$};
+  \fill (O) circle (0.35pt) node[below left] {$O$};
+  \fill (M) circle (0.35pt) node[above left] {$M$};
+  \node[below] at (B) {$B$};
+  \node[below right] at (A) {$A$};
+  \node[above right] at (C) {$C$};
+\end{tikzpicture}
+\end{center}
+
+Из геометрических соображений: треугольник $OMA$ лежит внутри сектора $OMA$, а сектор --- внутри треугольника $OCA$:
+\[
+  S_{\triangle OMA} < S_{\text{сект}\,OMA} < S_{\triangle OCA}.
+\]
+Посчитаем площади ($OA = 1$, $MB = \sin x$, $AC = \tg x$):
+\begin{gather*}
+  S_{\triangle OMA} = \frac{1}{2}\, OA \cdot MB = \frac{1}{2} \sin x, \\
+  S_{\text{сект}} = \frac{1}{2}\, OA^2 \cdot x = \frac{1}{2} x
+  \quad (\text{угол } x \text{ в радианах}), \\
+  S_{\triangle OCA} = \frac{1}{2}\, OA \cdot AC = \frac{1}{2} \tg x.
+\end{gather*}
+Умножив на 2, получаем
+\[
+  \sin x < x < \tg x.
+\]
+Разделим на $\sin x > 0$:
+\[
+  1 < \frac{x}{\sin x} < \frac{1}{\cos x}
+  \ \Longleftrightarrow\ \cos x < \frac{\sin x}{x} < 1
+\]
+(перешли к обратным величинам --- все части положительны, знаки неравенств меняются).
+
+В силу чётности ($\frac{\sin(-x)}{-x} = \frac{\sin x}{x}$, $\cos(-x) = \cos x$) это неравенство справедливо не только при
+$0 < x < \frac{\pi}{2}$, но и при $-\frac{\pi}{2} < x < 0$.
+
+Так как $\lim\limits_{x \to 0} \cos x = 1$ и $\lim\limits_{x \to 0} 1 = 1$, по теореме о пределе промежуточной функции (о двух полицейских,
+вопрос 15, свойство 5):
+\[
+  \lim_{x \to 0} \frac{\sin x}{x} = 1.
+\]
+\end{dok}
+
+\begin{dop}[почему $\lim\limits_{x \to 0} \cos x = 1$]
+Из $\sin x < x$ (при $x > 0$) следует $|\sin t| \le |t|$ для всех $t$. Тогда
+$0 \le 1 - \cos x = 2\sin^2\frac{x}{2} \le 2 \cdot \frac{x^2}{4} = \frac{x^2}{2} \to 0$, и по двум полицейским $\cos x \to 1$.
+\end{dop}
+
+\textbf{Следствие.} Если $f(x) \to 0$ при $x \to x_0$, то
+\[
+  \lim_{\substack{x \to x_0\\ (f(x) \to 0)}} \frac{\sin f(x)}{f(x)} = 1
+  \qquad \text{--- помогает раскрывать } \left[\frac{0}{0}\right].
+\]
+Это то же самое, что эквивалентность $\sin \alpha(x) \sim \alpha(x)$ при $\alpha(x) \to 0$ (вопрос 18).
+
+\textbf{Пример из лекции.}
+\begin{multline*}
+  \lim_{x \to 0} \frac{\sin 4x}{\tg 3x}
+  = \left[\frac{0}{0}\right]
+  = \lim_{x \to 0} \left(\underbrace{\frac{\sin 4x}{4x}}_{\to 1} \cdot \frac{4x}{\tg 3x}\right)
+  = \lim_{x \to 0} \left(\frac{\sin 4x}{4x} \cdot \underbrace{\frac{3x}{\sin 3x}}_{\to 1} \cdot \frac{4 \cos 3x}{3}\right) = \\
+  = 1 \cdot 1 \cdot \frac{4}{3} = \frac{4}{3}
+\end{multline*}
+(использовали $\tg 3x = \frac{\sin 3x}{\cos 3x}$, так что $\frac{4x}{\tg 3x} = \frac{3x}{\sin 3x} \cdot \frac{4\cos 3x}{3}$).
+
+
+% ======================= ВОПРОС 20 =======================
+\vopros{20}{Непрерывность функции в точке; непрерывность в точке слева и справа}
+
+\plan{\item непрерывность по Коши ($\lim\limits_{x \to x_0} f(x) = f(x_0)$) и по Гейне;
+\item приращения аргумента и функции; непрерывность через приращения;
+\item пример: $\sin x$ непрерывна на $\R$;
+\item непрерывность слева и справа; непрерывность через односторонние пределы.}
+
+Пусть задана функция $y = f(x)$ и существует $U(x_0, \delta) \subset D(f)$, т.\,е. $(x_0 - \delta;\ x_0 + \delta) \subset D(f)$.
+
+\podr{Три определения непрерывности в точке}
+
+\begin{opr}[непрерывность в точке по Коши]
+Функция $f$ называется \textbf{непрерывной в точке} $x_0$, если её предел в этой точке равен значению в этой точке:
+$\lim\limits_{x \to x_0} f(x) = f(x_0)$.
+\kv
+\[
+  \forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\
+  \bigl( |x - x_0| < \delta \Rightarrow |f(x) - f(x_0)| < \eps \bigr).
+\]
+\end{opr}
+
+\begin{dop}[чем это отличается от определения предела]
+В пределе (вопрос 15) стоит $0 < |x - x_0| < \delta$ и число $A$, а здесь --- $|x - x_0| < \delta$ и $f(x_0)$.
+Точку $x_0$ исключать не нужно: при $x = x_0$ имеем $|f(x_0) - f(x_0)| = 0 < \eps$. Но функция обязана быть
+определена в $x_0$. Итак, непрерывность = три условия: $f(x_0)$ существует, $\lim\limits_{x \to x_0} f(x)$ существует, они равны.
+\end{dop}
+
+\begin{opr}[непрерывность в точке по Гейне]
+Функция $f$ называется \textbf{непрерывной в точке} $x_0$, если для любой последовательности $(x_n)$ из области определения
+$D(f)$, сходящейся к $x_0$, соответствующая последовательность значений функции $\bigl(f(x_n)\bigr)$ сходится к $f(x_0)$.
+\kv
+\[
+  \forall (x_n),\ x_n \in D(f)\ \bigl( (x_n) \to x_0 \Rightarrow f(x_n) \to f(x_0) \bigr).
+\]
+\end{opr}
+
+\textbf{Приращения.} Точке $x_0 \in D(f)$ дадим \textbf{приращение} $\Delta x$ так, чтобы $x_0 + \Delta x \in U(x_0, \delta) \subset D(f)$.
+Тогда функция получит приращение
+\[
+  \Delta f(x_0, \Delta x) = f(x_0 + \Delta x) - f(x_0).
+\]
+
+\begin{opr}[непрерывность через приращения]
+Функция $f$ называется \textbf{непрерывной в точке} $x_0$, если $\lim\limits_{\Delta x \to 0} \Delta f(x_0, \Delta x) = 0$.
+\kv
+\[
+  \forall \eps > 0\ \exists \delta > 0\ \forall \Delta x\
+  \bigl( |\Delta x| < \delta \Rightarrow |\Delta f(x_0, \Delta x)| < \eps \bigr).
+\]
+Словами: функция непрерывна в точке $\Longleftrightarrow$ бесконечно малому приращению аргумента соответствует
+бесконечно малое приращение функции.
+\end{opr}
+
+\podr{Пример: $y = \sin x$ непрерывна на $\R$}
+
+Пусть $x_0 \in \R$ --- произвольная точка, $\Delta x$ --- приращение. По формуле разности синусов
+\begin{multline*}
+  \Delta f(x_0, \Delta x) = \sin(x_0 + \Delta x) - \sin x_0
+  = 2 \sin\frac{(x_0 + \Delta x) - x_0}{2} \cdot \cos\frac{(x_0 + \Delta x) + x_0}{2} = \\
+  = 2 \sin\frac{\Delta x}{2} \cdot \cos\left(x_0 + \frac{\Delta x}{2}\right).
+\end{multline*}
+\[
+  \lim_{\Delta x \to 0} \Delta f(x_0, \Delta x)
+  = \lim_{\Delta x \to 0} \Bigl( \underbrace{2 \sin\frac{\Delta x}{2}}_{\to 0\ (\text{б/м})} \cdot
+    \underbrace{\cos\left(x_0 + \frac{\Delta x}{2}\right)}_{|\cdot| \le 1\ (\text{огр.})} \Bigr) = 0
+\]
+(произведение б/м на ограниченную --- б/м). Значит, $\sin x$ непрерывна в точке $x_0$, а так как $x_0$ произвольная --- непрерывна на $\R$.
+{\small\textcolor{zamc}{(В тетради в первой дроби описка: $(x_0 - \Delta x) - x_0$ вместо $(x_0 + \Delta x) - x_0$.)}}
+
+\podr{Непрерывность слева и справа}
+
+Обозначения односторонних пределов: $f(x_0 - 0) = \lim\limits_{x \to x_0 - 0} f(x)$ --- предел слева ($x \to x_0$, $x < x_0$),
+\ $f(x_0 + 0) = \lim\limits_{x \to x_0 + 0} f(x)$ --- предел справа ($x \to x_0$, $x > x_0$).
+
+\begin{opr}[непрерывность слева и справа]
+Функция $f$ называется \textbf{непрерывной в точке $x_0$ слева (справа)}, если
+$\lim\limits_{x \to x_0 - 0} f(x) = f(x_0)$ \ $\Bigl(\lim\limits_{x \to x_0 + 0} f(x) = f(x_0)\Bigr)$.
+\kv
+\[
+  \text{слева: } \forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\
+  \bigl( x_0 - \delta < x < x_0 \Rightarrow |f(x) - f(x_0)| < \eps \bigr);
+\]
+\[
+  \text{справа: } \forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\
+  \bigl( x_0 < x < x_0 + \delta \Rightarrow |f(x) - f(x_0)| < \eps \bigr).
+\]
+\end{opr}
+
+\begin{opr}[непрерывность через односторонние пределы]
+Функция $f$ \textbf{непрерывна в точке} $x_0$, если она непрерывна в этой точке слева и справа, причём
+\[
+  f(x_0 - 0) = f(x_0 + 0) = f(x_0).
+\]
+\end{opr}
+
+\zam Можно доказать, что все эти определения непрерывности функции в точке (по Коши, по Гейне, через приращения,
+через односторонние пределы) эквивалентны между собой.
+
+\begin{dop}[пример односторонней непрерывности]
+$f(x) = \operatorname{sign} x$ (см.\ вопрос 22) в точке $0$ не непрерывна ни слева, ни справа: $f(0) = 0$, а $f(0 - 0) = -1$, $f(0 + 0) = 1$.
+Функция $g(x) = 1$ при $x \ge 0$, $g(x) = -1$ при $x < 0$ в точке $0$ непрерывна справа ($g(0 + 0) = 1 = g(0)$), но не слева.
+\end{dop}
+
+% ======================= ВОПРОС 21 =======================
+\vopros{21}{Непрерывность сложной функции, переход к пределу под знаком непрерывной функции}
+
+\plan{\item арифметические свойства непрерывных функций;
+\item теорема о непрерывности сложной функции;
+\item переход к пределу под знаком непрерывной функции.}
+
+{\small\textcolor{zamc}{В записях лекции теорема о сложной функции есть, но её доказательство зачёркнуто;
+перехода к пределу под знаком непрерывной функции в записях нет --- оба даны ниже в пунктирных рамках.}}
+
+\podr{Свойства непрерывных в точке функций}
+
+\begin{teo}[арифметические свойства]
+Пусть функции $y = f(x)$ и $y = g(x)$ непрерывны в точке $x_0$. Тогда
+\begin{enumerate}
+  \item функция $f \pm g$ непрерывна в точке $x_0$;
+  \item функция $f \cdot g$ непрерывна в точке $x_0$;
+  \item функция $\dfrac{f}{g}$ непрерывна в точке $x_0$, если $\forall x \in D(g)\colon g(x) \ne 0$.
+\end{enumerate}
+\end{teo}
+
+\begin{dok}
+Основано на свойствах пределов функций (вопрос 15, свойство 6). Например, для суммы:
+$\lim\limits_{x \to x_0} \bigl(f(x) + g(x)\bigr) = \lim\limits_{x \to x_0} f(x) + \lim\limits_{x \to x_0} g(x) = f(x_0) + g(x_0)$ ---
+это и есть непрерывность $f + g$ в точке $x_0$.
+\end{dok}
+
+\podr{Непрерывность сложной функции}
+
+\begin{teo}[о непрерывности сложной функции]
+Пусть функция $y = f(x)$ непрерывна в точке $x_0$, а функция $x = \varphi(t)$ непрерывна в точке $t_0$,
+причём $E(\varphi) \subset D(f)$ и $x_0 = \varphi(t_0)$. Тогда сложная функция $f \circ \varphi\colon t \mapsto y = f\bigl(\varphi(t)\bigr)$
+непрерывна в точке $t_0$.
+\kv
+\[
+  \Bigl(\lim_{t \to t_0} \varphi(t) = \varphi(t_0) = x_0\Bigr) \wedge \Bigl(\lim_{x \to x_0} f(x) = f(x_0)\Bigr)
+  \ \Longrightarrow\ \lim_{t \to t_0} f\bigl(\varphi(t)\bigr) = f\bigl(\varphi(t_0)\bigr).
+\]
+\end{teo}
+
+\begin{dop}[доказательство по Гейне]
+Возьмём любую последовательность $t_n \to t_0$, $t_n \in D(\varphi)$. Так как $\varphi$ непрерывна в $t_0$, то по Гейне
+$x_n = \varphi(t_n) \to \varphi(t_0) = x_0$, причём $x_n \in E(\varphi) \subset D(f)$. Так как $f$ непрерывна в $x_0$, то по Гейне
+$f(x_n) \to f(x_0)$, т.\,е. $f\bigl(\varphi(t_n)\bigr) \to f\bigl(\varphi(t_0)\bigr)$. Последовательность $(t_n)$ была любой,
+значит по определению Гейне $f \circ \varphi$ непрерывна в $t_0$. \hfill$\blacktriangle$
+\end{dop}
+
+Пример: $y = \sin(x^2)$ непрерывна на $\R$ как композиция непрерывных $x \mapsto x^2$ и $\sin$.
+
+\begin{dop}[переход к пределу под знаком непрерывной функции]
+Если существует конечный $\lim\limits_{t \to t_0} \varphi(t) = x_0$ и функция $f$ непрерывна в точке $x_0$, то
+\[
+  \lim_{t \to t_0} f\bigl(\varphi(t)\bigr) = f\Bigl(\lim_{t \to t_0} \varphi(t)\Bigr) = f(x_0),
+\]
+т.\,е. знак предела можно <<внести>> под знак непрерывной функции. Доказательство то же, что выше (по Гейне), только
+$\varphi$ в точке $t_0$ может быть не определена.
+
+Именно так в вопросах 14 и 18 считались пределы:
+$\lim\limits_{x \to 0} \ln (1 + x)^{1/x} = \ln \lim\limits_{x \to 0} (1 + x)^{1/x} = \ln e = 1$; \
+$\lim e^{\frac{n - 3}{n^2 + 3} \cdot 5n} = e^{\lim \frac{(n - 3) 5n}{n^2 + 3}} = e^5$.
+\end{dop}
+
+% ======================= ВОПРОС 22 =======================
+\vopros{22}{Точки разрыва и их классификация}
+
+\plan{\item определение точки разрыва; три условия непрерывности;
+\item I род: устранимый разрыв, разрыв с конечным скачком; величина скачка; примеры;
+\item II род: бесконечный скачок; несуществующий односторонний предел; примеры $\cos\frac1x$, функция Дирихле.}
+
+\begin{opr}[точка разрыва]
+Точка $x_0$, в которой функция $f$ \textbf{не является непрерывной}, называется \textbf{точкой разрыва} функции $f$.
+\kv{} (отрицание непрерывности, если $f(x_0)$ определено)
+\[
+  \exists \eps > 0\ \forall \delta > 0\ \exists x \in D(f)\ \bigl( |x - x_0| < \delta \wedge |f(x) - f(x_0)| \ge \eps \bigr).
+\]
+\end{opr}
+
+Исходя из определения непрерывности в точке, $x_0$ --- точка разрыва, если \textbf{не выполняется хотя бы одно} из условий:
+\begin{enumerate}
+  \item $\exists$ конечное $f(x_0)$;
+  \item $\exists$ конечные $f(x_0 + 0)$ и $f(x_0 - 0)$;
+  \item $f(x_0 + 0) = f(x_0 - 0) = f(x_0)$.
+\end{enumerate}
+
+\podr{Точки разрыва I рода (оба односторонних предела конечны)}
+
+\begin{opr}[устранимый разрыв]
+Точка $x_0$ называется \textbf{точкой устранимого разрыва} функции $f$, если существуют конечные $f(x_0 + 0)$ и $f(x_0 - 0)$,
+причём $f(x_0 + 0) = f(x_0 - 0)$, а $f(x_0)$ либо не существует, либо $f(x_0) \ne f(x_0 + 0)$.
+\kv
+\[
+  f(x_0 + 0) = f(x_0 - 0) = A \in \R \ \wedge\ \bigl( x_0 \notin D(f) \ \vee\ f(x_0) \ne A \bigr).
+\]
+\end{opr}
+
+\begin{center}
+\begin{tikzpicture}[font=\small, >=stealth, scale=0.9]
+  \draw[->] (-0.3,0) -- (5.5,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,3.6) node[left] {$y$};
+  \draw[thick] plot[smooth] coordinates {(0.6,0.9) (1.6,1.4) (2.6,1.75) (2.95,2.15)};
+  \draw[thick] plot[smooth] coordinates {(3.05,2.3) (3.6,2.7) (4.4,2.9) (5.1,3.3)};
+  \draw[thick, fill=white] (3,2.22) circle (2pt);
+  \fill (3,1.1) circle (2pt);
+  \draw[dashed] (0,2.22) node[left] {$f(x_0 \pm 0)$} -- (3,2.22);
+  \draw[dashed] (0,1.1) node[left] {$f(x_0)$} -- (3,1.1);
+  \draw[dashed] (3,0) node[below] {$x_0$} -- (3,2.22);
+  \node[above] at (4.3,3) {$y = f(x)$};
+\end{tikzpicture}
+\end{center}
+
+В точке устранимого разрыва функцию можно \textbf{доопределить или переопределить} (положить $f(x_0) = f(x_0 \pm 0)$), чтобы она стала непрерывной.
+
+\textbf{Пример.} $y = x \sin\frac1x$ в точке $x = 0$ не определена, но $\lim\limits_{x \to 0} x \sin\frac1x = 0$ (б/м на ограниченную);
+разрыв устраняется, если самим положить $y(0) = 0$.
+
+\begin{opr}[разрыв с конечным скачком]
+Точка $x_0$ называется \textbf{точкой разрыва с конечным скачком} функции $f$, если существуют конечные $f(x_0 + 0)$ и $f(x_0 - 0)$,
+причём $f(x_0 + 0) \ne f(x_0 - 0)$. Значение $f(x_0)$ при этом может существовать или не существовать.
+\kv
+\[
+  f(x_0 + 0) \in \R \ \wedge\ f(x_0 - 0) \in \R \ \wedge\ f(x_0 + 0) \ne f(x_0 - 0).
+\]
+Величина $\delta = \bigl|f(x_0 + 0) - f(x_0 - 0)\bigr|$ --- \textbf{скачок} функции $f$ в точке $x_0$.
+\end{opr}
+
+\textbf{Пример.} Функция знака
+$y = \operatorname{sign} x = \begin{cases} 1, & x > 0,\\ 0, & x = 0,\\ -1, & x < 0. \end{cases}$
+\ В точке $0$: $f(0 + 0) = 1$, $f(0 - 0) = -1$ --- конечный скачок $\delta = 2$.
+
+\begin{center}
+\begin{tikzpicture}[font=\small, >=stealth, scale=0.9]
+  \draw[->] (-2.6,0) -- (2.8,0) node[below] {$x$};
+  \draw[->] (0,-1.6) -- (0,1.7) node[left] {$y$};
+  \draw[thick] (0,1) -- (2.5,1);
+  \draw[thick] (-2.5,-1) -- (0,-1);
+  \draw[thick, fill=white] (0,1) circle (2pt);
+  \draw[thick, fill=white] (0,-1) circle (2pt);
+  \fill (0,0) circle (2pt);
+  \node[left] at (0,1) {$1$};
+  \node[right] at (0,-1) {$-1$};
+  \node[below left] at (0,0) {$0$};
+  \draw[decorate, decoration={brace, amplitude=4pt}] (1.4,1) -- (1.4,-1) node[midway, right=5pt, fill=white, inner sep=1pt] {$\delta = 2$};
+\end{tikzpicture}
+\end{center}
+
+\podr{Точки разрыва II рода}
+
+\begin{opr}[разрыв с бесконечным скачком]
+Точка $x_0$ называется \textbf{точкой разрыва с бесконечным скачком} функции $f$, если существуют $f(x_0 + 0)$ и $f(x_0 - 0)$,
+и по крайней мере один из них равен $\pm\infty$.
+\end{opr}
+
+\begin{opr}[разрыв II рода]
+Точка $x_0$ называется \textbf{точкой разрыва второго рода}, если хотя бы один из пределов $f(x_0 + 0)$ или $f(x_0 - 0)$
+не существует (или бесконечен --- это случай бесконечного скачка).
+\end{opr}
+
+\textbf{Примеры.}
+\begin{itemize}[leftmargin=*]
+  \item $y = \cos\frac1x$, $x_0 = 0$ --- разрыв II рода.
+  \item Функция Дирихле $D(x) = \begin{cases} 1, & x \in \mathbb{Q},\\ 0, & x \in \mathbb{I} \end{cases}$
+        является разрывной в каждой точке $x \in \R$.
+\end{itemize}
+
+\begin{dop}[почему так]
+\textbf{$\cos\frac1x$:} по Гейне $x_n = \frac{1}{2\pi n} \to 0 + 0$ даёт $\cos\frac1{x_n} = 1$, а $x_n' = \frac{1}{\pi + 2\pi n} \to 0 + 0$
+даёт $-1$; значит, $f(0 + 0)$ не существует (так же и слева).
+
+\textbf{Дирихле:} в любой окрестности любой точки есть и рациональные, и иррациональные числа; взяв последовательность рациональных
+$x_n \to x_0$, получим $D(x_n) = 1$, а иррациональных --- $D(x_n') = 0$. Ни одностороннего, ни обычного предела нет ни в одной точке.
+
+\textbf{Бесконечный скачок:} $y = \frac1x$ в точке $0$: $f(0 + 0) = +\infty$, $f(0 - 0) = -\infty$.
+\end{dop}
+
+\podr{Итоговая схема}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\small
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Род} & \textbf{Вид} & \textbf{Условие} \\ \hline
+I род & устранимый & $f(x_0 + 0) = f(x_0 - 0) \in \R$, но $f(x_0)$ нет или $\ne$ им \\
+      & конечный скачок & $f(x_0 + 0), f(x_0 - 0) \in \R$, $f(x_0 + 0) \ne f(x_0 - 0)$ \\ \hline
+II род & бесконечный скачок & хотя бы один из $f(x_0 \pm 0)$ равен $\pm\infty$ \\
+       & предела нет & хотя бы один из $f(x_0 \pm 0)$ не существует \\ \hline
+\end{tabular}
+\end{center}
+
+% ======================= ВОПРОС 23 =======================
+\vopros{23}{Свойства функций, непрерывных на отрезке}
+
+{\small\textcolor{zamc}{В записях лекции есть только определение непрерывности на отрезке. Теорем Больцано--Коши и Вейерштрасса
+и теоремы о существовании обратной функции в них нет --- они пропущены.}}
+
+\begin{opr}[непрерывность на отрезке]
+Функция $f$ называется \textbf{непрерывной на отрезке} $[a; b]$, если $f$ непрерывна в каждой точке интервала $(a; b)$,
+в точке $a$ непрерывна справа, в точке $b$ --- слева.
+\kv
+\[
+  \forall x_0 \in (a; b)\ \Bigl(\lim_{x \to x_0} f(x) = f(x_0)\Bigr) \ \wedge\
+  \lim_{x \to a + 0} f(x) = f(a) \ \wedge\ \lim_{x \to b - 0} f(x) = f(b).
+\]
+\end{opr}
+
+Концы отрезка проверяются только с одной стороны, потому что с другой стороны функция на отрезке не рассматривается.
+Например, $f(x) = \sqrt{x}$ непрерывна на $[0; 1]$: в точке $0$ она непрерывна справа, а слева от нуля не определена.
+% ======================= ШПАРГАЛКА =======================
+\razdel{Сводная таблица: все определения в кванторах}
+
+Закрой правый столбец и проговаривай определение по названию, потом проверяй.
+
+\small
+\renewcommand{\arraystretch}{1.45}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{4.2cm}|>{\raggedright\arraybackslash}p{11.9cm}|}
+\hline
+\textbf{Понятие} & \textbf{Запись в кванторах} \\ \hline
+\endfirsthead
+\hline
+\textbf{Понятие} & \textbf{Запись в кванторах} \\ \hline
+\endhead
+\hline
+\endfoot
+\multicolumn{2}{|l|}{\textbf{Множества (вопрос 1)}} \\ \hline
+$A \subseteq B$ (подмножество) & $\forall x\ (x \in A \to x \in B)$ \\ \hline
+$A = B$ & $\forall x\ (x \in A \Leftrightarrow x \in B)$, т.\,е. $A \subseteq B \wedge B \subseteq A$ \\ \hline
+пустое множество & $\forall x\ (x \notin \varnothing)$ \\ \hline
+$A \cup B$ & $x \in A \cup B \Leftrightarrow x \in A \vee x \in B$ \\ \hline
+$A \cap B$ & $x \in A \cap B \Leftrightarrow x \in A \wedge x \in B$ \\ \hline
+$A \setminus B$ & $x \in A \setminus B \Leftrightarrow x \in A \wedge x \notin B$ \\ \hline
+$A \,\triangle\, B$ & $x \in A \,\triangle\, B \Leftrightarrow (x \in A \wedge x \notin B) \vee (x \in B \wedge x \notin A)$ \\ \hline
+$\overline{A}$ (дополнение) & $\forall x \in U\ (x \in \overline{A} \Leftrightarrow x \notin A)$ \\ \hline
+\multicolumn{2}{|l|}{\textbf{Функции (вопросы 2, 3)}} \\ \hline
+функция $f\colon X \to Y$ & $\forall x \in X\ \exists!\, y \in Y\ (y = f(x))$ \\ \hline
+множество значений & $y \in E(f) \Leftrightarrow \exists x \in D(f)\ (f(x) = y)$ \\ \hline
+чётная & $\forall x \in D(f)\ (-x \in D(f) \wedge f(-x) = f(x))$ \\ \hline
+нечётная & $\forall x \in D(f)\ (-x \in D(f) \wedge f(-x) = -f(x))$ \\ \hline
+периодическая & $\exists T \ne 0\ \forall x \in D(f)\ (x \pm T \in D(f) \wedge f(x + T) = f(x))$ \\ \hline
+взаимно однозначная & $\forall x_1, x_2\ (x_1 \ne x_2 \to f(x_1) \ne f(x_2))$ \\ \hline
+обратная $f^{-1}$ & $x = f^{-1}(y) \Leftrightarrow y = f(x)$ \\ \hline
+неявная функция & $\forall x \in X\ (F(x, f(x)) = 0)$ \\ \hline
+ограниченная на $X$ & $\exists M > 0\ \forall x \in X\ (|f(x)| \le M)$ \\ \hline
+возрастающая на $X$ & $\forall x_1, x_2 \in X\ (x_1 < x_2 \to f(x_1) < f(x_2))$ \\ \hline
+убывающая на $X$ & $\forall x_1, x_2 \in X\ (x_1 < x_2 \to f(x_1) > f(x_2))$ \\ \hline
+\multicolumn{2}{|l|}{\textbf{Последовательности (вопросы 4--10)}} \\ \hline
+ограничена сверху & $\exists M\ \forall n \in \N\ (x_n \le M)$ \\ \hline
+ограничена снизу & $\exists M\ \forall n \in \N\ (x_n \ge M)$ \\ \hline
+ограничена & $\exists L > 0\ \forall n \in \N\ (|x_n| \le L)$ \\ \hline
+не ограничена сверху & $\forall M\ \exists n \in \N\ (x_n > M)$ \\ \hline
+не ограничена снизу & $\forall M\ \exists n \in \N\ (x_n < M)$ \\ \hline
+возрастающая / убывающая & $\forall n\ (x_n < x_{n+1})$ \ / \ $\forall n\ (x_n > x_{n+1})$ \\ \hline
+неубывающая / невозрастающая & $\forall n\ (x_n \le x_{n+1})$ \ / \ $\forall n\ (x_n \ge x_{n+1})$ \\ \hline
+$\lim\limits_{n \to \infty} x_n = A$ & $\forall \eps > 0\ \exists n_0(\eps)\ \forall n \in \N\ (n > n_0 \to |x_n - A| < \eps)$ \\ \hline
+$(x_n)$ сходится & $\exists A \in \R\ \forall \eps > 0\ \exists n_0\ \forall n\ (n > n_0 \to |x_n - A| < \eps)$ \\ \hline
+$(x_n)$ расходится & $\forall A \in \R\ \exists \eps > 0\ \forall n_0\ \exists n\ (n > n_0 \wedge |x_n - A| \ge \eps)$ \\ \hline
+б/м последовательность & $\forall \eps > 0\ \exists n_0\ \forall n\ (n > n_0 \to |x_n| < \eps)$ \\ \hline
+б/б последовательность ($\to \infty$) & $\forall \eps > 0\ \exists n_0\ \forall n\ (n > n_0 \to |x_n| > \eps)$ \\ \hline
+$x_n \to +\infty$ \ / \ $x_n \to -\infty$ & $\forall \eps > 0\ \exists n_0\ \forall n\ (n > n_0 \to x_n > \eps)$ \ / \ $(\dots \to x_n < -\eps)$ \\ \hline
+\multicolumn{2}{|l|}{\textbf{Непрерывность $\R$, подпоследовательности, грани (вопросы 11--13)}} \\ \hline
+$A < B$ (множества) & $\forall a \in A\ \forall b \in B\ (a < b)$ \\ \hline
+аксиома непрерывности & $A < B \Rightarrow \exists c \in \R\ \forall a \in A\ \forall b \in B\ (a \le c \le b)$ \\ \hline
+вложенные отрезки & $\forall n\ \bigl([a_{n+1}; b_{n+1}] \subseteq [a_n; b_n]\bigr)$ \\ \hline
+стягивающиеся отрезки & $\forall \eps > 0\ \exists n_0\ \forall n\ (n > n_0 \to b_n - a_n < \eps)$ \\ \hline
+принцип вложенных отрезков & вложенные $\wedge$ стягивающиеся $\Rightarrow \exists!\, c\ \forall n\ (a_n \le c \le b_n)$ \\ \hline
+подпоследовательность $(a_{n_k})$ & $\forall k\ (n_k \in \N \wedge n_k < n_{k+1})$, $k$-й член $= a_{n_k}$ \\ \hline
+$M_0 = \sup E$ & $\forall x \in E\ (x \le M_0) \ \wedge\ \forall \eps > 0\ \exists x_1 \in E\ (x_1 > M_0 - \eps)$ \\ \hline
+$m_0 = \inf E$ & $\forall x \in E\ (x \ge m_0) \ \wedge\ \forall \eps > 0\ \exists x_2 \in E\ (x_2 < m_0 + \eps)$ \\ \hline
+\multicolumn{2}{|l|}{\textbf{Пределы функций (вопросы 15, 17, 18)}} \\ \hline
+$U(x_0, \delta)$ & $x \in U(x_0, \delta) \Leftrightarrow |x - x_0| < \delta$ \\ \hline
+предельная точка $E$ & $\forall \delta > 0\ \exists x \in E\ (0 < |x - x_0| < \delta)$ (в любой окрестности бесконечно много точек $E$) \\ \hline
+предел по Гейне & $\forall (x_n)\ \bigl(\forall n\ (x_n \in D(f) \wedge x_n \ne x_0) \wedge \lim x_n = x_0 \to \lim f(x_n) = A\bigr)$ \\ \hline
+предел по Коши & $\forall \eps > 0\ \exists \delta(\eps) > 0\ \forall x \in D(f)\ (0 < |x - x_0| < \delta \to |f(x) - A| < \eps)$ \\ \hline
+$\lim\limits_{x \to +\infty} f(x) = A$ & $\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ (x > \delta \to |f(x) - A| < \eps)$ \\ \hline
+$\lim\limits_{x \to -\infty} f(x) = A$ & $\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ (x < -\delta \to |f(x) - A| < \eps)$ \\ \hline
+$\lim\limits_{x \to \infty} f(x) = A$ & $\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ (|x| > \delta \to |f(x) - A| < \eps)$ \\ \hline
+б/м функция при $x \to x_0$ & $\forall \eps > 0\ \exists \delta > 0\ \forall x\ (0 < |x - x_0| < \delta \to |\alpha(x)| < \eps)$ \\ \hline
+б/б функция при $x \to x_0$ & $\forall \eps > 0\ \exists \delta > 0\ \forall x\ (0 < |x - x_0| < \delta \to |f(x)| > \eps)$ \\ \hline
+$\alpha_1 = O(\alpha_2)$ (один порядок) & $\lim \frac{\alpha_1}{\alpha_2} = k \ne 0$: \ $\exists k \ne 0\ \forall \eps > 0\ \exists \delta > 0\ \forall x\ \bigl(0 < |x - x_0| < \delta \to \bigl|\frac{\alpha_1}{\alpha_2} - k\bigr| < \eps\bigr)$ \\ \hline
+$\alpha_1 \sim \alpha_2$ (эквивалентны) & $\forall \eps > 0\ \exists \delta > 0\ \forall x\ \bigl(0 < |x - x_0| < \delta \to \bigl|\frac{\alpha_1}{\alpha_2} - 1\bigr| < \eps\bigr)$ \\ \hline
+$\alpha_1 = o(\alpha_2)$ (выше порядок) & $\forall \eps > 0\ \exists \delta > 0\ \forall x\ \bigl(0 < |x - x_0| < \delta \to \bigl|\frac{\alpha_1}{\alpha_2}\bigr| < \eps\bigr)$ \\ \hline
+\multicolumn{2}{|l|}{\textbf{Непрерывность (вопросы 20--23)}} \\ \hline
+непрерывна в $x_0$ (Коши) & $\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ (|x - x_0| < \delta \to |f(x) - f(x_0)| < \eps)$ \\ \hline
+непрерывна в $x_0$ (Гейне) & $\forall (x_n),\ x_n \in D(f)\ \bigl((x_n) \to x_0 \to f(x_n) \to f(x_0)\bigr)$ \\ \hline
+непрерывна (приращения) & $\forall \eps > 0\ \exists \delta > 0\ \forall \Delta x\ (|\Delta x| < \delta \to |\Delta f(x_0, \Delta x)| < \eps)$ \\ \hline
+непрерывна слева & $\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ (x_0 - \delta < x < x_0 \to |f(x) - f(x_0)| < \eps)$ \\ \hline
+непрерывна справа & $\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ (x_0 < x < x_0 + \delta \to |f(x) - f(x_0)| < \eps)$ \\ \hline
+точка разрыва & $\exists \eps > 0\ \forall \delta > 0\ \exists x \in D(f)\ (|x - x_0| < \delta \wedge |f(x) - f(x_0)| \ge \eps)$ \\ \hline
+устранимый разрыв & $f(x_0 + 0) = f(x_0 - 0) = A \in \R \wedge (x_0 \notin D(f) \vee f(x_0) \ne A)$ \\ \hline
+конечный скачок & $f(x_0 \pm 0) \in \R \wedge f(x_0 + 0) \ne f(x_0 - 0)$ \\ \hline
+непрерывна на $[a; b]$ & $\forall x_0 \in (a; b)\ \bigl(\lim\limits_{x \to x_0} f(x) = f(x_0)\bigr) \wedge f(a + 0) = f(a) \wedge f(b - 0) = f(b)$ \\ \hline
+\end{longtable}
+\normalsize
+
+\end{document}

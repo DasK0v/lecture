@@ -1,0 +1,2233 @@
+% Ответы на вопросы по линейной алгебре (курс аналитической геометрии), 2026 г. Версия только по лекциям.
+% Составлено по конспекту лекций (angem.tex), оформление --- как в ответах по матану.
+% Собирается XeLaTeX / LuaLaTeX (шрифт с кириллицей) или pdfLaTeX (T2A + babel).
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T2A]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage[russian]{babel}
+\else
+  \usepackage{fontspec}
+  \IfFontExistsTF{Times New Roman}{\setmainfont{Times New Roman}}{\setmainfont{FreeSerif}}
+  \usepackage{babel}
+  \babelprovide[import,main]{russian}
+\fi
+
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage[a4paper,left=20mm,right=18mm,top=17mm,bottom=20mm]{geometry}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing,patterns,arrows.meta}
+\usepackage{array,longtable}
+\usepackage{needspace}
+\usepackage[hidelinks,unicode]{hyperref}
+
+\sloppy
+\emergencystretch=3em
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt plus 1pt}
+\setlist{topsep=2pt,itemsep=1pt,parsep=1pt}
+
+% ---------- обозначения ----------
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\eps}{\varepsilon}
+\DeclareMathOperator{\tg}{tg}
+\DeclareMathOperator{\arctg}{arctg}
+\newcommand{\C}{\mathbb{C}}
+\DeclareMathOperator{\rang}{rang}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\Rez}{Re}
+\DeclareMathOperator{\Imz}{Im}
+\newcommand{\gauss}[1]{\;\xrightarrow{\scriptstyle #1}\;}
+
+% ---------- цвета ----------
+\definecolor{oprc}{RGB}{28,84,160}
+\definecolor{teoc}{RGB}{22,116,64}
+\definecolor{dopc}{RGB}{110,110,110}
+\definecolor{zamc}{RGB}{170,95,0}
+
+% ---------- рамки ----------
+\newtcolorbox{opr}[1][]{breakable, enhanced,
+  colback=oprc!4, colframe=oprc!80!black, boxrule=0.6pt, arc=2pt,
+  left=6pt, right=6pt, top=3pt, bottom=4pt,
+  fonttitle=\bfseries, coltitle=white, colbacktitle=oprc!80!black,
+  toptitle=1pt, bottomtitle=1pt,
+  title={Определение\if\relax\detokenize{#1}\relax\else: #1\fi}}
+
+\newtcolorbox{teo}[1][]{breakable, enhanced,
+  colback=teoc!4, colframe=teoc!85!black, boxrule=0.6pt, arc=2pt,
+  left=6pt, right=6pt, top=3pt, bottom=4pt,
+  fonttitle=\bfseries, coltitle=white, colbacktitle=teoc!85!black,
+  toptitle=1pt, bottomtitle=1pt,
+  title={Теорема\if\relax\detokenize{#1}\relax\else\ (#1)\fi}}
+
+\newtcolorbox{dop}[1][]{breakable, enhanced,
+  colback=black!2, frame hidden, borderline={0.6pt}{0pt}{dopc,dashed},
+  arc=2pt, left=6pt, right=6pt, top=3pt, bottom=4pt,
+  before upper={\textbf{\textcolor{dopc!85!black}{Дополнение (в~лекциях этого нет)\if\relax\detokenize{#1}\relax\else: #1\fi.}}\ }}
+
+\newtcolorbox{planbox}{enhanced, colback=black!3, colframe=black!25,
+  boxrule=0.4pt, arc=2pt, left=6pt, right=6pt, top=2pt, bottom=3pt,
+  fontupper=\small}
+
+% «В кванторах:» — подпись перед формулой
+\newcommand{\kv}{\par\noindent\textbf{\textcolor{oprc!85!black}{В кванторах:}}}
+% «Формулой:» — подпись перед формулой (где кванторы не нужны)
+\newcommand{\fm}{\par\noindent\textbf{\textcolor{oprc!85!black}{Формулой:}}}
+% Пример
+\newcommand{\prim}{\par\smallskip\noindent\textbf{\textcolor{teoc!80!black}{Пример.}}\ }
+% Замечание
+\newcommand{\zam}{\par\smallskip\noindent\textbf{\textcolor{zamc}{Замечание.}}\ }
+% Доказательство — как в конспекте: от △ до ▲
+\newenvironment{dok}
+  {\par\smallskip\noindent\textit{Доказательство.}\ $\triangle$\ \ignorespaces}
+  {\unskip\nobreak\hfill$\blacktriangle$\par\smallskip}
+
+% Заголовок вопроса
+\newcommand{\vopros}[2]{%
+  \clearpage\phantomsection
+  \addcontentsline{toc}{section}{\protect\numberline{#1}#2}%
+  \begin{tcolorbox}[enhanced, colback=oprc!12, colframe=oprc!12, arc=3pt,
+    left=8pt, right=8pt, top=5pt, bottom=5pt]
+    {\Large\bfseries\textcolor{oprc!80!black}{Вопрос #1}}\par\smallskip
+    {\large\bfseries #2}
+  \end{tcolorbox}}
+% Заголовок раздела без номера вопроса
+\newcommand{\razdel}[1]{%
+  \clearpage\phantomsection
+  \addcontentsline{toc}{section}{#1}%
+  \begin{tcolorbox}[enhanced, colback=black!8, colframe=black!8, arc=3pt,
+    left=8pt, right=8pt, top=5pt, bottom=5pt]
+    {\Large\bfseries #1}
+  \end{tcolorbox}}
+% Подзаголовок внутри вопроса
+\newcommand{\podr}[1]{\par\needspace{8\baselineskip}\medskip
+  {\large\bfseries\textcolor{oprc!80!black}{#1}}\par\nopagebreak\smallskip}
+% План ответа
+\newcommand{\plan}[1]{\begin{planbox}\textbf{План ответа:}
+  \begin{enumerate}[nosep,leftmargin=*,label=\arabic*)]#1\end{enumerate}\end{planbox}}
+
+
+\begin{document}
+
+% ======================= ТИТУЛ =======================
+\thispagestyle{empty}
+\begin{center}
+  {\LARGE\bfseries Линейная алгебра}\par\medskip
+  {\Large Ответы на вопросы (курс аналитической геометрии), 2026 г.}\par\medskip
+  {\normalsize по конспекту лекций; каждое определение --- словами и формулой}
+\end{center}
+\bigskip
+
+\begin{tcolorbox}[colback=white, colframe=black!40, boxrule=0.4pt, arc=2pt,
+  title={Как устроен этот файл}, fonttitle=\bfseries, colbacktitle=black!8, coltitle=black]
+\begin{itemize}[leftmargin=*]
+  \item Всё взято из конспекта лекций по аналитической геометрии (разделы 1--8: матрицы, определители,
+        обратная матрица, СЛАУ, собственные значения, комплексные числа).
+  \item \textcolor{oprc}{\textbf{Синие рамки}} --- определения, \textcolor{teoc}{\textbf{зелёные}} --- теоремы и свойства.
+        Доказательство идёт от $\triangle$ до $\blacktriangle$.
+        Где определение удобно записать кванторами (линейная зависимость, собственный вектор, ортогональная матрица),
+        дана запись <<В кванторах>>, в остальных случаях --- <<Формулой>>.
+  \item В каждом вопросе есть примеры (их требуют в формулировке вопроса). Примеры из лекции помечены,
+        остальные составлены заново; все ответы в примерах проверены вычислением.
+  \item В начале каждого вопроса --- план ответа. В конце файла --- сводная таблица определений и формул:
+        закрой правый столбец и проверяй себя.
+\end{itemize}
+\end{tcolorbox}
+
+\textbf{Первая часть вопроса 18} (разложение дроби на простые дроби) в лекциях не разбиралась --- она пропущена.
+В вопросе 3 СЛАУ решаются так, как в лекциях: методом обратной матрицы и методом Гаусса.
+
+\medskip
+\begingroup
+\renewcommand{\contentsname}{Содержание}
+\makeatletter\renewcommand{\@tocrmarg}{3.5em}\makeatother
+\raggedright
+\tableofcontents
+\endgroup
+
+% ======================= 0. ОБОЗНАЧЕНИЯ =======================
+\razdel{Перед началом: обозначения}
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Запись} & \textbf{Что означает} \\ \hline
+$A = (a_{ij})$, \ $m \times n$ & матрица: $m$ строк, $n$ столбцов; $a_{ij}$ --- элемент в строке $i$, столбце $j$ \\
+$a, b, x$ (малые буквы) & вектор --- всегда \emph{столбец} (матрица $m \times 1$) \\
+$a^T$ & вектор-строка (транспонированный столбец) \\
+$E$ & единичная матрица: на диагонали $1$, вне диагонали $0$ \\
+$O$, \ $O_n$ & нулевая матрица, нулевой столбец из $n$ элементов \\
+$\det A = |A|$ & определитель (детерминант) квадратной матрицы \\
+$M_{ij}$, \ $A_{ij}$ & минор и алгебраическое дополнение элемента $a_{ij}$ \\
+$\tilde A^T$ & присоединённая матрица (транспонированная матрица алгебраических дополнений) \\
+$\bar A = (A \,|\, b)$ & расширенная матрица СЛАУ $Ax = b$ \\
+$\rang A$ & ранг матрицы \\
+$\sim$, \ $\gauss{\text{II} - 2\,\text{I}}$ & переход к равносильной матрице; над стрелкой --- какое преобразование сделано \\
+ЛЗ / ЛНЗ & линейно зависимые / линейно независимые \\
+ФСР, ФМ & фундаментальная система решений, фундаментальная матрица \\
+ХУ & характеристическое уравнение $\det(A - \lambda E) = 0$ \\
+КЧ & комплексное число $z = \alpha + i\beta$ \\ \hline
+\end{tabular}
+\end{center}
+
+Запись $\gauss{\text{II} - 2\,\text{I}}$ читается так: <<из второй строки вычли первую, умноженную на 2>>.
+Римские цифры --- номера строк.
+
+% ======================= ВОПРОС 1 =======================
+\vopros{1}{Операции над матрицами: сумма/разность, умножение на число, транспонирование. Свойства операций. Примеры}
+
+\plan{\item что такое матрица; частные случаи (строка, столбец, треугольная, диагональная, единичная, нулевая);
+\item транспонирование;
+\item умножение на число, сумма и разность;
+\item свойства операций;
+\item примеры.}
+
+\podr{Матрица}
+
+Матрицы возникают как средство решения линейных систем: систему удобно решать, работая с таблицей её коэффициентов.
+
+\begin{opr}[матрица]
+\textbf{Матрица} $A$ размерности $m \times n$ --- это таблица из $m$ строк и $n$ столбцов с элементами $a_{ij}$
+($i$ --- номер строки, $j$ --- номер столбца).
+\fm
+\[
+  A = (a_{ij}) = \begin{pmatrix} a_{11} & a_{12} & \dots & a_{1n} \\ \vdots & & & \vdots \\ a_{m1} & a_{m2} & \dots & a_{mn} \end{pmatrix},
+  \qquad i = 1, \dots, m, \quad j = 1, \dots, n.
+\]
+\end{opr}
+
+\prim (из лекции) $A = \begin{pmatrix} 2 & 3 & 0 \\ -1 & 4 & 5 \end{pmatrix}$ --- матрица $2 \times 3$, \ $a_{13} = 0$, \ $a_{22} = 4$.
+
+\podr{Частные случаи матриц}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Строка} (вектор-строка) --- матрица $1 \times n$: \ $(1\ \ 2\ \ 3)$.
+  \item \textbf{Столбец} (вектор-столбец) --- матрица $m \times 1$. Далее \emph{вектор} --- всегда столбец.
+        Матрицы обозначаем большими буквами, векторы --- маленькими.
+  \item \textbf{Треугольная матрица:} все элементы выше (верхняя: ниже) главной диагонали равны нулю.
+\end{enumerate}
+
+\begin{opr}[треугольная матрица]
+Квадратная матрица называется \textbf{нижней треугольной}, если все элементы выше главной диагонали равны нулю,
+и \textbf{верхней треугольной}, если нулю равны все элементы ниже диагонали.
+Главная диагональ --- элементы $a_{11}, a_{22}, \dots, a_{nn}$.
+\kv
+\begin{gather*}
+  A \text{ --- нижняя треугольная} \Leftrightarrow \forall i, j\ (i < j \to a_{ij} = 0), \\
+  A \text{ --- верхняя треугольная} \Leftrightarrow \forall i, j\ (i > j \to a_{ij} = 0).
+\end{gather*}
+\end{opr}
+
+\begin{opr}[диагональная, единичная, нулевая матрица]
+\textbf{Диагональная} матрица: все элементы вне главной диагонали равны нулю (на диагонали тоже могут быть нули).
+\textbf{Единичная} матрица $E$ --- диагональная, у которой на диагонали стоят единицы.
+\textbf{Нулевая} матрица $O$ --- все элементы равны нулю.
+\kv
+\[
+  A \text{ --- диагональная} \Leftrightarrow \forall i, j\ (i \ne j \to a_{ij} = 0), \qquad
+  E = (e_{ij}),\ \ e_{ij} = \begin{cases} 1, & i = j, \\ 0, & i \ne j. \end{cases}
+\]
+\end{opr}
+
+\zam Единичная и нулевая матрицы одновременно и диагональные, и треугольные.
+
+\[
+  \underbrace{\begin{pmatrix} 1 & 4 & 5 \\ 0 & 2 & 6 \\ 0 & 0 & 3 \end{pmatrix}}_{\text{верхняя треугольная}}
+  \qquad
+  \underbrace{\begin{pmatrix} 0 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 2 \end{pmatrix}}_{\text{диагональная}}
+  \qquad
+  \underbrace{\begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}}_{E \ (3 \times 3)}
+\]
+
+\podr{Транспонирование}
+
+\begin{opr}[транспонирование]
+\textbf{Транспонированная} матрица $A^T$ получается из $A$ так: каждая строка $\text{№}\,i$ матрицы $A$ становится
+столбцом $\text{№}\,i$ матрицы $A^T$ (строки и столбцы меняются местами). Если $A$ --- $m \times n$, то $A^T$ --- $n \times m$.
+\fm
+\[
+  A^T = (a^T_{ij}), \qquad a^T_{ij} = a_{ji}.
+\]
+\end{opr}
+
+Матрица при этом <<поворачивается>> относительно главной диагонали, диагональ остаётся на месте. Пример из лекции:
+\[
+  \begin{pmatrix} 1 & 2 & 3 & 4 \\ 5 & 6 & 7 & 8 \end{pmatrix}^{T} = \begin{pmatrix} 1 & 5 \\ 2 & 6 \\ 3 & 7 \\ 4 & 8 \end{pmatrix}
+  \qquad (\text{диагональ } 1,\ 6 \text{ на месте}).
+\]
+
+\podr{Линейные операции: умножение на число, сумма, разность}
+
+\begin{opr}[умножение матрицы на число]
+Чтобы умножить матрицу на число $\alpha$, нужно умножить на $\alpha$ \emph{каждый} её элемент.
+\fm
+\[
+  \alpha A = (\alpha\, a_{ij}).
+\]
+\end{opr}
+
+\begin{opr}[сумма и разность матриц]
+\textbf{Сумма} матриц одинаковой размерности --- матрица, элементы которой равны суммам соответствующих элементов.
+\textbf{Разность}: $A - B = A + (-1)\cdot B$ --- вычитаются соответствующие элементы.
+\fm
+\[
+  A + B = C, \quad c_{ij} = a_{ij} + b_{ij}; \qquad A - B = D, \quad d_{ij} = a_{ij} - b_{ij}.
+\]
+\end{opr}
+
+\zam Складывать и вычитать можно только матрицы \emph{одной и той же размерности}.
+
+\podr{Свойства операций}
+
+В основном они такие же, как у операций с числами, и прямо следуют из определений
+(каждое равенство проверяется поэлементно).
+
+\begin{teo}[свойства сложения и умножения на число]
+\begin{enumerate}[leftmargin=*]
+  \item $A + B = B + A$ --- коммутативность;
+  \item $A + (B + C) = (A + B) + C$ --- ассоциативность;
+  \item $A + O = A$ --- нулевая матрица --- нейтральный элемент;
+  \item $A + (-A) = O$ --- противоположная матрица $-A = (-1)\cdot A$;
+  \item $\alpha(A + B) = \alpha A + \alpha B$, \ $(\alpha + \beta)A = \alpha A + \beta A$ --- дистрибутивность;
+  \item $(\alpha\beta)A = \alpha(\beta A)$ --- ассоциативность;
+  \item $(A + B)^T = A^T + B^T$, \ $(\alpha A)^T = \alpha A^T$, \ $(A^T)^T = A$.
+\end{enumerate}
+\end{teo}
+
+\begin{dok}
+Например, $(A + B)^T = A^T + B^T$: элемент $(i, j)$ слева равен элементу $(j, i)$ матрицы $A + B$, т.\,е. $a_{ji} + b_{ji}$;
+справа --- $a^T_{ij} + b^T_{ij} = a_{ji} + b_{ji}$. Совпадают при всех $i, j$. Остальные свойства проверяются так же:
+в каждом элементе получается свойство обычных чисел.
+\end{dok}
+
+\podr{Примеры}
+
+Пусть $A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}$, \ $B = \begin{pmatrix} 0 & -1 \\ 5 & 2 \end{pmatrix}$. Тогда
+\[
+  A + B = \begin{pmatrix} 1 & 1 \\ 8 & 6 \end{pmatrix}, \qquad
+  A - B = \begin{pmatrix} 1 & 3 \\ -2 & 2 \end{pmatrix}, \qquad
+  3A = \begin{pmatrix} 3 & 6 \\ 9 & 12 \end{pmatrix}, \qquad
+  2A - B = \begin{pmatrix} 2 & 5 \\ 1 & 6 \end{pmatrix}.
+\]
+Проверим свойство $(A + B)^T = A^T + B^T$:
+\[
+  (A + B)^T = \begin{pmatrix} 1 & 8 \\ 1 & 6 \end{pmatrix}, \qquad
+  A^T + B^T = \begin{pmatrix} 1 & 3 \\ 2 & 4 \end{pmatrix} + \begin{pmatrix} 0 & 5 \\ -1 & 2 \end{pmatrix} = \begin{pmatrix} 1 & 8 \\ 1 & 6 \end{pmatrix}.
+  \ \checkmark
+\]
+Сумму $\begin{pmatrix} 1 & 2 \end{pmatrix} + \begin{pmatrix} 1 \\ 2 \end{pmatrix}$ найти нельзя: размерности $1 \times 2$ и $2 \times 1$ разные.
+
+% ======================= ВОПРОС 2 =======================
+\vopros{2}{Скалярное произведение арифметических векторов. Произведение матриц. Свойства произведения. Примеры}
+
+\plan{\item скалярное произведение векторов, его смысл (ортогональность, длина);
+\item произведение матриц <<строка на столбец>>, условие согласованности размеров;
+\item некоммутативность: $AB \ne BA$;
+\item свойства произведения;
+\item примеры.}
+
+\podr{Скалярное произведение арифметических векторов}
+
+\textbf{Арифметический вектор} --- упорядоченный набор чисел $a = (a_1, \dots, a_n)^T$ (столбец).
+
+\begin{opr}[скалярное произведение]
+\textbf{Скалярное произведение} векторов $a$ и $b$ одинаковой длины $n$ --- сумма произведений соответствующих координат.
+В алгебраической записи --- произведение строки $a^T$ на столбец $b$.
+\fm
+\[
+  a^T b = (a_1\ \dots\ a_n) \begin{pmatrix} b_1 \\ \vdots \\ b_n \end{pmatrix} = \sum_{i=1}^{n} a_i b_i = a_1 b_1 + a_2 b_2 + \dots + a_n b_n.
+\]
+\end{opr}
+
+\zam Результат --- \emph{число}. Геометрический смысл (из лекции):
+\begin{gather*}
+  a^T b = 0 \Leftrightarrow a \perp b \ \ (\text{ортогональность}); \qquad
+  a^2 = a^T a \ \ (\text{скалярный квадрат}); \\
+  |a| = \sqrt{a^2} = \sqrt{a_1^2 + \dots + a_n^2} \ \ (\text{длина}).
+\end{gather*}
+
+\prim $a = (1, 2, 3)^T$, $b = (4, -5, 6)^T$: \ $a^T b = 1 \cdot 4 + 2 \cdot (-5) + 3 \cdot 6 = 4 - 10 + 18 = 12$.
+
+\prim $a = (1, 2)^T$, $b = (2, -1)^T$: \ $a^T b = 2 - 2 = 0$ --- векторы ортогональны.
+Длина $c = (3, 4)^T$: \ $|c| = \sqrt{9 + 16} = 5$.
+
+\podr{Произведение матриц}
+
+\begin{opr}[произведение матриц]
+Пусть $A$ --- матрица $n \times k$, $B$ --- матрица $k \times m$. \textbf{Произведение} $C = AB$ --- матрица $n \times m$,
+у которой элемент $c_{ij}$ равен скалярному произведению строки $\text{№}\,i$ матрицы $A$ на столбец $\text{№}\,j$ матрицы $B$
+(правило <<строка на столбец>>).
+\fm
+\[
+  c_{ij} = \sum_{s=1}^{k} a_{is}\, b_{sj} = a_{i1} b_{1j} + a_{i2} b_{2j} + \dots + a_{ik} b_{kj}.
+\]
+\end{opr}
+
+\zam Перемножать можно, только если \textbf{число столбцов левой матрицы равно числу строк правой}:
+\[
+  \underset{n \times \boxed{k}}{A} \cdot \underset{\boxed{k} \times m}{B} = \underset{n \times m}{C}.
+\]
+
+\podr{Примеры из лекции}
+
+\begin{enumerate}[leftmargin=*]
+  \item $\begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix} (4\ \ 5\ \ 6)$: \ $3 \times 1$ на $1 \times 3$ --- можно, получится $3 \times 3$:
+    \[
+      \begin{pmatrix} 1\cdot4 & 1\cdot5 & 1\cdot6 \\ 2\cdot4 & 2\cdot5 & 2\cdot6 \\ 3\cdot4 & 3\cdot5 & 3\cdot6 \end{pmatrix}
+      = \begin{pmatrix} 4 & 5 & 6 \\ 8 & 10 & 12 \\ 12 & 15 & 18 \end{pmatrix}.
+    \]
+  \item $\begin{pmatrix} 1 \\ 2 \end{pmatrix} \begin{pmatrix} 3 \\ 4 \end{pmatrix}$: \ $2 \times 1$ на $2 \times 1$, \ $1 \ne 2$ --- перемножать нельзя.
+  \item $\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} \begin{pmatrix} 5 & 7 & 9 \\ 6 & 8 & 10 \end{pmatrix}$: \ $2 \times 2$ на $2 \times 3$ --- можно:
+    \[
+      = \begin{pmatrix} 1\cdot5 + 2\cdot6 & 1\cdot7 + 2\cdot8 & 1\cdot9 + 2\cdot10 \\ 3\cdot5 + 4\cdot6 & 3\cdot7 + 4\cdot8 & 3\cdot9 + 4\cdot10 \end{pmatrix}
+      = \begin{pmatrix} 17 & 23 & 29 \\ 39 & 53 & 67 \end{pmatrix} \quad (2 \times 3).
+    \]
+    Произведение в обратном порядке найти нельзя: $2 \times 3$ на $2 \times 2$, \ $3 \ne 2$.
+\end{enumerate}
+
+\podr{Некоммутативность}
+
+В общем случае $AB \ne BA$. Если $AB = BA$, то говорят, что $A$ и $B$ \textbf{коммутируют}.
+
+\prim $A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}$, \ $C = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$:
+\[
+  AC = \begin{pmatrix} 2 & 1 \\ 4 & 3 \end{pmatrix} \ (\text{переставились столбцы } A), \quad
+  CA = \begin{pmatrix} 3 & 4 \\ 1 & 2 \end{pmatrix} \ (\text{переставились строки } A), \quad AC \ne CA.
+\]
+Единичная матрица коммутирует с любой квадратной матрицей того же размера: $AE = EA = A$.
+
+\podr{Свойства произведения}
+
+\begin{teo}[свойства произведения матриц]
+(размеры матриц такие, что все произведения определены)
+\begin{enumerate}[leftmargin=*]
+  \item $C(A + B) = CA + CB$, \ $(A + B)C = AC + BC$ --- дистрибутивность (это \emph{два разных} равенства, т.\,к. порядок множителей важен);
+  \item $A(BC) = (AB)C$ --- ассоциативность;
+  \item $\alpha(AB) = (\alpha A)B = A(\alpha B)$;
+  \item $AE = EA = A$ --- $E$ --- нейтральный элемент;
+  \item $(AB)^T = B^T A^T$ --- при транспонировании произведения множители меняются местами;
+  \item в общем случае $AB \ne BA$.
+\end{enumerate}
+\end{teo}
+
+{\small\textcolor{zamc}{(В конспекте отмечено исправление: в рукописи было $c(A + B) = (A + B)c$ --- для матрицы $C$ это неверно,
+это два разных равенства.)}}
+
+\prim Проверим для $A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}$, \ $B = \begin{pmatrix} 0 & -1 \\ 5 & 2 \end{pmatrix}$:
+\[
+  AB = \begin{pmatrix} 10 & 3 \\ 20 & 5 \end{pmatrix}, \quad (AB)^T = \begin{pmatrix} 10 & 20 \\ 3 & 5 \end{pmatrix}; \qquad
+  B^T A^T = \begin{pmatrix} 0 & 5 \\ -1 & 2 \end{pmatrix} \begin{pmatrix} 1 & 3 \\ 2 & 4 \end{pmatrix} = \begin{pmatrix} 10 & 20 \\ 3 & 5 \end{pmatrix}. \ \checkmark
+\]
+А вот $BA = \begin{pmatrix} -3 & -4 \\ 11 & 18 \end{pmatrix} \ne AB$.
+
+% ======================= ВОПРОС 3 =======================
+\vopros{3}{Решение СЛАУ второго и третьего порядка. Определители второго и третьего порядков. Правило треугольников. Примеры}
+
+{\small\textcolor{zamc}{Определители 2-го и 3-го порядков и правило треугольников в лекциях есть. Из лекций для решения СЛАУ есть метод обратной матрицы (вопрос 8) и метод Гаусса (вопрос 11).}}
+
+\plan{\item запись СЛАУ $n$-го порядка в матричном виде $Ax = b$;
+\item определитель 2-го порядка;
+\item определитель 3-го порядка: правило треугольников, правило Саррюса;
+\item решение СЛАУ 2-го и 3-го порядка (метод обратной матрицы, метод Гаусса);
+\item примеры.}
+
+\podr{СЛАУ второго и третьего порядка}
+
+СЛАУ \emph{$n$-го порядка} --- система из $n$ линейных уравнений с $n$ неизвестными. В матричном виде $Ax = b$:
+\[
+  \begin{cases} a_{11} x_1 + a_{12} x_2 = b_1, \\ a_{21} x_1 + a_{22} x_2 = b_2 \end{cases}
+  \iff
+  \underbrace{\begin{pmatrix} a_{11} & a_{12} \\ a_{21} & a_{22} \end{pmatrix}}_{A}
+  \underbrace{\begin{pmatrix} x_1 \\ x_2 \end{pmatrix}}_{x} = \underbrace{\begin{pmatrix} b_1 \\ b_2 \end{pmatrix}}_{b}.
+\]
+Для 3-го порядка так же, $A$ --- матрица $3 \times 3$.
+
+\podr{Определитель второго порядка}
+
+\begin{opr}[определитель 2-го порядка]
+Определитель матрицы $2 \times 2$ --- произведение диагональных элементов минус произведение внедиагональных.
+\fm
+\[
+  \det A = \begin{vmatrix} a_{11} & a_{12} \\ a_{21} & a_{22} \end{vmatrix} = a_{11} a_{22} - a_{12} a_{21}.
+\]
+\end{opr}
+
+\podr{Определитель третьего порядка. Правило треугольников}
+
+Определитель $3 \times 3$ можно найти разложением по строке (вопрос 4), а можно сразу по готовой формуле.
+
+\begin{teo}[правило треугольников]
+\[
+  \begin{vmatrix} a_{11} & a_{12} & a_{13} \\ a_{21} & a_{22} & a_{23} \\ a_{31} & a_{32} & a_{33} \end{vmatrix}
+  = a_{11}a_{22}a_{33} + a_{12}a_{23}a_{31} + a_{21}a_{32}a_{13} - a_{13}a_{22}a_{31} - a_{12}a_{21}a_{33} - a_{23}a_{32}a_{11}.
+\]
+Со знаком <<$+$>> берутся произведения по главной диагонали и по двум треугольникам с основанием, параллельным ей;
+со знаком <<$-$>> --- по побочной диагонали и двум треугольникам, параллельным ей.
+\end{teo}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.55]
+ \foreach \i in {1,2,3}{\foreach \j in {1,2,3}{\fill (\j,-\i) circle (2.5pt);}}
+ \draw[thick,blue] (1,-1)--(3,-3);
+ \draw[thick,blue] (2,-1)--(3,-2)--(1,-3)--cycle;
+ \draw[thick,blue] (1,-2)--(2,-3)--(3,-1)--cycle;
+ \node at (2,-4) {<<$+$>>};
+ \begin{scope}[xshift=5cm]
+ \foreach \i in {1,2,3}{\foreach \j in {1,2,3}{\fill (\j,-\i) circle (2.5pt);}}
+ \draw[thick,red] (3,-1)--(1,-3);
+ \draw[thick,red] (2,-1)--(1,-2)--(3,-3)--cycle;
+ \draw[thick,red] (2,-3)--(3,-2)--(1,-1)--cycle;
+ \node at (2,-4) {<<$-$>>};
+ \end{scope}
+\end{tikzpicture}
+\end{center}
+
+\textbf{Правило Саррюса} (тоже из лекции) даёт те же 6 слагаемых: справа от определителя приписываем 1-й и 2-й столбцы;
+три <<диагонали>> вниз-вправо берём со знаком <<$+$>>, три вниз-влево --- со знаком <<$-$>>.
+
+\prim (из лекции) По правилу треугольников:
+\[
+  \begin{vmatrix} 5 & -1 & 4 \\ 3 & 0 & 1 \\ 2 & 3 & -4 \end{vmatrix}
+  = 5\cdot0\cdot(-4) + (-1)\cdot1\cdot2 + 3\cdot3\cdot4 - 4\cdot0\cdot2 - (-1)\cdot3\cdot(-4) - 1\cdot3\cdot5
+  = 0 - 2 + 36 - 0 - 12 - 15 = 7.
+\]
+В лекции тот же определитель посчитан разложением по 3-му столбцу --- тоже $7$.
+
+\podr{Решение СЛАУ 2-го и 3-го порядка}
+
+\textbf{Из лекции:} если $\det A \ne 0$, то система $Ax = b$ имеет единственное решение $x = A^{-1} b$
+(метод обратной матрицы, вопрос 8). Если $\det A = 0$ или число уравнений не равно числу неизвестных,
+систему решают методом Гаусса (вопрос 11). Для систем 2-го и 3-го порядка определитель удобно считать по формулам выше:
+сначала проверяем $\det A \ne 0$, потом находим $x$.
+
+\podr{Примеры}
+
+\prim (2-й порядок, методом обратной матрицы) $\begin{cases} 2x_1 + 3x_2 = 8, \\ x_1 - x_2 = -1. \end{cases}$
+\[
+  \Delta = \begin{vmatrix} 2 & 3 \\ 1 & -1 \end{vmatrix} = -2 - 3 = -5 \ne 0, \qquad
+  A^{-1} = \frac{1}{-5}\begin{pmatrix} -1 & -3 \\ -1 & 2 \end{pmatrix},
+\]
+\[
+  x = A^{-1} b = \frac{1}{-5}\begin{pmatrix} -1 & -3 \\ -1 & 2 \end{pmatrix}\begin{pmatrix} 8 \\ -1 \end{pmatrix}
+  = \frac{1}{-5}\begin{pmatrix} -8 + 3 \\ -8 - 2 \end{pmatrix} = \frac{1}{-5}\begin{pmatrix} -5 \\ -10 \end{pmatrix} = \begin{pmatrix} 1 \\ 2 \end{pmatrix}.
+\]
+Проверка: $2 + 6 = 8$, \ $1 - 2 = -1$. \checkmark
+
+\prim (3-й порядок) $\begin{cases} x_1 + x_2 + x_3 = 6, \\ 2x_1 - x_2 + x_3 = 3, \\ x_1 + 2x_2 - x_3 = 2. \end{cases}$
+
+Определитель по правилу треугольников:
+\[
+  \Delta = \begin{vmatrix} 1 & 1 & 1 \\ 2 & -1 & 1 \\ 1 & 2 & -1 \end{vmatrix}
+  = 1\cdot(-1)\cdot(-1) + 1\cdot1\cdot1 + 2\cdot2\cdot1 - 1\cdot(-1)\cdot1 - 1\cdot2\cdot(-1) - 1\cdot2\cdot1
+  = 1 + 1 + 4 + 1 + 2 - 2 = 7 \ne 0
+\]
+--- решение единственное. Найдём его методом Гаусса (подробно --- в вопросе 11):
+\[
+  \left(\begin{array}{rrr|r} 1 & 1 & 1 & 6 \\ 2 & -1 & 1 & 3 \\ 1 & 2 & -1 & 2 \end{array}\right)
+  \gauss{\substack{\text{II} - 2\,\text{I} \\ \text{III} - \text{I}}}
+  \left(\begin{array}{rrr|r} 1 & 1 & 1 & 6 \\ 0 & -3 & -1 & -9 \\ 0 & 1 & -2 & -4 \end{array}\right)
+  \gauss{3\,\text{III} + \text{II}}
+  \left(\begin{array}{rrr|r} 1 & 1 & 1 & 6 \\ 0 & -3 & -1 & -9 \\ 0 & 0 & -7 & -21 \end{array}\right)
+\]
+$\Rightarrow$ $x_3 = 3$, \ $x_2 = 2$, \ $x_1 = 1$. Проверка: $1 + 2 + 3 = 6$, \ $2 - 2 + 3 = 3$, \ $1 + 4 - 3 = 2$. \checkmark
+
+% ======================= ВОПРОС 4 =======================
+\vopros{4}{Определитель матрицы. Формулы для вычисления определителей. Определитель треугольной матрицы. Примеры}
+
+\plan{\item минор и алгебраическое дополнение;
+\item определение определителя (разложение по строке или столбцу);
+\item формулы: порядки 1, 2, 3; формула через перестановки;
+\item определитель треугольной матрицы;
+\item примеры.}
+
+Определитель вычисляется только для \textbf{квадратной} матрицы.
+
+\podr{Минор и алгебраическое дополнение}
+
+\begin{opr}[минор, алгебраическое дополнение]
+\textbf{Минор} $M_{ij}$ элемента $a_{ij}$ --- определитель матрицы, полученной из $A$ вычёркиванием строки $i$ и столбца $j$.
+\textbf{Алгебраическое дополнение} элемента $a_{ij}$ --- минор, взятый со знаком $(-1)^{i+j}$.
+\fm
+\[
+  A_{ij} = (-1)^{i+j} M_{ij}.
+\]
+\end{opr}
+
+Знаки $(-1)^{i+j}$ расставлены <<шахматным порядком>>:
+$\begin{pmatrix} + & - & + \\ - & + & - \\ + & - & + \end{pmatrix}$.
+
+\podr{Определение определителя}
+
+\begin{opr}[определитель]
+Определитель квадратной матрицы $n \times n$ --- скалярное произведение любой строки (столбца) на вектор
+алгебраических дополнений элементов этой строки (столбца).
+\fm
+\[
+  \det A = \sum_{j=1}^{n} a_{ij} A_{ij} \ \ \text{--- разложение по строке } i, \qquad
+  \det A = \sum_{i=1}^{n} a_{ij} A_{ij} \ \ \text{--- разложение по столбцу } j.
+\]
+\end{opr}
+
+Результат не зависит от того, какую строку или столбец выбрать. Выгодно раскладывать по строке (столбцу), где больше нулей.
+
+\podr{Формулы для вычисления определителей}
+
+\begin{enumerate}[leftmargin=*]
+  \item $1 \times 1$: \ $\det(a_{11}) = a_{11}$.
+  \item $2 \times 2$: \ $\begin{vmatrix} a_{11} & a_{12} \\ a_{21} & a_{22} \end{vmatrix} = a_{11} a_{22} - a_{12} a_{21}$.
+  \item $3 \times 3$: правило треугольников или правило Саррюса (вопрос 3).
+  \item $n \times n$: разложение по строке/столбцу (сводит порядок $n$ к порядку $n - 1$).
+  \item \textbf{Полная формула} (из обоснования свойств в лекции): если разложить определитель до конца,
+    \[
+      |A| = \sum_{\sigma} (-1)^{|\sigma|}\, a_{1\sigma(1)}\, a_{2\sigma(2)} \cdots a_{n\sigma(n)}
+    \]
+    --- сумма по всем перестановкам $\sigma$ множества $\{1, \dots, n\}$, всего $n!$ слагаемых.
+    Каждое слагаемое --- произведение $n$ элементов, взятых \emph{по одному из каждой строки и каждого столбца}.
+\end{enumerate}
+
+\begin{opr}[число инверсий]
+$|\sigma|$ --- \textbf{число инверсий} перестановки: количество пар $i < j$, для которых $\sigma(i) > \sigma(j)$.
+Перестановка \textbf{чётная}, если $|\sigma|$ чётно.
+\kv
+\[
+  |\sigma| = \#\{(i, j) : i < j \wedge \sigma(i) > \sigma(j)\}.
+\]
+\end{opr}
+
+\prim (из лекции) $\{1, 2, 3, 4\} \to \{4, 2, 1, 3\}$: инверсии $(4, 2), (4, 1), (4, 3), (2, 1)$ --- их 4, перестановка чётная.
+
+\prim Для $n = 2$ перестановок две: тождественная ($0$ инверсий, знак $+$) и $\{1, 2\} \to \{2, 1\}$ ($1$ инверсия, знак $-$):
+$|A| = a_{11} a_{22} - a_{12} a_{21}$ --- совпадает с формулой 2-го порядка.
+
+\podr{Определитель треугольной матрицы}
+
+\begin{teo}[определитель треугольной матрицы]
+Определитель треугольной (в частности, диагональной) матрицы равен произведению диагональных элементов.
+\fm
+\[
+  \det A = \prod_{i=1}^{n} a_{ii} = a_{11}\, a_{22} \cdots a_{nn}.
+\]
+\end{teo}
+
+В частности, $\det E = 1$, \ $\det O = 0$.
+
+\podr{Примеры}
+
+\prim (из лекции) Разложение по 3-му столбцу:
+\[
+  \begin{vmatrix} 5 & -1 & 4 \\ 3 & 0 & 1 \\ 2 & 3 & -4 \end{vmatrix}
+  = 4\cdot(-1)^{1+3}\underbrace{\begin{vmatrix} 3 & 0 \\ 2 & 3 \end{vmatrix}}_{9}
+  + 1\cdot(-1)^{2+3}\underbrace{\begin{vmatrix} 5 & -1 \\ 2 & 3 \end{vmatrix}}_{17}
+  + (-4)\cdot(-1)^{3+3}\underbrace{\begin{vmatrix} 5 & -1 \\ 3 & 0 \end{vmatrix}}_{3}
+  = 36 - 17 - 12 = 7.
+\]
+{\small\textcolor{zamc}{(В рукописи в ответе стояло 16 --- в конспекте исправлено на 7, проверено вычислением.)}}
+
+\prim Треугольная матрица:
+\[
+  \begin{vmatrix} 2 & 7 & -3 & 5 \\ 0 & -1 & 4 & 8 \\ 0 & 0 & 3 & 1 \\ 0 & 0 & 0 & 5 \end{vmatrix} = 2 \cdot (-1) \cdot 3 \cdot 5 = -30.
+\]
+
+% ======================= ВОПРОС 5 =======================
+\vopros{5}{Признаки равенства нулю для определителя. Примеры}
+
+\plan{\item нулевая строка (столбец);
+\item две равные строки (столбца);
+\item две пропорциональные строки (столбца);
+\item примеры.}
+
+\begin{teo}[признаки равенства нулю определителя]
+Определитель квадратной матрицы равен нулю, если
+\begin{enumerate}[leftmargin=*]
+  \item в матрице есть \textbf{нулевая строка} (столбец);
+  \item в матрице есть две \textbf{равные} строки (столбца);
+  \item в матрице есть две \textbf{пропорциональные} строки (столбца).
+\end{enumerate}
+\end{teo}
+
+\podr{1. Нулевая строка}
+
+\begin{dok}
+Если строку умножить на число $\lambda$, то $\lambda$ выносится за знак определителя (вопрос 7, свойство 1).
+Нулевую строку можно считать строкой, умноженной на $\lambda = 0$: \ $\det A = 0 \cdot \det A' = 0$.
+(Иначе: разложим определитель по нулевой строке --- все слагаемые равны нулю.)
+\end{dok}
+
+\podr{2--3. Равные и пропорциональные строки}
+
+\begin{dok}
+Без ограничения общности пропорциональны строки 1 и 2: \ строка 2 $= \lambda \cdot$ строка 1. Вынесем $\lambda$ из строки 2:
+$\det A = \lambda \det A'$, где в $A'$ строки 1 и 2 \emph{равны}. Переставим в $A'$ строки 1 и 2: по свойству перестановки
+определитель должен поменять знак, но матрица не изменилась. Значит, $\det A' = -\det A'$, откуда $\det A' = 0$
+и $\det A = 0$. Равные строки --- частный случай $\lambda = 1$.
+\end{dok}
+
+Для столбцов всё так же, потому что $\det A^T = \det A$ (вопрос 6).
+
+\podr{Примеры}
+
+\prim Нулевой столбец: $\begin{vmatrix} 3 & 0 & 7 \\ -1 & 0 & 2 \\ 5 & 0 & 4 \end{vmatrix} = 0$.
+
+\prim Пропорциональные строки (строка 2 $= -2 \cdot$ строка 1): $\begin{vmatrix} 1 & -3 & 2 \\ -2 & 6 & -4 \\ 5 & 1 & 9 \end{vmatrix} = 0$.
+
+\prim Равные столбцы 1 и 3: $\begin{vmatrix} 4 & 1 & 4 \\ 2 & 5 & 2 \\ 7 & 3 & 7 \end{vmatrix} = 0$.
+
+\prim Строка 3 --- линейная комбинация (строка 3 $= 2 \cdot$ строка 2 $-$ строка 1):
+\[
+  \begin{vmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \\ 7 & 8 & 9 \end{vmatrix}
+  \gauss{\text{II} - \text{I},\ \text{III} - \text{I}}
+  \begin{vmatrix} 1 & 2 & 3 \\ 3 & 3 & 3 \\ 6 & 6 & 6 \end{vmatrix} = 0
+\]
+(строки 2 и 3 стали пропорциональными).
+
+% ======================= ВОПРОС 6 =======================
+\vopros{6}{Определитель транспонированной матрицы (с проверкой для матриц второго и третьего порядков). Примеры}
+
+\plan{\item формулировка $\det A^T = \det A$;
+\item обоснование через полную формулу определителя;
+\item проверка для $2 \times 2$;
+\item проверка для $3 \times 3$;
+\item следствие: строки и столбцы равноправны; примеры.}
+
+\begin{teo}[определитель транспонированной матрицы]
+При транспонировании определитель не меняется.
+\fm
+\[
+  \det A^T = \det A.
+\]
+\end{teo}
+
+\begin{dok}
+Оба определителя вычисляются по полной формуле (вопрос 4)
+\[
+  \det A = \sum_\sigma (-1)^{|\sigma|} \prod_i a_{i\sigma(i)}, \qquad
+  \det A^T = \sum_\sigma (-1)^{|\sigma|} \prod_i a_{\sigma(i) i}.
+\]
+Каждое слагаемое --- произведение элементов, взятых по одному из каждой строки и каждого столбца. При транспонировании
+строки и столбцы меняются ролями, поэтому получается тот же набор произведений с теми же знаками ---
+те же слагаемые, что в $\det A$. Значит, суммы равны.
+\end{dok}
+
+В лекции сказано: <<Самостоятельно проверить для $2 \times 2$, $3 \times 3$>>. Проверяем.
+
+\podr{Проверка для матрицы второго порядка}
+
+\[
+  \det A = \begin{vmatrix} a_{11} & a_{12} \\ a_{21} & a_{22} \end{vmatrix} = a_{11} a_{22} - a_{12} a_{21}, \qquad
+  \det A^T = \begin{vmatrix} a_{11} & a_{21} \\ a_{12} & a_{22} \end{vmatrix} = a_{11} a_{22} - a_{21} a_{12}.
+\]
+Так как $a_{12} a_{21} = a_{21} a_{12}$, определители равны. \checkmark
+
+\podr{Проверка для матрицы третьего порядка}
+
+$A^T = (b_{ij})$, где $b_{ij} = a_{ji}$. Запишем $\det A^T$ по правилу треугольников и заменим каждое $b_{ij}$ на $a_{ji}$:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Слагаемое $\det A^T$} & \textbf{то же через $a$} & \textbf{какое это слагаемое $\det A$} \\ \hline
+$+\,b_{11} b_{22} b_{33}$ & $a_{11} a_{22} a_{33}$ & $+\,a_{11} a_{22} a_{33}$ \ (1-е) \\
+$+\,b_{12} b_{23} b_{31}$ & $a_{21} a_{32} a_{13}$ & $+\,a_{21} a_{32} a_{13}$ \ (3-е) \\
+$+\,b_{21} b_{32} b_{13}$ & $a_{12} a_{23} a_{31}$ & $+\,a_{12} a_{23} a_{31}$ \ (2-е) \\
+$-\,b_{13} b_{22} b_{31}$ & $a_{31} a_{22} a_{13}$ & $-\,a_{13} a_{22} a_{31}$ \ (4-е) \\
+$-\,b_{12} b_{21} b_{33}$ & $a_{21} a_{12} a_{33}$ & $-\,a_{12} a_{21} a_{33}$ \ (5-е) \\
+$-\,b_{23} b_{32} b_{11}$ & $a_{32} a_{23} a_{11}$ & $-\,a_{23} a_{32} a_{11}$ \ (6-е) \\ \hline
+\end{tabular}
+\end{center}
+
+Все шесть слагаемых $\det A^T$ совпали со слагаемыми $\det A$ (с теми же знаками), только 2-е и 3-е поменялись местами.
+Значит, $\det A^T = \det A$. \checkmark
+
+\podr{Следствие}
+
+Строки и столбцы в определителе \textbf{равноправны}: всякое свойство, верное для строк, верно и для столбцов
+(раскладывать можно и по строке, и по столбцу; признаки равенства нулю --- и для строк, и для столбцов).
+
+\podr{Примеры}
+
+\prim $A = \begin{pmatrix} 2 & 3 \\ 1 & -1 \end{pmatrix}$: \ $\det A = -2 - 3 = -5$; \
+$A^T = \begin{pmatrix} 2 & 1 \\ 3 & -1 \end{pmatrix}$, \ $\det A^T = -2 - 3 = -5$. \checkmark
+
+\prim $A = \begin{pmatrix} 5 & -1 & 4 \\ 3 & 0 & 1 \\ 2 & 3 & -4 \end{pmatrix}$, \ $\det A = 7$ (вопрос 4).
+\begin{multline*}
+  \det A^T = \begin{vmatrix} 5 & 3 & 2 \\ -1 & 0 & 3 \\ 4 & 1 & -4 \end{vmatrix}
+  = 5\cdot0\cdot(-4) + 3\cdot3\cdot4 + (-1)\cdot1\cdot2 - 2\cdot0\cdot4 - 3\cdot(-1)\cdot(-4) - 3\cdot1\cdot5 = \\
+  = 0 + 36 - 2 - 0 - 12 - 15 = 7. \ \checkmark
+\end{multline*}
+
+
+% ======================= ВОПРОС 7 =======================
+\vopros{7}{Элементарные преобразования при вычислении определителей. Свойства определителей. Примеры}
+
+\plan{\item список свойств определителей;
+\item обоснование: умножение строки на число, транспонирование, перестановка строк;
+\item главное свойство: прибавление к строке другой строки, умноженной на число;
+\item как считать определитель приведением к треугольному виду;
+\item примеры.}
+
+\podr{Свойства определителей}
+
+\begin{teo}[свойства определителей]
+\begin{enumerate}[leftmargin=*]
+  \item $|A^T| = |A|$ --- при транспонировании определитель сохраняется.
+  \item $|AB| = |A| \cdot |B|$.
+  \item Если все элементы строки (столбца) умножить на число $\lambda$, то определитель умножится на $\lambda$.
+        \emph{Следствия:} а) если есть нулевая строка (столбец), то $|A| = 0$; \ б) $|\lambda A| = \lambda^n |A|$ ($A$ --- $n \times n$).
+  \item При перестановке двух строк (столбцов) определитель меняет знак.
+  \item Для треугольной матрицы $\det A = \prod a_{ii}$.
+  \item Определитель не изменится при \textbf{элементарном преобразовании}: к строке (столбцу) прибавить другую строку (столбец),
+        умноженную на число. \emph{Следствие:} если две строки (столбца) равны или пропорциональны, то $\det A = 0$.
+\end{enumerate}
+\end{teo}
+
+Обоснование --- через полную формулу $|A| = \sum_\sigma (-1)^{|\sigma|} a_{1\sigma(1)} \cdots a_{n\sigma(n)}$ (вопрос 4).
+
+\podr{Умножение строки на число}
+
+\begin{dok}
+Пусть строка $i$ умножена на $\lambda$, получилась матрица $B$. В каждом слагаемом полной формулы ровно один множитель из строки $i$:
+\[
+  |B| = \sum_\sigma (-1)^{|\sigma|} a_{1\sigma(1)} \cdots \lambda a_{i\sigma(i)} \cdots a_{n\sigma(n)} = \lambda |A|.
+\]
+Следствие б): в $\lambda A$ на $\lambda$ умножены все $n$ строк, значит, $\lambda$ выносится $n$ раз.
+\end{dok}
+
+\podr{Перестановка двух строк}
+
+\begin{dok}
+При перестановке двух строк все слагаемые полной формулы остаются теми же, но чётность каждой перестановки меняется на 1
+$\Rightarrow$ все $(-1)^{|\sigma|}$ меняют знак $\Rightarrow$ получаем $-\det A$.
+\end{dok}
+
+\podr{Прибавление к строке другой строки, умноженной на число}
+
+\begin{dok}
+Без ограничения общности строку 1 умножим на $\lambda$ и прибавим к строке 2 --- получим матрицу $B$.
+Разложим $\det B$ по строке 2 (миноры $M_{2j}$ у $A$ и $B$ одинаковые, т.\,к. строка 2 вычёркивается):
+\[
+  \det B = \sum_j (-1)^{2+j} (a_{2j} + \lambda a_{1j}) M_{2j}
+  = \underbrace{\sum_j (-1)^{2+j} a_{2j} M_{2j}}_{= \det A}
+  + \lambda \underbrace{\sum_j (-1)^{2+j} a_{1j} M_{2j}}_{= 0} = \det A.
+\]
+Второе слагаемое --- определитель матрицы, у которой строки 1 и 2 одинаковые, поэтому он равен нулю (вопрос 5).
+\end{dok}
+
+\zam Из этого доказательства видно: \textbf{скалярное произведение строки на вектор алгебраических дополнений
+\emph{другой} строки равно нулю} (то же для столбцов). Это понадобится для формулы обратной матрицы (вопрос 8).
+
+\podr{Как считать определитель с помощью элементарных преобразований}
+
+\begin{enumerate}[leftmargin=*]
+  \item Прибавлением строк, умноженных на числа (определитель \emph{не меняется}), получаем нули под диагональю.
+  \item Перестановка строк меняет знак, вынесение множителя из строки --- выносим его за определитель.
+  \item Получив треугольную матрицу, перемножаем диагональные элементы.
+\end{enumerate}
+Другой вариант: преобразованиями получить в строке (столбце) все нули, кроме одного элемента, и разложить по ней.
+
+\podr{Примеры}
+
+\prim Определитель 4-го порядка приведением к треугольному виду:
+\[
+  \begin{vmatrix} 1 & 2 & -1 & 3 \\ 2 & 5 & 0 & 4 \\ -1 & -1 & 4 & 2 \\ 3 & 7 & 2 & 9 \end{vmatrix}
+  \gauss{\substack{\text{II} - 2\,\text{I} \\ \text{III} + \text{I} \\ \text{IV} - 3\,\text{I}}}
+  \begin{vmatrix} 1 & 2 & -1 & 3 \\ 0 & 1 & 2 & -2 \\ 0 & 1 & 3 & 5 \\ 0 & 1 & 5 & 0 \end{vmatrix}
+  \gauss{\substack{\text{III} - \text{II} \\ \text{IV} - \text{II}}}
+  \begin{vmatrix} 1 & 2 & -1 & 3 \\ 0 & 1 & 2 & -2 \\ 0 & 0 & 1 & 7 \\ 0 & 0 & 3 & 2 \end{vmatrix}
+  \gauss{\text{IV} - 3\,\text{III}}
+  \begin{vmatrix} 1 & 2 & -1 & 3 \\ 0 & 1 & 2 & -2 \\ 0 & 0 & 1 & 7 \\ 0 & 0 & 0 & -19 \end{vmatrix}
+\]
+$= 1 \cdot 1 \cdot 1 \cdot (-19) = -19$.
+
+\prim Перестановка строк и вынесение множителя:
+\[
+  \begin{vmatrix} 0 & 2 & 4 \\ 1 & 3 & 5 \\ 2 & 1 & 0 \end{vmatrix}
+  \gauss{\text{I} \leftrightarrow \text{II}}
+  -\begin{vmatrix} 1 & 3 & 5 \\ 0 & 2 & 4 \\ 2 & 1 & 0 \end{vmatrix}
+  = -2\begin{vmatrix} 1 & 3 & 5 \\ 0 & 1 & 2 \\ 2 & 1 & 0 \end{vmatrix}
+  \gauss{\text{III} - 2\,\text{I}}
+  -2\begin{vmatrix} 1 & 3 & 5 \\ 0 & 1 & 2 \\ 0 & -5 & -10 \end{vmatrix}
+  \gauss{\text{III} + 5\,\text{II}}
+  -2\begin{vmatrix} 1 & 3 & 5 \\ 0 & 1 & 2 \\ 0 & 0 & 0 \end{vmatrix} = 0.
+\]
+(Уже после $\text{III} - 2\,\text{I}$ строки 2 и 3 пропорциональны: $(0, -5, -10) = -5\cdot(0, 1, 2)$ --- матрица вырожденная.)
+
+\prim $|\lambda A| = \lambda^n |A|$: \ $\begin{vmatrix} 2 & 4 \\ 6 & 8 \end{vmatrix} = \left|2 \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}\right| = 2^2 \cdot (-2) = -8$;
+проверка: $16 - 24 = -8$. \checkmark
+
+% ======================= ВОПРОС 8 =======================
+\vopros{8}{Обратная матрица. Формула для вычисления обратной матрицы. Решение СЛАУ методом обратной матрицы. Примеры}
+
+\plan{\item идея: решить $AX = B$ как $ax = b$;
+\item определение обратной матрицы;
+\item целесообразность: $X = A^{-1} B$;
+\item корректность: необходимость $\det A \ne 0$ и формула $A^{-1} = \frac{1}{\det A} \tilde A^T$ (достаточность);
+\item решение СЛАУ методом обратной матрицы; примеры.}
+
+\podr{Идея}
+
+Линейное уравнение $ax = b$ при $a \ne 0$ имеет единственное решение $x = \frac1a \cdot b$, где $\frac1a$ --- обратный элемент к $a$
+по умножению. Как обобщить это на матричное уравнение
+\[
+  AX = B \qquad (A,\ B \text{ даны},\ X \text{ найти})? \tag{1}
+\]
+
+\begin{opr}[обратная матрица]
+Матрица $A^{-1}$ называется \textbf{обратной} к квадратной матрице $A$, если её произведение с $A$ (и слева, и справа)
+равно единичной матрице.
+\fm
+\[
+  A^{-1} A = A A^{-1} = E. \tag{2}
+\]
+\end{opr}
+
+\zam В математике определение должно быть \emph{целесообразным} (решать какую-то задачу) и \emph{корректным}
+(применимым к каким-то объектам). Проверим оба условия.
+
+\podr{Целесообразность}
+
+Пусть $\exists A^{-1}$. Умножим (1) на $A^{-1}$ \textbf{слева}: $A^{-1} A X = A^{-1} B$, а по (2) $A^{-1} A X = E X = X$.
+Значит, (1) имеет единственное решение
+\[
+  X = A^{-1} B. \tag{3}
+\]
+
+\podr{Корректность: когда обратная матрица существует}
+
+\begin{teo}[существование обратной матрицы]
+$A^{-1}$ существует тогда и только тогда, когда $A$ \textbf{невырожденная} ($\det A \ne 0$), и вычисляется по формуле
+\[
+  A^{-1} = \frac{1}{\det A}\, \tilde A^T, \tag{4}
+\]
+где $\tilde A^T$ --- \textbf{присоединённая матрица}: транспонированная матрица алгебраических дополнений элементов $A$
+(на месте $(i, j)$ стоит $A_{ji}$).
+\end{teo}
+
+\begin{dok}
+\textbf{Необходимость.} По свойству определителей $\det(A A^{-1}) = \det A \cdot \det A^{-1} = \det E = 1$.
+Если бы $\det A = 0$, слева был бы $0$. Значит, нужно $\det A \ne 0$ (и при этом $\det A^{-1} = \frac{1}{\det A}$).
+
+\textbf{Достаточность.} Пусть $\det A \ne 0$. Проверим, что матрица (4) обратная: $A^{-1} A = \frac{1}{|A|} \tilde A^T A$.
+Строки $\tilde A^T$ --- алгебраические дополнения элементов столбцов $A$. При умножении <<строка на столбец>>
+строка $i$ матрицы $\tilde A^T$ на столбец $j$ матрицы $A$ даёт:
+\begin{itemize}[leftmargin=*]
+  \item при $j = i$ --- разложение $\det A$ по столбцу $i$, т.\,е. $|A|$;
+  \item при $j \ne i$ --- столбец на алгебраические дополнения \emph{другого} столбца, т.\,е. $0$ (замечание из вопроса 7).
+\end{itemize}
+В итоге
+\[
+  A^{-1} A = \frac{1}{|A|} \begin{pmatrix} |A| & & 0 \\ & \ddots & \\ 0 & & |A| \end{pmatrix} = E.
+\]
+Так же проверяется $A A^{-1} = E$ (через разложение по строкам).
+\end{dok}
+
+\podr{Как найти обратную матрицу по формуле}
+
+\begin{enumerate}[leftmargin=*]
+  \item Вычислить $\det A$. Если $\det A = 0$ --- обратной матрицы нет.
+  \item Найти все алгебраические дополнения $A_{ij} = (-1)^{i+j} M_{ij}$.
+  \item Составить из них матрицу $\tilde A = (A_{ij})$ и транспонировать.
+  \item Разделить на $\det A$. Проверить: $A^{-1} A = E$.
+\end{enumerate}
+
+Для $2 \times 2$ получается простое правило: \textbf{диагональные элементы меняются местами, у внедиагональных меняется знак}:
+\[
+  \begin{pmatrix} a & b \\ c & d \end{pmatrix}^{-1} = \frac{1}{ad - bc} \begin{pmatrix} d & -b \\ -c & a \end{pmatrix}.
+\]
+
+\podr{Решение СЛАУ методом обратной матрицы}
+
+Если в системе $Ax = b$ число уравнений равно числу неизвестных и $\det A \ne 0$, то по (3)
+\[
+  x = A^{-1} b.
+\]
+Метод не работает, если система переопределена, недоопределена или $\det A = 0$ --- тогда нужен метод Гаусса (вопрос 11).
+
+\podr{Примеры}
+
+\prim $A = \begin{pmatrix} 2 & 1 \\ 5 & 3 \end{pmatrix}$: \ $\det A = 6 - 5 = 1$, \
+$A^{-1} = \begin{pmatrix} 3 & -1 \\ -5 & 2 \end{pmatrix}$.
+Проверка: $\begin{pmatrix} 3 & -1 \\ -5 & 2 \end{pmatrix}\begin{pmatrix} 2 & 1 \\ 5 & 3 \end{pmatrix} = \begin{pmatrix} 6 - 5 & 3 - 3 \\ -10 + 10 & -5 + 6 \end{pmatrix} = E$. \checkmark
+
+\prim Решим методом обратной матрицы систему
+$\begin{cases} x_1 + 2x_2 = 5, \\ x_2 + x_3 = 5, \\ x_1 + x_3 = 4, \end{cases}$ \quad
+$A = \begin{pmatrix} 1 & 2 & 0 \\ 0 & 1 & 1 \\ 1 & 0 & 1 \end{pmatrix}$, \ $b = \begin{pmatrix} 5 \\ 5 \\ 4 \end{pmatrix}$.
+
+1) $\det A = 1\cdot1\cdot1 + 2\cdot1\cdot1 + 0 - 0 - 0 - 1\cdot0\cdot1 = 3 \ne 0$ --- обратная матрица существует.
+
+2) Алгебраические дополнения:
+\[
+\begin{aligned}
+  A_{11} &= +\begin{vmatrix} 1 & 1 \\ 0 & 1 \end{vmatrix} = 1, &
+  A_{12} &= -\begin{vmatrix} 0 & 1 \\ 1 & 1 \end{vmatrix} = 1, &
+  A_{13} &= +\begin{vmatrix} 0 & 1 \\ 1 & 0 \end{vmatrix} = -1, \\
+  A_{21} &= -\begin{vmatrix} 2 & 0 \\ 0 & 1 \end{vmatrix} = -2, &
+  A_{22} &= +\begin{vmatrix} 1 & 0 \\ 1 & 1 \end{vmatrix} = 1, &
+  A_{23} &= -\begin{vmatrix} 1 & 2 \\ 1 & 0 \end{vmatrix} = 2, \\
+  A_{31} &= +\begin{vmatrix} 2 & 0 \\ 1 & 1 \end{vmatrix} = 2, &
+  A_{32} &= -\begin{vmatrix} 1 & 0 \\ 0 & 1 \end{vmatrix} = -1, &
+  A_{33} &= +\begin{vmatrix} 1 & 2 \\ 0 & 1 \end{vmatrix} = 1.
+\end{aligned}
+\]
+
+3) $\tilde A = \begin{pmatrix} 1 & 1 & -1 \\ -2 & 1 & 2 \\ 2 & -1 & 1 \end{pmatrix}$, \
+$A^{-1} = \dfrac13 \tilde A^T = \dfrac13 \begin{pmatrix} 1 & -2 & 2 \\ 1 & 1 & -1 \\ -1 & 2 & 1 \end{pmatrix}$.
+
+4) Решение:
+\[
+  x = A^{-1} b = \frac13 \begin{pmatrix} 1 & -2 & 2 \\ 1 & 1 & -1 \\ -1 & 2 & 1 \end{pmatrix} \begin{pmatrix} 5 \\ 5 \\ 4 \end{pmatrix}
+  = \frac13 \begin{pmatrix} 5 - 10 + 8 \\ 5 + 5 - 4 \\ -5 + 10 + 4 \end{pmatrix} = \frac13 \begin{pmatrix} 3 \\ 6 \\ 9 \end{pmatrix} = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}.
+\]
+Проверка: $1 + 4 = 5$, \ $2 + 3 = 5$, \ $1 + 3 = 4$. \checkmark
+
+\prim $A = \begin{pmatrix} 1 & 2 \\ 2 & 4 \end{pmatrix}$: \ $\det A = 4 - 4 = 0$ --- обратной матрицы нет (строки пропорциональны).
+
+% ======================= ВОПРОС 9 =======================
+\vopros{9}{Реализация элементарных преобразований над матрицами через умножение матриц. Примеры}
+
+\plan{\item три элементарных преобразования строк;
+\item матрица $P$ для умножения строки на число;
+\item матрица $P$ для перестановки двух строк;
+\item матрица $P$ для прибавления к строке другой строки, умноженной на число;
+\item вывод: цепочка преобразований = умножение слева на $P_k \cdots P_1$; примеры.}
+
+\begin{opr}[элементарные преобразования строк]
+\textbf{Элементарные преобразования строк} матрицы:
+\begin{enumerate}[nosep]
+  \item умножение строки на число $\lambda \ne 0$;
+  \item перестановка двух строк;
+  \item умножение строки на число и прибавление к другой строке.
+\end{enumerate}
+\end{opr}
+
+Главная мысль лекции: каждое такое преобразование можно реализовать \textbf{левым умножением} $P \cdot A$ на подходящую
+квадратную матрицу $P$. Матрица $P$ получается, если сделать \emph{то же преобразование с единичной матрицей $E$}.
+
+\podr{1. Умножение строки $i$ на число $\lambda$}
+
+\begin{opr}[матрица умножения строки]
+$P = \diag(1, \dots, \lambda, \dots, 1)$ --- на диагонали $p_{ii} = \lambda$, остальные диагональные элементы равны 1,
+вне диагонали нули. Тогда $PA$ --- это $A$, у которой строка $i$ умножена на $\lambda$.
+\end{opr}
+
+\prim (из лекции)
+\[
+  \begin{pmatrix} \lambda & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}
+  \begin{pmatrix} 1 & 2 & 3 \\ 0 & -1 & 1 \\ 4 & 0 & -5 \end{pmatrix}
+  = \begin{pmatrix} \lambda & 2\lambda & 3\lambda \\ 0 & -1 & 1 \\ 4 & 0 & -5 \end{pmatrix}.
+\]
+
+\podr{2. Перестановка строк $k$ и $s$}
+
+\begin{opr}[матрица перестановки]
+$P = (p_{ij})$: \ $p_{ks} = p_{sk} = 1$; \ $p_{kk} = p_{ss} = 0$; \ $p_{ii} = 1$ при $i \ne k, s$; остальные элементы нули.
+(Это $E$, в которой переставлены строки $k$ и $s$.) Тогда в $PA$ строки $k$ и $s$ матрицы $A$ поменялись местами.
+\end{opr}
+
+\prim (из лекции) Перестановка строк 1 и 3 в матрице $3 \times 3$: \ $p_{13} = p_{31} = 1$, $p_{22} = 1$, $p_{11} = p_{33} = 0$:
+\[
+  \begin{pmatrix} 0 & 0 & 1 \\ 0 & 1 & 0 \\ 1 & 0 & 0 \end{pmatrix}
+  \begin{pmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \\ 7 & 8 & 9 \end{pmatrix}
+  = \begin{pmatrix} 7 & 8 & 9 \\ 4 & 5 & 6 \\ 1 & 2 & 3 \end{pmatrix}.
+\]
+
+\podr{3. Прибавление к строке $k$ строки $s$, умноженной на $\lambda$}
+
+\begin{opr}[матрица прибавления строки]
+$P$ --- как $E$ (единицы на диагонали, нули вне), кроме одного элемента $p_{ks} = \lambda$ ($k \ne s$).
+Тогда в $PA$ на месте строки $k$ стоит (строка $k$) $+ \lambda \cdot$ (строка $s$), остальные строки не изменились:
+\[
+  PA = \begin{pmatrix}
+  a_{11} & \dots & a_{1n} \\
+  \vdots & & \vdots \\
+  a_{k1} + \lambda a_{s1} & \dots & a_{kn} + \lambda a_{sn} \\
+  \vdots & & \vdots \\
+  a_{n1} & \dots & a_{nn}
+  \end{pmatrix}.
+\]
+\end{opr}
+
+\textbf{Почему это работает:} строка $k$ матрицы $PA$ = (строка $k$ матрицы $P$) $\cdot A$. В строке $k$ матрицы $P$
+стоят $1$ на месте $k$ и $\lambda$ на месте $s$, поэтому получается $1 \cdot (\text{строка } k) + \lambda \cdot (\text{строка } s)$.
+Остальные строки $P$ --- строки $E$, они оставляют строки $A$ без изменений.
+
+\prim Из строки 2 вычтем строку 1, умноженную на 3 ($p_{21} = -3$):
+\[
+  \begin{pmatrix} 1 & 0 & 0 \\ -3 & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}
+  \begin{pmatrix} 1 & 2 & 3 \\ 3 & 5 & 7 \\ 4 & 0 & -5 \end{pmatrix}
+  = \begin{pmatrix} 1 & 2 & 3 \\ 0 & -1 & -2 \\ 4 & 0 & -5 \end{pmatrix}.
+\]
+
+\podr{Вывод}
+
+Если из $A$ цепочкой элементарных преобразований получена матрица $A'$, то существуют матрицы $P_1, \dots, P_k$ такие, что
+\[
+  A' = P_k P_{k-1} \cdots P_1 A.
+\]
+Это используется для обоснования метода Гаусса для обратной матрицы (вопрос 10).
+
+% ======================= ВОПРОС 10 =======================
+\vopros{10}{Вычисление обратной матрицы методом Гаусса. Примеры}
+
+\plan{\item расширенная матрица $(A \,|\, E)$;
+\item элементарные преобразования строк до вида $(E \,|\, D)$;
+\item обоснование: $D = A^{-1}$ (через матрицы $P_i$);
+\item что будет, если $\det A = 0$;
+\item примеры.}
+
+\podr{Метод}
+
+Пусть для матрицы $A$ размера $n \times n$ составлена <<расширенная>> матрица $(A \,|\, E)$ размера $n \times 2n$ (справа от $A$
+приписана единичная матрица). Элементарными преобразованиями \textbf{строк}
+(умножение строки на число $\ne 0$; перестановка строк; прибавление к строке другой строки, умноженной на число)
+приводим левую половину к $E$:
+\[
+  (A \,|\, E) \ \sim\ \dots\ \sim\ (E \,|\, D).
+\]
+
+\begin{teo}[метод Гаусса для обратной матрицы]
+Если элементарными преобразованиями строк из $(A \,|\, E)$ получена матрица $(E \,|\, D)$, то $D = A^{-1}$.
+\end{teo}
+
+\begin{dok}
+Каждое элементарное преобразование строк --- это умножение слева на матрицу $P_i$ (вопрос 9), причём одни и те же
+преобразования делаются с обеими половинами. Значит, существуют $P_1, \dots, P_k$:
+\[
+  P_k P_{k-1} \cdots P_1 A = E, \qquad D = P_k \cdots P_1 E = P_k \cdots P_1.
+\]
+Подставим вторую формулу в первую: $DA = E$ $\Rightarrow$ $D = A^{-1}$.
+\end{dok}
+
+\podr{Порядок действий}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Прямой ход:} получаем нули под диагональю в левой половине (как в методе Гаусса для СЛАУ).
+  \item Делим каждую строку на её диагональный элемент --- на диагонали единицы.
+  \item \textbf{Обратный ход:} снизу вверх получаем нули над диагональю.
+  \item Справа стоит $A^{-1}$. Проверка: $A^{-1} A = E$.
+\end{enumerate}
+
+\zam Если в левой половине получилась нулевая строка, то $\det A = 0$ и обратной матрицы нет
+(левую половину нельзя привести к $E$).
+
+\podr{Примеры}
+
+\prim Найдём $A^{-1}$ для $A = \begin{pmatrix} 1 & 2 & 0 \\ 0 & 1 & 1 \\ 1 & 0 & 1 \end{pmatrix}$ (та же матрица, что в вопросе 8):
+\[
+  \left(\begin{array}{rrr|rrr} 1 & 2 & 0 & 1 & 0 & 0 \\ 0 & 1 & 1 & 0 & 1 & 0 \\ 1 & 0 & 1 & 0 & 0 & 1 \end{array}\right)
+  \gauss{\text{III} - \text{I}}
+  \left(\begin{array}{rrr|rrr} 1 & 2 & 0 & 1 & 0 & 0 \\ 0 & 1 & 1 & 0 & 1 & 0 \\ 0 & -2 & 1 & -1 & 0 & 1 \end{array}\right)
+  \gauss{\text{III} + 2\,\text{II}}
+  \left(\begin{array}{rrr|rrr} 1 & 2 & 0 & 1 & 0 & 0 \\ 0 & 1 & 1 & 0 & 1 & 0 \\ 0 & 0 & 3 & -1 & 2 & 1 \end{array}\right)
+\]
+\[
+  \gauss{\text{III} : 3}
+  \left(\begin{array}{rrr|rrr} 1 & 2 & 0 & 1 & 0 & 0 \\ 0 & 1 & 1 & 0 & 1 & 0 \\ 0 & 0 & 1 & -\frac13 & \frac23 & \frac13 \end{array}\right)
+  \gauss{\text{II} - \text{III}}
+  \left(\begin{array}{rrr|rrr} 1 & 2 & 0 & 1 & 0 & 0 \\ 0 & 1 & 0 & \frac13 & \frac13 & -\frac13 \\ 0 & 0 & 1 & -\frac13 & \frac23 & \frac13 \end{array}\right)
+\]
+\[
+  \gauss{\text{I} - 2\,\text{II}}
+  \left(\begin{array}{rrr|rrr} 1 & 0 & 0 & \frac13 & -\frac23 & \frac23 \\ 0 & 1 & 0 & \frac13 & \frac13 & -\frac13 \\ 0 & 0 & 1 & -\frac13 & \frac23 & \frac13 \end{array}\right).
+\]
+$A^{-1} = \dfrac13 \begin{pmatrix} 1 & -2 & 2 \\ 1 & 1 & -1 \\ -1 & 2 & 1 \end{pmatrix}$ --- совпало с результатом по формуле (вопрос 8). \checkmark
+
+\prim $A = \begin{pmatrix} 2 & 1 \\ 5 & 3 \end{pmatrix}$:
+\[
+  \left(\begin{array}{rr|rr} 2 & 1 & 1 & 0 \\ 5 & 3 & 0 & 1 \end{array}\right)
+  \gauss{2\,\text{II} - 5\,\text{I}}
+  \left(\begin{array}{rr|rr} 2 & 1 & 1 & 0 \\ 0 & 1 & -5 & 2 \end{array}\right)
+  \gauss{\text{I} - \text{II}}
+  \left(\begin{array}{rr|rr} 2 & 0 & 6 & -2 \\ 0 & 1 & -5 & 2 \end{array}\right)
+  \gauss{\text{I} : 2}
+  \left(\begin{array}{rr|rr} 1 & 0 & 3 & -1 \\ 0 & 1 & -5 & 2 \end{array}\right).
+\]
+$A^{-1} = \begin{pmatrix} 3 & -1 \\ -5 & 2 \end{pmatrix}$ --- как в вопросе 8. \checkmark
+(Шаг $2\,\text{II} - 5\,\text{I}$ --- это два преобразования: умножение строки II на $2$ и прибавление $-5\,\text{I}$.)
+
+\prim $A = \begin{pmatrix} 1 & 2 \\ 2 & 4 \end{pmatrix}$:
+$\left(\begin{array}{rr|rr} 1 & 2 & 1 & 0 \\ 2 & 4 & 0 & 1 \end{array}\right) \gauss{\text{II} - 2\,\text{I}}
+\left(\begin{array}{rr|rr} 1 & 2 & 1 & 0 \\ 0 & 0 & -2 & 1 \end{array}\right)$ --- слева нулевая строка, $A^{-1}$ не существует.
+
+% ======================= ВОПРОС 11 =======================
+\vopros{11}{Метод Гаусса для решения СЛАУ. Примеры}
+
+\plan{\item СЛАУ и её матрицы: основная $A$ и расширенная $\bar A = (A \,|\, b)$;
+\item когда метод обратной матрицы не работает;
+\item идея: исключение переменных; равносильные преобразования уравнений = преобразования строк $\bar A$;
+\item алгоритм: прямой ход, проверка совместности, обратный ход;
+\item возможные результаты; примеры.}
+
+\podr{Постановка задачи}
+
+Система линейных алгебраических уравнений (СЛАУ):
+\[
+  a_{i1} x_1 + a_{i2} x_2 + \dots + a_{im} x_m = b_i, \quad i = 1, \dots, n \quad \iff \quad Ax = b,
+\]
+$A = (a_{ij})$ --- \textbf{основная матрица} ($n \times m$), $x = (x_1, \dots, x_m)^T$ --- вектор неизвестных,
+$b = (b_1, \dots, b_n)^T$ --- вектор свободных членов.
+
+\begin{opr}[расширенная матрица]
+\textbf{Расширенная матрица} системы $Ax = b$ --- основная матрица, к которой справа приписан столбец свободных членов.
+\fm
+\[
+  \bar A = (A \,|\, b).
+\]
+\end{opr}
+
+\textbf{Проблема.} Если $n = m$ и $\det A \ne 0$, то $x = A^{-1} b$. Но если система
+1) переопределена ($n > m$), 2) недоопределена ($n < m$), 3) $n = m$, но $\det A = 0$ ---
+метод обратной матрицы не работает. Нужен новый метод.
+
+\podr{Идея метода}
+
+Обобщаем <<школьный метод>>: из одного уравнения выражаем переменную и подставляем в другие --- по сути \textbf{исключаем
+переменные}. Используем преобразования, после которых получается \emph{равносильная}, но более простая система:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{7.6cm}|p{7.6cm}|}
+\hline
+\textbf{С уравнениями} & \textbf{Со строками $\bar A$} \\ \hline
+умножить уравнение $i$ на $\lambda \ne 0$ & умножить строку $i$ на $\lambda$ \\
+переставить уравнения $s$ и $l$ & переставить строки $s$ и $l$ \\
+уравнение $i$ умножить на $\lambda$ и сложить с уравнением $s$ & к строке $s$ прибавить строку $i$, умноженную на $\lambda$ \\ \hline
+\end{tabular}
+\end{center}
+
+Это те же преобразования, что в методе Гаусса для обратной матрицы, только преобразуется $(A \,|\, b)$, а не $(A \,|\, E)$.
+\textbf{Цель:} исключить $x_1$ из уравнения 2, $x_1, x_2$ --- из уравнения 3 и т.\,д.
+
+\podr{Алгоритм метода Гаусса}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Прямой ход.} Элементарными преобразованиями строк приводим $\bar A$ к \emph{ступенчатому виду} (вопрос 12):
+        под <<ступеньками>> нули.
+  \item \textbf{Проверка совместности.} Смотрим на преобразованную матрицу $\bar A'$:
+    \begin{itemize}[leftmargin=*]
+      \item есть строка $(0\ 0\ \dots\ 0 \,|\, b_i')$, $b_i' \ne 0$ --- \textbf{противоречивая} строка: уравнение
+            $0 \cdot x_1 + \dots + 0 \cdot x_m = b_i'$ решений не имеет $\Rightarrow$ система \textbf{несовместна};
+      \item строка $(0\ 0\ \dots\ 0 \,|\, 0)$ --- \textbf{нулевая}: уравнение $0 = 0$ верно при любых $x$, его вычёркиваем
+            (это уравнение --- следствие других);
+      \item нет противоречивых строк $\Rightarrow$ система \textbf{совместна}.
+    \end{itemize}
+  \item \textbf{Обратный ход.} По $\bar A'$ записываем систему из $k \le n$ уравнений
+    \[
+      \begin{cases}
+        a'_{11} x_1 + a'_{12} x_2 + \dots + a'_{1m} x_m = b'_1, \\
+        \phantom{a'_{11} x_1 + {}} a'_{22} x_2 + \dots + a'_{2m} x_m = b'_2, \\
+        \phantom{a'_{11} x_1 + a'_{12} x_2 + {}} \dots\dots\dots \\
+        \phantom{a'_{11} x_1 + a'_{12} x_2 + {}} a'_{kk} x_k + \dots + a'_{km} x_m = b'_k.
+      \end{cases}
+    \]
+    Из последнего уравнения выражаем $x_k$, подставляем в предыдущее, находим $x_{k-1}$, и т.\,д. вверх.
+\end{enumerate}
+
+\podr{Возможные результаты}
+
+\begin{itemize}[leftmargin=*]
+  \item есть противоречивая строка --- \textbf{решений нет};
+  \item $k = m$ (уравнений после вычёркивания столько же, сколько неизвестных) --- \textbf{единственное решение};
+  \item $k < m$ --- часть переменных \textbf{свободные} (на них нет ограничений) --- \textbf{бесконечно много решений}.
+\end{itemize}
+
+\podr{Примеры}
+
+\prim (единственное решение) Система из вопроса 3:
+\[
+  \left(\begin{array}{rrr|r} 1 & 1 & 1 & 6 \\ 2 & -1 & 1 & 3 \\ 1 & 2 & -1 & 2 \end{array}\right)
+  \gauss{\substack{\text{II} - 2\,\text{I} \\ \text{III} - \text{I}}}
+  \left(\begin{array}{rrr|r} 1 & 1 & 1 & 6 \\ 0 & -3 & -1 & -9 \\ 0 & 1 & -2 & -4 \end{array}\right)
+  \gauss{3\,\text{III} + \text{II}}
+  \left(\begin{array}{rrr|r} 1 & 1 & 1 & 6 \\ 0 & -3 & -1 & -9 \\ 0 & 0 & -7 & -21 \end{array}\right).
+\]
+Противоречивых строк нет, $k = m = 3$. Обратный ход:
+$-7x_3 = -21 \Rightarrow x_3 = 3$; \ $-3x_2 - 3 = -9 \Rightarrow x_2 = 2$; \ $x_1 + 2 + 3 = 6 \Rightarrow x_1 = 1$.
+
+\prim (из лекции, бесконечно много решений) $\begin{cases} x_1 + x_2 + x_3 = 1, \\ x_2 - x_3 = 2. \end{cases}$
+Матрица уже ступенчатая, $k = 2 < m = 3$. $x_3$ --- свободная переменная; $x_2 = 2 + x_3$, \ $x_1 = 1 - x_2 - x_3 = -1 - 2x_3$:
+\[
+  \begin{cases} x_1 = -1 - 2x_3, \\ x_2 = 2 + x_3, \end{cases} \quad x_3 \text{ --- любое}.
+\]
+{\small\textcolor{zamc}{(В рукописи второе уравнение было записано как $x_2 + x_3 = 2$ --- в конспекте исправлено.)}}
+
+\prim (нет решений) $\begin{cases} x_1 + x_2 = 1, \\ 2x_1 + 2x_2 = 3. \end{cases}$ \quad
+$\left(\begin{array}{rr|r} 1 & 1 & 1 \\ 2 & 2 & 3 \end{array}\right) \gauss{\text{II} - 2\,\text{I}}
+\left(\begin{array}{rr|r} 1 & 1 & 1 \\ 0 & 0 & 1 \end{array}\right)$ --- строка $0 = 1$ противоречивая, система несовместна.
+
+% ======================= ВОПРОС 12 =======================
+\vopros{12}{Приведение матрицы к ступенчатой форме. Примеры}
+
+\plan{\item что такое ступенчатая форма;
+\item теорема: любую матрицу можно привести к ступенчатому виду;
+\item схема доказательства (алгоритм по столбцам);
+\item ранг как число ненулевых строк;
+\item примеры.}
+
+\begin{opr}[ступенчатая матрица]
+Матрица имеет \textbf{ступенчатый вид}, если под первым ненулевым элементом каждой строки (под <<ступенькой>>)
+и левее него во всех нижних строках стоят нули, а нулевые строки (если есть) стоят внизу.
+Частный случай --- верхняя треугольная матрица (<<под диагональю нули>>).
+\kv
+если $j_i$ --- место первого ненулевого элемента строки $i$, то
+\[
+  j_1 < j_2 < \dots < j_r, \quad \text{а строки } r{+}1, \dots, n \text{ --- нулевые}.
+\]
+\end{opr}
+
+\[
+  \begin{pmatrix} \boxed{2} & 1 & 0 & 5 \\ 0 & \boxed{3} & 1 & -1 \\ 0 & 0 & 0 & \boxed{4} \\ 0 & 0 & 0 & 0 \end{pmatrix}
+  \ \text{--- ступенчатая;} \qquad
+  \begin{pmatrix} 1 & 2 & 3 \\ 0 & 0 & 1 \\ 0 & 5 & 1 \end{pmatrix}
+  \ \text{--- не ступенчатая (под нулём строки 2 стоит } 5\text{).}
+\]
+
+\begin{teo}[1]
+Любую матрицу с помощью элементарных преобразований строк можно привести к ступенчатому виду.
+\end{teo}
+
+\begin{dok}
+(схема из лекции) Рассмотрим столбец $\text{№}\,1$ матрицы $B = (b_{ij})$.
+\begin{enumerate}[label=\alph*)]
+  \item Все его элементы равны 0 --- переходим к следующему столбцу.
+  \item $\exists\, b_{i1} \ne 0$ --- переставим строки $i$ и $1$, получим $B'$, $b'_{11} = b_{i1} \ne 0$.
+        Умножим строку 1 на $-\dfrac{b'_{i1}}{b'_{11}}$ и прибавим к строке $i$ ($i = 2, 3, \dots, n$) --- в первом столбце
+        ниже диагонали получим нули.
+\end{enumerate}
+Далее так же рассматриваем столбцы $j = 2, 3, \dots, m$ преобразованной матрицы (уже без верхних, обработанных строк):
+\begin{enumerate}[label=\alph*)]
+  \item все элементы столбца $j$ ниже текущей строки равны 0 --- переходим к следующему столбцу;
+  \item есть ненулевой --- переставляем его строку на текущее место, получаем $b''_{jj} \ne 0$; умножаем эту строку на
+        $-\dfrac{b''_{ij}}{b''_{jj}}$ и прибавляем к каждой строке ниже. В столбце $j$ ниже получаются нули.
+\end{enumerate}
+Столбцов конечное число, поэтому процесс закончится, и получится ступенчатая матрица.
+\end{dok}
+
+\zam Ступенчатый вид --- не единственный (зависит от выбора преобразований), но \textbf{число ненулевых строк одно и то же} ---
+это ранг матрицы (вопрос 13).
+
+\podr{Примеры}
+
+\prim
+\[
+  \begin{pmatrix} 0 & 2 & 4 & 2 \\ 1 & 1 & 1 & 1 \\ 2 & 4 & 6 & 4 \end{pmatrix}
+  \gauss{\text{I} \leftrightarrow \text{II}}
+  \begin{pmatrix} 1 & 1 & 1 & 1 \\ 0 & 2 & 4 & 2 \\ 2 & 4 & 6 & 4 \end{pmatrix}
+  \gauss{\text{III} - 2\,\text{I}}
+  \begin{pmatrix} 1 & 1 & 1 & 1 \\ 0 & 2 & 4 & 2 \\ 0 & 2 & 4 & 2 \end{pmatrix}
+  \gauss{\text{III} - \text{II}}
+  \begin{pmatrix} 1 & 1 & 1 & 1 \\ 0 & 2 & 4 & 2 \\ 0 & 0 & 0 & 0 \end{pmatrix}.
+\]
+Ступенчатый вид получен, ненулевых строк две, ранг равен 2.
+
+\prim
+\[
+  \begin{pmatrix} 1 & 2 & -1 \\ 3 & 6 & 1 \\ 2 & 5 & 0 \end{pmatrix}
+  \gauss{\substack{\text{II} - 3\,\text{I} \\ \text{III} - 2\,\text{I}}}
+  \begin{pmatrix} 1 & 2 & -1 \\ 0 & 0 & 4 \\ 0 & 1 & 2 \end{pmatrix}
+  \gauss{\text{II} \leftrightarrow \text{III}}
+  \begin{pmatrix} 1 & 2 & -1 \\ 0 & 1 & 2 \\ 0 & 0 & 4 \end{pmatrix}.
+\]
+Здесь во втором столбце под диагональю оказался $0$ на месте $(2,2)$ --- пришлось переставить строки (случай б) доказательства).
+Ранг равен 3.
+
+% ======================= ВОПРОС 13 =======================
+\vopros{13}{Проверка совместности СЛАУ. Линейная зависимость и линейная независимость арифметических векторов. Ранг матрицы. Критерий Кронекера--Капелли. Примеры}
+
+\plan{\item совместная и несовместная СЛАУ, проверка методом Гаусса;
+\item линейная комбинация; линейно зависимые и независимые векторы;
+\item связь с методом Гаусса: нулевая строка = линейная зависимость;
+\item ранг матрицы (два определения);
+\item критерий Кронекера--Капелли; примеры.}
+
+\podr{Совместность СЛАУ}
+
+\begin{opr}[совместная система]
+СЛАУ называется \textbf{совместной}, если она имеет хотя бы одно решение, и \textbf{несовместной}, если решений нет.
+\kv
+\[
+  Ax = b \text{ совместна} \Leftrightarrow \exists x \in \R^m\ (Ax = b).
+\]
+\end{opr}
+
+Проверка методом Гаусса (вопрос 11): если после приведения $\bar A$ к ступенчатому виду есть противоречивая строка
+$(0 \dots 0 \,|\, b'_i \ne 0)$ --- система несовместна, иначе --- совместна. Чтобы сформулировать это строго, нужны понятия
+линейной зависимости и ранга.
+
+\podr{Линейная зависимость и независимость}
+
+\textbf{Линейная комбинация} векторов $a_1, \dots, a_m$ --- вектор $\sum_{i=1}^{m} \alpha_i a_i = \alpha_1 a_1 + \dots + \alpha_m a_m$
+($\alpha_i$ --- числа).
+
+\begin{opr}[линейно зависимые векторы]
+Векторы $a_1, \dots, a_m$ \textbf{линейно зависимы} (ЛЗ), если существует их нулевая линейная комбинация,
+в которой не все коэффициенты равны нулю.
+\kv
+\[
+  a_1, \dots, a_m \text{ --- ЛЗ} \Leftrightarrow \exists\, \alpha_1, \dots, \alpha_m\ \Bigl( (\alpha_1, \dots, \alpha_m) \ne (0, \dots, 0) \wedge \sum_{i=1}^{m} \alpha_i a_i = 0 \Bigr).
+\]
+\end{opr}
+
+Если в нулевой комбинации есть $\alpha_1 \ne 0$, то один из векторов выражается через остальные:
+\[
+  a_1 = -\sum_{i=2}^{m} \frac{\alpha_i}{\alpha_1}\, a_i.
+\]
+
+\begin{opr}[линейно независимые векторы]
+Векторы $a_1, \dots, a_m$ \textbf{линейно независимы} (ЛНЗ), если их линейная комбинация равна нулю только при всех
+нулевых коэффициентах, т.\,е. ни один из векторов нельзя выразить через другие.
+\kv
+\[
+  a_1, \dots, a_m \text{ --- ЛНЗ} \Leftrightarrow \forall\, \alpha_1, \dots, \alpha_m\ \Bigl( \sum_{i=1}^{m} \alpha_i a_i = 0 \to \alpha_1 = \dots = \alpha_m = 0 \Bigr).
+\]
+\end{opr}
+
+\textbf{Связь с методом Гаусса.} Если при элементарных преобразованиях строк получилась нулевая строка, значит, среди строк
+есть линейно зависимые $\iff$ одно из уравнений --- следствие других (его можно вычеркнуть).
+
+\podr{Ранг матрицы}
+
+\begin{opr}[ранг матрицы]
+\textbf{Ранг матрицы} $\rang A$ --- это
+1) количество ненулевых строк в ступенчатом виде этой матрицы; \ 2) максимальное количество линейно независимых строк.
+Эти два определения равносильны.
+\end{opr}
+
+\zam $\rang A \le \min(n, m)$; для квадратной матрицы $\rang A = n \Leftrightarrow \det A \ne 0$.
+
+\podr{Критерий Кронекера--Капелли}
+
+\begin{teo}[критерий Кронекера--Капелли]
+Система $Ax = b$ совместна тогда и только тогда, когда ранг основной матрицы равен рангу расширенной матрицы.
+\fm
+\[
+  Ax = b \text{ совместна} \Leftrightarrow \rang A = \rang \bar A.
+\]
+\end{teo}
+
+{\small\textcolor{zamc}{В конспекте формулировка критерия дана в сноске (<<добавлена для удобства>>), отдельного доказательства нет.}}
+
+\textbf{Что даёт ранг} ($m$ --- число неизвестных):
+\begin{itemize}[leftmargin=*]
+  \item $\rang A \ne \rang \bar A$ --- решений нет;
+  \item $\rang A = \rang \bar A = m$ --- единственное решение;
+  \item $\rang A = \rang \bar A = r < m$ --- бесконечно много решений, $m - r$ свободных переменных (вопрос 14).
+\end{itemize}
+
+\podr{Примеры}
+
+\prim (ЛЗ) $a_1 = (1, 2, 3)^T$, $a_2 = (2, 1, 0)^T$, $a_3 = (3, 3, 3)^T$: \ $a_3 = a_1 + a_2$, т.\,е.
+$1\cdot a_1 + 1\cdot a_2 + (-1)\cdot a_3 = 0$ --- коэффициенты не все нулевые, векторы ЛЗ.
+
+\prim (ЛНЗ) $e_1 = (1, 0)^T$, $e_2 = (0, 1)^T$: \ $\alpha_1 e_1 + \alpha_2 e_2 = (\alpha_1, \alpha_2)^T = 0 \Rightarrow \alpha_1 = \alpha_2 = 0$ --- ЛНЗ.
+Пример из лекции: собственные векторы $(-2, 1)^T$ и $(3, -2)^T$ ЛНЗ, т.\,к. система $\alpha_1 x^{(1)} + \alpha_2 x^{(2)} = 0$
+имеет матрицу с $\det = 1 \ne 0$ и поэтому только нулевое решение (вопрос 16).
+
+\prim (ранг и совместность) $\begin{cases} x_1 + x_2 + x_3 = 1, \\ 2x_1 + x_2 + 3x_3 = 4, \\ 3x_1 + 2x_2 + 4x_3 = 5. \end{cases}$
+\[
+  \bar A = \left(\begin{array}{rrr|r} 1 & 1 & 1 & 1 \\ 2 & 1 & 3 & 4 \\ 3 & 2 & 4 & 5 \end{array}\right)
+  \gauss{\substack{\text{II} - 2\,\text{I} \\ \text{III} - 3\,\text{I}}}
+  \left(\begin{array}{rrr|r} 1 & 1 & 1 & 1 \\ 0 & -1 & 1 & 2 \\ 0 & -1 & 1 & 2 \end{array}\right)
+  \gauss{\text{III} - \text{II}}
+  \left(\begin{array}{rrr|r} 1 & 1 & 1 & 1 \\ 0 & -1 & 1 & 2 \\ 0 & 0 & 0 & 0 \end{array}\right).
+\]
+$\rang A = \rang \bar A = 2 < 3$ --- система совместна, решений бесконечно много (одна свободная переменная).
+Строка III исходной системы --- сумма строк I и II.
+
+Если в третьем уравнении вместо $5$ поставить $6$, то последняя строка станет $(0\ 0\ 0 \,|\, 1)$: \
+$\rang A = 2$, $\rang \bar A = 3$ --- система несовместна.
+
+
+% ======================= ВОПРОС 14 =======================
+\vopros{14}{Структура общего решения однородной СЛАУ. Фундаментальная матрица решений. Примеры}
+
+\plan{\item однородная СЛАУ $Ax = O_n$; у неё всегда есть нулевое решение;
+\item случай $\rang A = m$: только нулевое решение;
+\item случай $\rang A = r < m$: бесконечно много решений;
+\item теорема 2: линейная комбинация решений --- решение;
+\item ФСР и фундаментальная матрица; теорема 3: $x_0 = XC$; пример.}
+
+\podr{Однородная СЛАУ}
+
+\begin{opr}[однородная СЛАУ]
+СЛАУ называется \textbf{однородной}, если все её свободные члены равны нулю.
+\fm
+\[
+  Ax = O_n, \qquad A \text{ --- } n \times m. \tag{2}
+\]
+\end{opr}
+
+Однородная система \textbf{всегда совместна}: $x = O_m$ --- её решение (нулевое, <<очевидное>>). Вопрос в том,
+есть ли другие решения и как их все записать.
+
+\podr{Возможные варианты}
+
+\begin{enumerate}[leftmargin=*]
+  \item $\rang A = m$ (например, $m = n$ и $\det A \ne 0$) --- только нулевое решение: $x_0 = A^{-1} O_n = O_n$.
+  \item $\rang A = r < m$ --- после метода Гаусса остаётся $r$ уравнений с $m$ переменными, $m - r$ переменных свободные
+        $\Rightarrow$ решений бесконечно много.
+\end{enumerate}
+{\small\textcolor{zamc}{(В рукописи было <<$(n - r)$ свободных переменных>> --- в конспекте исправлено на $m - r$:
+свободных переменных столько, сколько неизвестных сверх ранга.)}}
+
+\podr{Линейная комбинация решений}
+
+\begin{teo}[2]
+Если $x^{(1)}, \dots, x^{(s)}$ --- решения однородной системы (2), то любая их линейная комбинация
+$\sum\limits_{i=1}^{s} \alpha_i x^{(i)}$ --- тоже решение (2).
+\end{teo}
+
+\begin{dok}
+По условию $A x^{(i)} = O_n$, $i = 1, \dots, s$. Умножим каждое равенство на $\alpha_i$: $\alpha_i A x^{(i)} = O_n$, т.\,е.
+$A(\alpha_i x^{(i)}) = O_n$. Сложим все равенства и применим дистрибутивность:
+$A\bigl(\sum_i \alpha_i x^{(i)}\bigr) = O_n$ $\Rightarrow$ $\sum_i \alpha_i x^{(i)}$ --- решение (2).
+\end{dok}
+
+\textbf{Вывод:} решение однородной СЛАУ естественно записать как линейную комбинацию некоторых <<базисных>> решений.
+Эти решения должны быть ЛНЗ --- иначе одно из них лишнее (выражается через другие).
+
+\podr{Фундаментальная система решений и фундаментальная матрица}
+
+\begin{opr}[ФСР, фундаментальная матрица]
+\textbf{Фундаментальная система решений} (ФСР) однородной системы (2) при $\rang A = r < m$ --- любой набор
+из $k = m - r$ линейно независимых решений. Если записать эти решения \emph{по столбцам} в матрицу, получится
+\textbf{фундаментальная матрица} (ФМ) $X$ размера $m \times k$.
+\kv
+\[
+  x^{(1)}, \dots, x^{(k)} \text{ --- ФСР} \Leftrightarrow k = m - r \ \wedge\ \forall j\ \bigl(A x^{(j)} = O_n\bigr) \ \wedge\ x^{(1)}, \dots, x^{(k)} \text{ --- ЛНЗ}.
+\]
+\end{opr}
+
+\zam ФСР не единственная: если $x_0$ --- решение, то и $\alpha x_0$ --- решение, поэтому ФСР бесконечно много.
+Но если у двух однородных СЛАУ одна и та же ФСР, то эти СЛАУ равносильны.
+
+\podr{Структура общего решения}
+
+\begin{teo}[3]
+Если $X$ --- фундаментальная матрица системы (2) (размер $m \times k$, $k = m - r$) и $C = (c_1, \dots, c_k)^T$ ---
+вектор произвольных постоянных, то любое решение (2) имеет вид
+\[
+  x_0 = X \cdot C = c_1 x^{(1)} + c_2 x^{(2)} + \dots + c_k x^{(k)}. \tag{3}
+\]
+Это \textbf{общее решение} однородной системы: линейная комбинация столбцов $X$ с произвольными коэффициентами.
+\end{teo}
+
+\begin{dok}
+ФМ составлена из решений $\Rightarrow$ $AX = O_{n \times k}$. Умножим справа на $C$: $A(XC) = O_{n \times k} C = O_n$
+$\Rightarrow$ $XC$ --- решение (2) при любом $C$. С другой стороны, если взять любое решение (2) и приравнять его к $XC$,
+то $C$ находится однозначно (столбцы $X$ ЛНЗ). Значит, формулой (3) описываются \emph{все} решения.
+\end{dok}
+
+\podr{Как найти ФСР на практике}
+
+\begin{enumerate}[leftmargin=*]
+  \item Методом Гаусса находим $r = \rang A$; число решений в ФСР $k = m - r$.
+  \item Выбираем $k$ свободных переменных, остальные выражаем через них.
+  \item Свободным переменным даём значения $c_1, \dots, c_k$ и записываем решение в векторной форме $x = XC$:
+        столбцы при $c_1, \dots, c_k$ --- это ФСР.
+\end{enumerate}
+
+\podr{Пример из лекции}
+
+Найдём общее решение системы
+\[
+  \begin{cases}
+    2x_1 - x_2 + 3x_3 + 4x_4 - x_5 = 0, \\
+    x_1 + 5x_2 - x_3 - x_4 - x_5 = 0, \\
+    x_1 - 6x_2 + 4x_3 + 5x_4 = 0.
+  \end{cases}
+\]
+1. Прямой ход:
+\[
+  \bar A = \left(\begin{array}{rrrrr|r} 2 & -1 & 3 & 4 & -1 & 0 \\ 1 & 5 & -1 & -1 & -1 & 0 \\ 1 & -6 & 4 & 5 & 0 & 0 \end{array}\right)
+  \sim \left(\begin{array}{rrrrr|r} 2 & -1 & 3 & 4 & -1 & 0 \\ 1 & -6 & 4 & 5 & 0 & 0 \end{array}\right)
+\]
+(строка 2 равна разности строк 1 и 3 --- её вычёркиваем). $\rang A = 2 = r < 5 = m$.
+
+2. ФСР содержит $5 - 2 = 3$ решения, ФМ --- матрица $5 \times 3$.
+
+3. Обратный ход: $x_1 = c_1$, $x_2 = c_2$, $x_3 = c_3$ --- свободные. Из второго уравнения
+$5x_4 = -c_1 + 6c_2 - 4c_3$, из первого $x_5 = 2c_1 - c_2 + 3c_3 + 4x_4$:
+\[
+  x_4 = \tfrac15(-c_1 + 6c_2 - 4c_3), \qquad x_5 = \tfrac15(6c_1 + 19c_2 - c_3).
+\]
+Векторная форма:
+\[
+  x = \begin{pmatrix} x_1 \\ x_2 \\ x_3 \\ x_4 \\ x_5 \end{pmatrix}
+  = \underbrace{\begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ -\frac15 & \frac65 & -\frac45 \\[2pt] \frac65 & \frac{19}5 & -\frac15 \end{pmatrix}}_{X\ =\ \text{ФМ}}
+  \begin{pmatrix} c_1 \\ c_2 \\ c_3 \end{pmatrix}.
+\]
+{\small\textcolor{zamc}{(В конспекте исправлены две описки рукописи: в первом уравнении $+3x_3$ вместо $-3x_3$
+и размер ФМ $5 \times 3$ вместо $2 \times 3$.)}}
+
+\prim Проверим первый столбец ФМ $x^{(1)} = (1, 0, 0, -\frac15, \frac65)^T$ в первом уравнении:
+$2 - 0 + 0 - \frac45 - \frac65 = 2 - 2 = 0$. \checkmark
+
+% ======================= ВОПРОС 15 =======================
+\vopros{15}{Свойство решения и структура общего решения неоднородной СЛАУ. Примеры}
+
+\plan{\item неоднородная система $Ax = b$ и соответствующая однородная $Ax = O_n$;
+\item теорема 1: решение однородной + решение неоднородной = решение неоднородной;
+\item замечание: так устроено решение любого линейного уравнения;
+\item теорема 4: общее решение $x = XC + \tilde x$;
+\item примеры.}
+
+\podr{Неоднородная система}
+
+\[
+  Ax = b, \quad A \text{ --- } n \times m, \ b \in \R^n, \ x \in \R^m \tag{1}
+\]
+--- \textbf{неоднородная} СЛАУ ($b \ne O_n$). Соответствующая однородная: $Ax = O_n$ (2).
+
+\podr{Свойство решения}
+
+\begin{teo}[1]
+Если $x_0$ --- решение однородной системы (2), а $\tilde x$ --- решение неоднородной системы (1),
+то $x_0 + \tilde x$ --- решение (1).
+\kv
+\[
+  A x_0 = O_n \ \wedge\ A \tilde x = b \ \Longrightarrow\ A(x_0 + \tilde x) = b.
+\]
+\end{teo}
+
+\begin{dok}
+$A \tilde x = b$, \ $A x_0 = O_n$. Сложим: $A x_0 + A \tilde x = b + O_n$; по дистрибутивности $A(x_0 + \tilde x) = b$
+$\Rightarrow$ $x_0 + \tilde x$ --- решение (1).
+\end{dok}
+
+\zam (из лекции) Решение любого линейного уравнения или системы (алгебраического, дифференциального и т.\,д.) ---
+это сумма: \emph{общее решение однородного уравнения} $+$ \emph{какое-нибудь (частное) решение неоднородного}.
+
+\podr{Структура общего решения}
+
+\begin{teo}[4]
+Любое решение (общее решение) неоднородной системы (1) имеет вид
+\[
+  x = XC + \tilde x, \tag{4}
+\]
+где $X$ --- фундаментальная матрица соответствующей однородной системы, $C$ --- вектор произвольных постоянных,
+$\tilde x$ --- какое-нибудь (частное) решение (1). Если $\rang A = m$, то $X$ нулевая ($k = 0$) и решение единственное: $x = \tilde x$.
+\end{teo}
+
+Это следует из теоремы 1 и теоремы 3 (вопрос 14): все решения (2) --- это $XC$, и к каждому из них прибавляется частное решение $\tilde x$.
+
+\podr{Как найти общее решение}
+
+\begin{enumerate}[leftmargin=*]
+  \item Методом Гаусса проверяем совместность ($\rang A = \rang \bar A$).
+  \item Выражаем базисные переменные через свободные.
+  \item Частное решение $\tilde x$: все свободные переменные $= 0$.
+  \item ФСР однородной системы: те же выражения, но без свободных членов.
+  \item Записываем $x = XC + \tilde x$.
+\end{enumerate}
+
+\podr{Примеры}
+
+\prim (из лекции) $\begin{cases} x_1 + x_2 + x_3 = 1, \\ x_2 - x_3 = 2. \end{cases}$ \
+Решение: $x_1 = -1 - 2x_3$, $x_2 = 2 + x_3$, \ $x_3 = c$ --- свободная. В векторной форме:
+\[
+  x = \begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix} = \begin{pmatrix} -1 - 2c \\ 2 + c \\ c \end{pmatrix}
+  = \underbrace{c \begin{pmatrix} -2 \\ 1 \\ 1 \end{pmatrix}}_{XC \text{ --- решение однородной}}
+  + \underbrace{\begin{pmatrix} -1 \\ 2 \\ 0 \end{pmatrix}}_{\tilde x \text{ --- частное}}.
+\]
+Проверка: $(-2, 1, 1)^T$ в однородной системе: $-2 + 1 + 1 = 0$, \ $1 - 1 = 0$ \checkmark;
+$(-1, 2, 0)^T$ в исходной: $-1 + 2 + 0 = 1$, \ $2 - 0 = 2$. \checkmark
+
+\prim Система из вопроса 13: после метода Гаусса
+$\begin{cases} x_1 + x_2 + x_3 = 1, \\ -x_2 + x_3 = 2. \end{cases}$
+Пусть $x_3 = c$: \ $x_2 = c - 2$, \ $x_1 = 1 - x_2 - x_3 = 3 - 2c$.
+\[
+  x = c \begin{pmatrix} -2 \\ 1 \\ 1 \end{pmatrix} + \begin{pmatrix} 3 \\ -2 \\ 0 \end{pmatrix}.
+\]
+Проверка частного решения $(3, -2, 0)^T$ во всех трёх исходных уравнениях: $3 - 2 = 1$, \ $6 - 2 = 4$, \ $9 - 4 = 5$. \checkmark
+
+% ======================= ВОПРОС 16 =======================
+\vopros{16}{Собственные значения и собственные векторы матрицы. Корни многочлена. Примеры}
+
+\plan{\item определение: $Ax = \lambda x$, $x \ne O_n$; спектр;
+\item переход к однородной системе $(A - \lambda E)x = O_n$; характеристическое уравнение;
+\item почему $\det(A - \lambda E)$ --- многочлен степени $n$;
+\item корни многочлена: вещественные и комплексно-сопряжённые, кратность; $n$ корней;
+\item алгоритм и примеры.}
+
+\podr{Определение}
+
+Пусть $A$ --- матрица $n \times n$. При умножении $A$ на вектор получается новый вектор того же размера.
+Особый случай --- получился вектор, \emph{пропорциональный} исходному:
+\[
+  Ax = \lambda x. \tag{1}
+\]
+
+\begin{opr}[собственное значение и собственный вектор]
+Если выполнено (1) при $x \ne O_n$, то число $\lambda$ --- \textbf{собственное значение} матрицы $A$,
+а $x$ --- соответствующий $\lambda$ \textbf{собственный вектор}. Набор всех собственных значений --- \textbf{спектр} $A$.
+\kv
+\[
+  \lambda \text{ --- собственное значение } A \Leftrightarrow \exists x \ne O_n\ (Ax = \lambda x).
+\]
+\end{opr}
+
+\textbf{Задача:} найти спектр матрицы и соответствующие собственные векторы.
+
+\podr{Характеристическое уравнение}
+
+(1) $\Leftrightarrow$ $Ax - \lambda x = O_n$; \ $\lambda x = \lambda E x$; по дистрибутивности
+\[
+  (A - \lambda E)\, x = O_n. \tag{1$'$}
+\]
+Это однородная СЛАУ. Она имеет ненулевое решение $x \ne O_n$ $\Leftrightarrow$ её матрица вырожденная
+(иначе решение только нулевое, вопрос 14):
+\[
+  \det(A - \lambda E) = 0. \tag{2}
+\]
+
+\begin{opr}[характеристический многочлен, характеристическое уравнение]
+$P_n(\lambda) = \det(A - \lambda E)$ --- \textbf{характеристический многочлен} матрицы $A$;
+уравнение (2) --- \textbf{характеристическое уравнение} (ХУ). Собственные значения --- корни ХУ.
+\end{opr}
+
+\textbf{Почему многочлен?}
+\[
+  \det(A - \lambda E) = \begin{vmatrix} a_{11} - \lambda & a_{12} & \dots & a_{1n} \\ a_{21} & a_{22} - \lambda & \dots & a_{2n} \\
+  \vdots & & \ddots & \vdots \\ a_{n1} & a_{n2} & \dots & a_{nn} - \lambda \end{vmatrix}
+\]
+--- это сумма (со знаками) произведений элементов, взятых по одному из каждой строки и столбца, т.\,е. сумма степеней $\lambda$ ---
+многочлен степени $n$ (старшая степень $(-\lambda)^n$ получается из произведения диагональных элементов).
+
+\podr{Алгоритм}
+
+\begin{enumerate}[leftmargin=*]
+  \item Решить ХУ $\det(A - \lambda E) = 0$ --- найти все собственные значения.
+  \item Каждое $\lambda_i$ подставить в (1$'$) и решить однородную систему методом Гаусса.
+        Собственных векторов для $\lambda_i$ бесконечно много (если $x$ --- собственный, то и $\alpha x$, $\alpha \ne 0$),
+        поэтому выбираем \emph{какой-нибудь} ненулевой.
+\end{enumerate}
+
+\podr{Корни многочлена}
+
+Многочлен $P_n(\lambda)$ в общем случае раскладывается на множители двух видов:
+\begin{itemize}[leftmargin=*]
+  \item $(\lambda - a)^k$ --- вещественный корень $\lambda = a$ \textbf{кратности} $k$ (в спектре учитывается $k$ раз);
+  \item $(\lambda^2 + p\lambda + q)^s$, \ $p^2 - 4q < 0$ --- пара \textbf{комплексно-сопряжённых} корней
+        $\lambda = -\frac p2 \pm i\sqrt{-\frac D4}$, каждый кратности $s$ (даёт $2s$ чисел спектра).
+\end{itemize}
+
+\begin{teo}[о числе корней]
+Многочлен степени $n$ имеет ровно $n$ корней с учётом кратностей и с учётом комплексных корней.
+\end{teo}
+
+{\small\textcolor{zamc}{В лекции это сформулировано как вывод; в курсе алгебры это \emph{основная теорема алгебры}
+(её доказательства в лекции нет).}}
+
+\prim (из лекции) $\lambda^3 + 8 = 0 \Leftrightarrow (\lambda + 2)(\lambda^2 - 2\lambda + 4) = 0$ $\Rightarrow$
+$\lambda_1 = -2$, \ $\lambda_{2,3} = \dfrac{2 \pm \sqrt{-12}}{2} = 1 \pm i\sqrt3$. Всего 3 корня --- столько, какова степень.
+
+\podr{Примеры из лекции}
+
+\prim $A = \begin{pmatrix} -1 & -6 \\ 2 & 6 \end{pmatrix}$.
+
+1) ХУ: $\begin{vmatrix} -1 - \lambda & -6 \\ 2 & 6 - \lambda \end{vmatrix} = 0 \Leftrightarrow (-1 - \lambda)(6 - \lambda) + 12 = 0
+\Leftrightarrow \lambda^2 - 5\lambda + 6 = 0$; \ $\lambda_1 = 2$, $\lambda_2 = 3$ --- спектр.
+
+2) $\lambda_1 = 2$: \ $\begin{pmatrix} -3 & -6 \\ 2 & 4 \end{pmatrix}\begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}$
+(строку 1 умножим на $\frac23$ и прибавим к строке 2 --- она обнулится) $\Rightarrow$ $-3x_1 - 6x_2 = 0$ $\Rightarrow$ $x_1 = -2x_2$.
+Выберем $x^{(1)} = (-2, 1)^T$.
+
+$\lambda_2 = 3$: \ $\begin{pmatrix} -4 & -6 \\ 2 & 3 \end{pmatrix} x = O_2 \Rightarrow 2x_1 + 3x_2 = 0$ $\Rightarrow$ $x^{(2)} = (3, -2)^T$.
+
+Проверка: $A x^{(1)} = \begin{pmatrix} 2 - 6 \\ -4 + 6 \end{pmatrix} = \begin{pmatrix} -4 \\ 2 \end{pmatrix} = 2 x^{(1)}$. \checkmark
+
+\zam Собственные векторы, соответствующие \emph{различным} собственным значениям, ЛНЗ. Здесь:
+$\alpha_1 x^{(1)} + \alpha_2 x^{(2)} = O_2 \Leftrightarrow \begin{pmatrix} -2 & 3 \\ 1 & -2 \end{pmatrix}\begin{pmatrix} \alpha_1 \\ \alpha_2 \end{pmatrix} = O_2$,
+$\det = 1 \ne 0$ $\Rightarrow$ $\alpha_1 = \alpha_2 = 0$.
+
+\prim (комплексный спектр) $A = \begin{pmatrix} 2 & -1 \\ 1 & 2 \end{pmatrix}$. \
+ХУ: $(2 - \lambda)^2 + 1 = 0 \Leftrightarrow (\lambda - 2)^2 = -1$ --- в вещественных числах корней нет.
+Вводим мнимую единицу $i^2 = -1$ (вопрос 18): $\lambda_{1,2} = 2 \pm i$.
+
+$\lambda_1 = 2 - i$: \ $\begin{pmatrix} i & -1 \\ 1 & i \end{pmatrix} x = O_2 \gauss{\text{II} + i\,\text{I}} \begin{pmatrix} i & -1 \\ 0 & 0 \end{pmatrix} x = O_2$
+$\Leftrightarrow ix_1 - x_2 = 0 \Leftrightarrow x_2 = ix_1$ $\Rightarrow$ $x^{(1)} = (1, i)^T$.
+
+$\lambda_2 = 2 + i$: \ $-ix_1 - x_2 = 0$ $\Rightarrow$ $x^{(2)} = (1, -i)^T$.
+
+\zam $\lambda_1 \lambda_2 = (2 - i)(2 + i) = 4 + 1 = 5 = \det A$. Вообще: \textbf{определитель матрицы равен произведению всех её
+собственных значений} (кратные учитываются несколько раз).
+
+\prim (кратный корень) $A = \begin{pmatrix} 5 & 1 \\ 0 & 5 \end{pmatrix}$: \ ХУ $(\lambda - 5)^2 = 0$, \ $\lambda_{1,2} = 5$ кратности 2.
+$\begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix} x = O_2 \Leftrightarrow x_2 = 0$, $x_1$ --- любое $\Rightarrow$ $x^{(1)} = (1, 0)^T$.
+Второго ЛНЗ собственного вектора нет --- при кратных собственных значениях ЛНЗ векторов может не хватить.
+
+\zam У треугольной (и диагональной) матрицы собственные значения --- её диагональные элементы
+($\det(A - \lambda E) = \prod(a_{ii} - \lambda)$, вопрос 4).
+
+% ======================= ВОПРОС 17 =======================
+\vopros{17}{Собственные значения и собственные векторы симметрической матрицы. Ортогональная матрица. Преобразование симметрической матрицы к диагональной форме. Примеры}
+
+\plan{\item симметрическая матрица; свойства её спектра (вещественность, ортогональность собственных векторов);
+\item нормировка вектора;
+\item ортогональная матрица: $U^T = U^{-1}$, $\det U = \pm 1$;
+\item диагонализация: $U^T A U = \diag(\lambda_1, \dots, \lambda_n)$;
+\item пример из лекции.}
+
+\podr{Симметрическая матрица}
+
+\begin{opr}[симметрическая матрица]
+Квадратная матрица $A$ называется \textbf{симметрической}, если она равна своей транспонированной
+(элементы симметричны относительно главной диагонали).
+\kv
+\[
+  A^T = A \Leftrightarrow \forall i, j\ (a_{ij} = a_{ji}).
+\]
+\end{opr}
+
+\begin{teo}[спектр симметрической матрицы]
+Если $A^T = A$, то
+\begin{enumerate}[nosep]
+  \item все её собственные значения \textbf{вещественны};
+  \item собственные векторы, соответствующие различным собственным значениям, \textbf{попарно ортогональны}:
+        их скалярные произведения равны нулю.
+\end{enumerate}
+\end{teo}
+
+\podr{Нормировка вектора}
+
+\begin{opr}[нормировка]
+\textbf{Нормировка} вектора $x$ --- его умножение на число, обратное длине. Получается вектор длины 1.
+\fm
+\[
+  e = \frac{1}{|x|}\, x, \qquad |x| = \sqrt{\textstyle\sum_{i=1}^{n} x_i^2}.
+\]
+\end{opr}
+
+\prim $x = (1, 1, 0)^T$: \ $|x| = \sqrt2$, \ $e = \bigl(\frac{\sqrt2}{2}, \frac{\sqrt2}{2}, 0\bigr)^T$.
+
+\podr{Ортогональная матрица}
+
+\begin{opr}[ортогональная матрица]
+Квадратная матрица $U$ называется \textbf{ортогональной}, если её транспонированная равна обратной.
+Тогда её столбцы --- попарно ортогональные векторы длины 1.
+\kv
+\[
+  U \text{ --- ортогональная} \Leftrightarrow U^T U = E \Leftrightarrow U^T = U^{-1}.
+\]
+\end{opr}
+
+\begin{teo}[определитель ортогональной матрицы]
+Если $U$ ортогональная, то $\det U = \pm 1$.
+\end{teo}
+
+\begin{dok}
+$\det(U^T U) = \det U^T \cdot \det U = (\det U)^2 = \det E = 1$ $\Rightarrow$ $\det U = \pm 1$.
+\end{dok}
+
+{\small\textcolor{zamc}{(В рукописи было $\det U = 1$ --- в конспекте исправлено на $\pm 1$; в примере ниже $\det U = -1$.)}}
+
+\podr{Преобразование симметрической матрицы к диагональной форме}
+
+\begin{teo}[диагонализация симметрической матрицы]
+Если $A$ --- симметрическая матрица, а $U$ --- матрица, столбцы которой --- \textbf{нормированные} собственные векторы $A$, то
+$U$ ортогональная и
+\[
+  U^T A U = \begin{pmatrix} \lambda_1 & & 0 \\ & \ddots & \\ 0 & & \lambda_n \end{pmatrix}
+\]
+--- диагональная матрица, на диагонали стоят собственные значения $A$ (в том же порядке, что и векторы в $U$).
+Переход $A \to U^T A U$ --- \textbf{ортогональное преобразование} $A$.
+\end{teo}
+
+\podr{Алгоритм}
+
+\begin{enumerate}[leftmargin=*]
+  \item Найти собственные значения (корни ХУ) --- они вещественны.
+  \item Найти собственные векторы --- они попарно ортогональны.
+  \item Нормировать их и записать столбцами в $U$.
+  \item $U^T A U = \diag(\lambda_1, \dots, \lambda_n)$.
+\end{enumerate}
+
+\podr{Пример из лекции}
+
+$A = \begin{pmatrix} 0 & 2 & 0 \\ 2 & 0 & 0 \\ 0 & 0 & 3 \end{pmatrix}$ --- симметрическая.
+
+1) ХУ (раскладываем по строке 3):
+$\begin{vmatrix} -\lambda & 2 & 0 \\ 2 & -\lambda & 0 \\ 0 & 0 & 3 - \lambda \end{vmatrix} = (3 - \lambda)(\lambda^2 - 4) = 0$
+$\Rightarrow$ $\lambda_1 = 3$, $\lambda_2 = -2$, $\lambda_3 = 2$ (вещественные, т.\,к. $A^T = A$).
+
+2) Собственные векторы.
+
+$\lambda_1 = 3$: \ $\begin{pmatrix} -3 & 2 & 0 \\ 2 & -3 & 0 \\ 0 & 0 & 0 \end{pmatrix} x = O_3
+\gauss{\text{II} + \frac23\,\text{I}} \begin{cases} -3x_1 + 2x_2 = 0, \\ -\frac53 x_2 = 0 \end{cases}$
+$\Rightarrow$ $x_1 = x_2 = 0$, $x_3$ любое: $x^{(1)} = (0, 0, 1)^T$.
+
+$\lambda_2 = -2$: \ $\begin{pmatrix} 2 & 2 & 0 \\ 2 & 2 & 0 \\ 0 & 0 & 5 \end{pmatrix} x = O_3
+\gauss{\text{II} - \text{I}} \begin{cases} x_1 + x_2 = 0, \\ x_3 = 0 \end{cases}$ $\Rightarrow$ $x^{(2)} = (-1, 1, 0)^T$.
+
+$\lambda_3 = 2$: \ $\begin{pmatrix} -2 & 2 & 0 \\ 2 & -2 & 0 \\ 0 & 0 & 1 \end{pmatrix} x = O_3$ $\Rightarrow$ $x_1 = x_2$, $x_3 = 0$:
+$x^{(3)} = (1, 1, 0)^T$.
+
+Векторы попарно ортогональны: $(x^{(1)})^T x^{(2)} = (x^{(1)})^T x^{(3)} = 0$, \ $(x^{(2)})^T x^{(3)} = -1 + 1 + 0 = 0$. \checkmark
+
+3) Нормируем и составляем $U$:
+\[
+  e^{(1)} = \begin{pmatrix} 0 \\ 0 \\ 1 \end{pmatrix}, \quad
+  e^{(2)} = \begin{pmatrix} -\frac{\sqrt2}{2} \\[2pt] \frac{\sqrt2}{2} \\[2pt] 0 \end{pmatrix}, \quad
+  e^{(3)} = \begin{pmatrix} \frac{\sqrt2}{2} \\[2pt] \frac{\sqrt2}{2} \\[2pt] 0 \end{pmatrix}
+  \ \Rightarrow\
+  U = \begin{pmatrix} 0 & -\frac{\sqrt2}{2} & \frac{\sqrt2}{2} \\[2pt] 0 & \frac{\sqrt2}{2} & \frac{\sqrt2}{2} \\[2pt] 1 & 0 & 0 \end{pmatrix}.
+\]
+$U$ ортогональная: $U^T U = E$, \ $\det U = -1$.
+
+4) Диагональная форма:
+\[
+  U^T A U =
+  \begin{pmatrix} 0 & 0 & 1 \\[2pt] -\frac{\sqrt2}{2} & \frac{\sqrt2}{2} & 0 \\[2pt] \frac{\sqrt2}{2} & \frac{\sqrt2}{2} & 0 \end{pmatrix}
+  \begin{pmatrix} 0 & 2 & 0 \\ 2 & 0 & 0 \\ 0 & 0 & 3 \end{pmatrix}
+  \begin{pmatrix} 0 & -\frac{\sqrt2}{2} & \frac{\sqrt2}{2} \\[2pt] 0 & \frac{\sqrt2}{2} & \frac{\sqrt2}{2} \\[2pt] 1 & 0 & 0 \end{pmatrix}
+  = \begin{pmatrix} 3 & 0 & 0 \\ 0 & -2 & 0 \\ 0 & 0 & 2 \end{pmatrix}
+\]
+--- на диагонали $\lambda_1, \lambda_2, \lambda_3$, как и по теории. В лекции такая матрица названа
+\textbf{жордановой нормальной формой} (ЖНФ) матрицы $A$.
+
+% ======================= ВОПРОС 18 =======================
+\vopros{18}{Разложение дробно-рационального выражения в сумму простых дробей. Примеры. Комплексное число. Тригонометрическая форма комплексного числа. Круг на комплексной плоскости. Арифметические операции над комплексными числами. Примеры}
+
+{\small\textcolor{zamc}{Разложения дроби на простые дроби в лекциях не было --- эта часть вопроса пропущена.
+Комплексные числа, тригонометрическая форма и круг на комплексной плоскости --- из лекций.}}
+
+\plan{\item мнимая единица и комплексное число; $\Rez z$, $\Imz z$;
+\item операции: умножение на число, сумма, произведение, сопряжённое, частное, модуль;
+\item комплексная плоскость; модуль и аргумент; тригонометрическая форма;
+\item круг (окружность) на комплексной плоскости; примеры.}
+
+\podr{Комплексное число}
+
+Для квадратного уравнения с $D < 0$ (и для ХУ, вопрос 16) вводим мнимую единицу.
+
+\begin{opr}[мнимая единица]
+$i$ --- \textbf{мнимая единица} --- символ, для которого $i^2 = -1$ (обычно пишут $i = \sqrt{-1}$).
+\end{opr}
+
+Тогда при $D < 0$:
+$x_{1,2} = \dfrac{-b \pm \sqrt{(-1)(-D)}}{2a} = -\dfrac{b}{2a} \pm i \dfrac{\sqrt{-D}}{2a}$ --- два корня (возможно, равных) всегда есть.
+
+\begin{opr}[комплексное число]
+\textbf{Комплексное число} (КЧ) --- число вида $z = \alpha + i\beta$, где $\alpha, \beta \in \R$.
+$\alpha = \Rez z$ --- \textbf{вещественная (действительная) часть}, $\beta = \Imz z$ --- \textbf{мнимая часть}.
+Это \emph{алгебраическая форма} КЧ.
+\kv
+\[
+  z \in \C \Leftrightarrow \exists\, \alpha, \beta \in \R\ (z = \alpha + i\beta).
+\]
+\end{opr}
+
+\podr{Арифметические операции над КЧ}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Умножение на вещественное число:} $k(\alpha + i\beta) = k\alpha + i k\beta$ --- обе части умножились на $k$.
+  \item \textbf{Сумма (разность):} $(\alpha + i\beta) \pm (a + ib) = (\alpha \pm a) + i(\beta \pm b)$ --- отдельно вещественные, отдельно мнимые части.
+  \item \textbf{Произведение} (раскрываем скобки, $i^2 = -1$):
+        \[ (\alpha + i\beta)(a + ib) = \alpha a + i\alpha b + i\beta a + i^2 \beta b = (\alpha a - \beta b) + i(\alpha b + \beta a). \]
+  \item \textbf{Частное.} Хотим получить в знаменателе вещественное число. Мнимая часть произведения $(\alpha + i\beta)(a + ib)$
+        равна $\beta a + \alpha b$; она нулевая при $a = \alpha$, $b = -\beta$. Отсюда понятие сопряжённого.
+\end{enumerate}
+
+\begin{opr}[сопряжённое число]
+Для $z = \alpha + i\beta$ число $\bar z = \alpha - i\beta$ называется \textbf{сопряжённым}.
+\end{opr}
+
+Частное: умножаем числитель и знаменатель на число, сопряжённое знаменателю:
+\[
+  \frac{z_1}{z_2} = \frac{z_1\, \bar z_2}{z_2\, \bar z_2}.
+\]
+
+\begin{opr}[модуль КЧ]
+\textbf{Модуль} КЧ $z = \alpha + i\beta$ --- число $|z| = \sqrt{\alpha^2 + \beta^2}$.
+\fm
+\[
+  |z| = \sqrt{\alpha^2 + \beta^2} = \sqrt{z\, \bar z}, \qquad z\, \bar z = \alpha^2 + \beta^2.
+\]
+\end{opr}
+
+\prim (из лекции)
+\[
+  \frac{2 - i}{3 - 2i} = \frac{(2 - i)(3 + 2i)}{(3 - 2i)(3 + 2i)} = \frac{6 + 4i - 3i - 2i^2}{9 - 4i^2} = \frac{8 + i}{13} = \frac{8}{13} + \frac{1}{13}\, i.
+\]
+В знаменателе получилась сумма квадратов $\Rez$ и $\Imz$ знаменателя: $3^2 + 2^2 = 13 = |3 - 2i|^2$.
+
+\prim $z_1 = 1 + 2i$, $z_2 = 3 - i$: \
+$z_1 + z_2 = 4 + i$, \ $z_1 - z_2 = -2 + 3i$, \ $2z_1 = 2 + 4i$, \
+$z_1 z_2 = 3 - i + 6i - 2i^2 = 5 + 5i$, \ $|z_2| = \sqrt{9 + 1} = \sqrt{10}$.
+
+\podr{Комплексная плоскость. Модуль и аргумент}
+
+Каждому $z = x + iy$ взаимно однозначно соответствует точка $(x, y)$ плоскости. Плоскость, на которой изображают КЧ, ---
+\textbf{комплексная плоскость} $\C$: по горизонтали $\Rez z$, по вертикали $\Imz z$.
+
+\begin{center}
+\begin{tikzpicture}[scale=0.9,>=Stealth]
+ \draw[->] (-0.6,0)--(4.2,0) node[below] {$x=\Rez z$};
+ \draw[->] (0,-0.6)--(0,3.0) node[left] {$y=\Imz z$};
+ \coordinate (P) at (3,2);
+ \draw[dashed] (P)--(3,0) node[below] {$x$};
+ \draw[dashed] (P)--(0,2) node[left] {$y$};
+ \draw[->,thick,blue] (0,0)--(P) node[midway,above left] {$r$};
+ \fill (P) circle (1.6pt) node[above right] {$z = x + iy$};
+ \draw[->] (0.8,0) arc (0:33.7:0.8);
+ \node at (1.05,0.3) {$\varphi$};
+\end{tikzpicture}
+\end{center}
+
+\begin{opr}[модуль и аргумент]
+$r = |z| = \sqrt{x^2 + y^2}$ --- \textbf{модуль} $z$: длина радиус-вектора точки $(x, y)$.
+$\varphi$ --- \textbf{аргумент} $z$: угол между положительным направлением оси $\Rez z$ и радиус-вектором,
+$\operatorname{tg}\varphi = \frac yx$ (при $x \ne 0$). \textbf{Главное значение аргумента} $\arg z \in (-\pi; \pi]$:
+\[
+  \arg z = \begin{cases}
+    \operatorname{arctg}\dfrac yx, & x > 0 \ \ \text{(I или IV четверть)}, \\[4pt]
+    \pi + \operatorname{arctg}\dfrac yx, & x < 0,\ y \ge 0 \ \ \text{(II четверть)}, \\[4pt]
+    -\pi + \operatorname{arctg}\dfrac yx, & x < 0,\ y < 0 \ \ \text{(III четверть)}, \\[4pt]
+    \pm\dfrac\pi2, & x = 0,\ y \gtrless 0.
+  \end{cases}
+\]
+\end{opr}
+
+{\small\textcolor{zamc}{(В рукописи во второй строке было $y > 0$ --- в конспекте исправлено на $y \ge 0$, иначе для отрицательных
+вещественных чисел, у которых $\arg z = \pi$, формулы нет.)}}
+
+\podr{Тригонометрическая форма}
+
+Так как $x = r\cos\varphi$, $y = r\sin\varphi$, то
+\begin{opr}[тригонометрическая форма КЧ]
+\[
+  z = r(\cos\varphi + i\sin\varphi), \qquad r = |z|, \ \ \varphi = \arg z.
+\]
+\end{opr}
+
+\prim (из лекции) $z = 1 - i$: \ $|z| = \sqrt2$; \ IV четверть, $\arg z = \operatorname{arctg}(-1) = -\frac\pi4$:
+\ $1 - i = \sqrt2\bigl(\cos(-\frac\pi4) + i\sin(-\frac\pi4)\bigr)$.
+
+\prim (из лекции) $z = -3 - 2i$: \ $|z| = \sqrt{13}$; \ III четверть, $\arg z = -\pi + \operatorname{arctg}\frac23$.
+
+\prim $z = -2$: \ $|z| = 2$, $\arg z = \pi$: \ $-2 = 2(\cos\pi + i\sin\pi)$. \quad
+$z = 3i$: \ $|z| = 3$, $\arg z = \frac\pi2$: \ $3i = 3(\cos\frac\pi2 + i\sin\frac\pi2)$.
+
+\prim Обратно: $2\bigl(\cos\frac{2\pi}{3} + i\sin\frac{2\pi}{3}\bigr) = 2\bigl(-\frac12 + i\frac{\sqrt3}{2}\bigr) = -1 + i\sqrt3$.
+
+\podr{Круг на комплексной плоскости}
+
+Модуль разности $|z - a|$ --- \textbf{расстояние} между точками $z$ и $a$ на комплексной плоскости.
+
+\begin{itemize}[leftmargin=*]
+  \item $|z - a| = R$ --- \textbf{окружность} с центром $a$ и радиусом $R$;
+  \item $|z - a| < R$ --- открытый \textbf{круг} (внутренность окружности), $|z - a| \le R$ --- круг вместе с окружностью;
+  \item $|z - a| > R$ --- внешность окружности.
+\end{itemize}
+
+\zam (из лекции) Для множества, заданного неравенством, главное --- \textbf{граница}; она задаётся соответствующим равенством.
+Граница делит плоскость на части; нужную часть выбираем, как в методе интервалов: проверяем одну точку.
+Неравенство строгое --- граница рисуется пунктиром.
+
+\begin{minipage}[c]{0.56\linewidth}
+\prim (из лекции) $|z - a| > R$. Граница $|z - a| = R$ --- окружность с центром $a$ и радиусом $R$. Проверим точку $a$ (внутри):
+$|a - a| = 0 > R$ --- неверно $\Rightarrow$ внутренняя часть не подходит, подходит \textbf{внешняя} часть.
+Окружность пунктиром (неравенство строгое).
+
+\medskip
+\prim $|z - (1 + i)| \le 2$ --- круг с центром в точке $(1, 1)$ и радиусом $2$ вместе с границей.
+Например, $z = 0$: $|{-1} - i| = \sqrt2 \le 2$ --- точка $0$ лежит в круге.
+\end{minipage}\hfill
+\begin{minipage}[c]{0.4\linewidth}
+\centering
+\begin{tikzpicture}[scale=0.8,>=Stealth]
+ \begin{scope}
+  \clip (-1.2,-1.4) rectangle (4.2,3.2);
+  \fill[pattern=north east lines,pattern color=blue!60,even odd rule]
+    (-1.2,-1.4) rectangle (4.2,3.2) (1.8,1.3) circle (1.1);
+ \end{scope}
+ \draw[->] (-1.2,0)--(4.3,0) node[below] {\small$x$};
+ \draw[->] (0,-1.4)--(0,3.3) node[left] {\small$y$};
+ \draw[dashed,thick] (1.8,1.3) circle (1.1);
+ \fill (1.8,1.3) circle (1.6pt) node[above] {\small$a$};
+ \draw[<->] (1.8,1.3)--++(-140:1.1) node[midway,above left=-2pt] {\small$R$};
+\end{tikzpicture}
+\end{minipage}
+
+% ======================= ВОПРОС 19 =======================
+\vopros{19}{Формула Эйлера. Показательная форма комплексного числа. Произведение и частное комплексных чисел. Степень комплексного числа. Примеры}
+
+\plan{\item проблема: как извлечь корень $\sqrt[n]{z}$;
+\item формула Эйлера $e^{i\varphi} = \cos\varphi + i\sin\varphi$;
+\item показательная форма $z = re^{i\varphi}$;
+\item произведение и частное: модули и аргументы;
+\item степень (формула Муавра) и корень $n$-й степени; примеры.}
+
+\podr{Зачем нужна ещё одна форма}
+
+В алгебраической форме удобно складывать, умножать и делить, но неясно, как извлечь корень $\sqrt[n]{z}$.
+Например, у $x^3 + 1 = 0$ вещественный корень один ($x = -1$), а по теореме о числе корней (вопрос 16) их должно быть три.
+\textbf{Идея:} переформулировать --- найти другую форму записи КЧ.
+
+\podr{Формула Эйлера и показательная форма}
+
+\begin{teo}[формула Эйлера]
+\[
+  e^{i\varphi} = \cos\varphi + i\sin\varphi.
+\]
+\end{teo}
+
+{\small\textcolor{zamc}{В лекции формула Эйлера принята без доказательства.}}
+
+\begin{opr}[показательная форма КЧ]
+Подставляя формулу Эйлера в тригонометрическую форму $z = r(\cos\varphi + i\sin\varphi)$, получаем
+\textbf{показательную форму}:
+\[
+  z = r\, e^{i\varphi}, \qquad r = |z|, \ \ \varphi = \arg z.
+\]
+\end{opr}
+
+\zam Сопряжённое число: $\bar z = r e^{-i\varphi}$. Частные значения: $e^{i\pi} = -1$, \ $e^{i\pi/2} = i$, \ $e^{2\pi i} = 1$.
+
+\podr{Произведение и частное}
+
+С показательными функциями действуют обычные правила: $e^a e^b = e^{a+b}$, \ $e^a / e^b = e^{a-b}$. Поэтому:
+
+\begin{teo}[произведение и частное КЧ]
+Для $z_1 = r_1 e^{i\varphi_1}$, $z_2 = r_2 e^{i\varphi_2}$
+\[
+  z_1 z_2 = r_1 r_2\, e^{i(\varphi_1 + \varphi_2)}, \qquad \frac{z_1}{z_2} = \frac{r_1}{r_2}\, e^{i(\varphi_1 - \varphi_2)}.
+\]
+При умножении модули перемножаются, аргументы складываются; при делении модули делятся, аргументы вычитаются.
+\end{teo}
+
+{\small\textcolor{zamc}{(В рукописи про аргумент частного было написано <<частному модулей>> --- в конспекте исправлено: разности аргументов.)}}
+
+\prim $z_1 = 2e^{i\pi/3}$, $z_2 = 3e^{i\pi/6}$: \
+$z_1 z_2 = 6 e^{i\pi/2} = 6i$; \
+$\dfrac{z_1}{z_2} = \dfrac23 e^{i\pi/6} = \dfrac23\Bigl(\dfrac{\sqrt3}{2} + \dfrac i2\Bigr) = \dfrac{\sqrt3}{3} + \dfrac13 i$.
+
+\podr{Степень комплексного числа. Формула Муавра}
+
+\begin{teo}[формула Муавра]
+\[
+  z^n = r^n e^{in\varphi} = r^n(\cos n\varphi + i\sin n\varphi).
+\]
+\end{teo}
+
+\begin{dok}
+$z^n = (re^{i\varphi})^n = r^n e^{in\varphi}$ (это $n$-кратное применение правила умножения), и по формуле Эйлера
+$e^{in\varphi} = \cos n\varphi + i\sin n\varphi$.
+\end{dok}
+
+\prim (из лекции) $(1 - i\sqrt3)^{90}$. Бином Ньютона дал бы 91 слагаемое --- неудобно. Применим формулу Муавра:
+$r = |1 - i\sqrt3| = \sqrt{1 + 3} = 2$; \ IV четверть, $\arg = \operatorname{arctg}(-\sqrt3) = -\frac\pi3$:
+\[
+  (1 - i\sqrt3)^{90} = 2^{90}\Bigl(\cos\bigl(90 \cdot (-\tfrac\pi3)\bigr) + i\sin\bigl(90 \cdot (-\tfrac\pi3)\bigr)\Bigr)
+  = 2^{90}\bigl(\cos(-30\pi) + i\sin(-30\pi)\bigr) = 2^{90}.
+\]
+
+\prim $(1 + i)^8$: \ $r = \sqrt2$, $\varphi = \frac\pi4$ $\Rightarrow$ $(1 + i)^8 = (\sqrt2)^8 e^{i \cdot 8\pi/4} = 16 e^{2\pi i} = 16$.
+
+\podr{Корень $n$-й степени}
+
+Из $z = re^{i\varphi}$ хочется написать $\sqrt[n]z = \sqrt[n]r\, e^{i\varphi/n}$, но аргумент определён с точностью до $2\pi k$,
+и это даёт $n$ разных значений корня:
+\[
+  \sqrt[n]{z} = \sqrt[n]{r}\left(\cos\frac{\arg z + 2\pi k}{n} + i\sin\frac{\arg z + 2\pi k}{n}\right), \qquad k = 0, 1, \dots, n - 1.
+\]
+Геометрически все значения $\sqrt[n]{z}$ --- вершины правильного $n$-угольника, вписанного в окружность с центром $0$ и радиусом $\sqrt[n]{r}$.
+
+\prim (из лекции) $z^4 + 1 = 0 \Leftrightarrow z = \sqrt[4]{-1}$; \ $|-1| = 1$, $\arg(-1) = \pi$ (в лекции взято $-\pi$ --- тоже аргумент $-1$,
+набор корней тот же):
+\[
+  z_k = \cos\frac{-\pi + 2\pi k}{4} + i\sin\frac{-\pi + 2\pi k}{4}, \ k = 0, 1, 2, 3:
+  \quad z_{0,1} = \frac{\sqrt2}{2} \mp i\frac{\sqrt2}{2}, \quad z_{2,3} = -\frac{\sqrt2}{2} \pm i\frac{\sqrt2}{2}
+\]
+--- вершины квадрата, вписанного в единичную окружность.
+
+\prim $x^3 + 1 = 0$: \ $\sqrt[3]{-1}$, $r = 1$, $\arg = \pi$: \ $x_k = \cos\frac{\pi + 2\pi k}{3} + i\sin\frac{\pi + 2\pi k}{3}$:
+\[
+  x_0 = \frac12 + i\frac{\sqrt3}{2}, \qquad x_1 = \cos\pi + i\sin\pi = -1, \qquad x_2 = \frac12 - i\frac{\sqrt3}{2}
+\]
+--- три корня, как и должно быть (вершины правильного треугольника).
+
+% ======================= ШПАРГАЛКА =======================
+\razdel{Сводная таблица: определения и формулы}
+
+Закрой правый столбец и проговаривай определение по названию, потом проверяй.
+
+\small
+\renewcommand{\arraystretch}{1.45}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{4.4cm}|>{\raggedright\arraybackslash}p{11.7cm}|}
+\hline
+\textbf{Понятие} & \textbf{Определение / формула} \\ \hline
+\endfirsthead
+\hline
+\textbf{Понятие} & \textbf{Определение / формула} \\ \hline
+\endhead
+\hline
+\endfoot
+\multicolumn{2}{|l|}{\textbf{Матрицы (вопросы 1, 2)}} \\ \hline
+верхняя треугольная & $\forall i, j\ (i > j \to a_{ij} = 0)$ \\ \hline
+диагональная & $\forall i, j\ (i \ne j \to a_{ij} = 0)$ \\ \hline
+транспонирование & $a^T_{ij} = a_{ji}$ \\ \hline
+$\alpha A$, \ $A \pm B$ & $(\alpha a_{ij})$, \ $(a_{ij} \pm b_{ij})$ --- размеры $A$ и $B$ одинаковые \\ \hline
+скалярное произведение & $a^T b = \sum a_i b_i$; \ $a^T b = 0 \Leftrightarrow a \perp b$; \ $|a| = \sqrt{a^T a}$ \\ \hline
+произведение матриц & $(n \times k)(k \times m) = n \times m$, \ $c_{ij} = \sum_s a_{is} b_{sj}$ (строка на столбец) \\ \hline
+свойства произведения & $A(BC) = (AB)C$, \ $C(A + B) = CA + CB$, \ $AE = EA = A$, \ $(AB)^T = B^T A^T$, \ $AB \ne BA$ \\ \hline
+\multicolumn{2}{|l|}{\textbf{Определители (вопросы 3--7)}} \\ \hline
+$2 \times 2$ & $a_{11} a_{22} - a_{12} a_{21}$ \\ \hline
+правило треугольников & $a_{11}a_{22}a_{33} + a_{12}a_{23}a_{31} + a_{21}a_{32}a_{13} - a_{13}a_{22}a_{31} - a_{12}a_{21}a_{33} - a_{23}a_{32}a_{11}$ \\ \hline
+минор, алг. дополнение & $M_{ij}$ --- вычеркнуть строку $i$ и столбец $j$; \ $A_{ij} = (-1)^{i+j} M_{ij}$ \\ \hline
+определитель & $\det A = \sum_j a_{ij} A_{ij}$ (по строке $i$) $= \sum_i a_{ij} A_{ij}$ (по столбцу $j$) \\ \hline
+полная формула & $|A| = \sum_\sigma (-1)^{|\sigma|} a_{1\sigma(1)} \cdots a_{n\sigma(n)}$, \ $n!$ слагаемых \\ \hline
+треугольная матрица & $\det A = a_{11} a_{22} \cdots a_{nn}$ \\ \hline
+$\det = 0$, если & нулевая строка; две равные строки; две пропорциональные строки (то же для столбцов) \\ \hline
+свойства & $|A^T| = |A|$; \ $|AB| = |A||B|$; \ строка $\cdot\,\lambda$ $\Rightarrow$ $|A| \cdot \lambda$; \ $|\lambda A| = \lambda^n |A|$; \
+перестановка строк $\Rightarrow$ знак меняется; \ прибавить к строке другую $\cdot\,\lambda$ $\Rightarrow$ не меняется \\ \hline
+\multicolumn{2}{|l|}{\textbf{Обратная матрица (вопросы 8--10)}} \\ \hline
+обратная матрица & $A^{-1} A = A A^{-1} = E$; \ существует $\Leftrightarrow \det A \ne 0$ \\ \hline
+формула & $A^{-1} = \frac{1}{\det A} \tilde A^T$; \ для $2 \times 2$: $\frac{1}{ad - bc}\begin{pmatrix} d & -b \\ -c & a \end{pmatrix}$ \\ \hline
+метод обратной матрицы & $Ax = b$, \ $\det A \ne 0$ \ $\Rightarrow$ \ $x = A^{-1} b$ \\ \hline
+элем. преобразования & строка $\cdot\,\lambda \ne 0$; перестановка строк; к строке прибавить другую $\cdot\,\lambda$ \ = \ умножение слева на $P$
+($P$ --- то же преобразование, сделанное с $E$) \\ \hline
+метод Гаусса для $A^{-1}$ & $(A \,|\, E) \sim (E \,|\, A^{-1})$, т.\,к. $P_k \cdots P_1 A = E$ $\Rightarrow$ $P_k \cdots P_1 = A^{-1}$ \\ \hline
+\multicolumn{2}{|l|}{\textbf{СЛАУ (вопросы 11--15)}} \\ \hline
+расширенная матрица & $\bar A = (A \,|\, b)$ \\ \hline
+метод Гаусса & прямой ход (ступенчатый вид) $\to$ проверка противоречивых строк $(0 \dots 0 \,|\, b' \ne 0)$ $\to$ обратный ход \\ \hline
+совместная СЛАУ & $\exists x\ (Ax = b)$ \\ \hline
+ЛЗ векторы & $\exists\, \alpha_1, \dots, \alpha_m$, не все $0$: \ $\sum \alpha_i a_i = 0$ \\ \hline
+ЛНЗ векторы & $\sum \alpha_i a_i = 0 \to \alpha_1 = \dots = \alpha_m = 0$ \\ \hline
+ранг & число ненулевых строк ступенчатого вида = число ЛНЗ строк \\ \hline
+Кронекер--Капелли & $Ax = b$ совместна $\Leftrightarrow \rang A = \rang \bar A$ \\ \hline
+число решений & $\rang A \ne \rang \bar A$ --- нет; \ $= m$ --- одно; \ $= r < m$ --- бесконечно много, $m - r$ свободных \\ \hline
+ФСР & $k = m - r$ ЛНЗ решений $Ax = O_n$; \ ФМ $X$ --- они по столбцам ($m \times k$) \\ \hline
+общее решение однородной & $x_0 = XC$, \ $C = (c_1, \dots, c_k)^T$ произвольные \\ \hline
+общее решение неоднородной & $x = XC + \tilde x$ ($\tilde x$ --- частное решение) \\ \hline
+\multicolumn{2}{|l|}{\textbf{Собственные значения (вопросы 16, 17)}} \\ \hline
+собств. значение и вектор & $\exists x \ne O_n\ (Ax = \lambda x)$ \\ \hline
+характеристическое уравнение & $\det(A - \lambda E) = 0$ --- многочлен степени $n$, $n$ корней с учётом кратности и комплексных \\ \hline
+свойства спектра & $\det A = \lambda_1 \cdots \lambda_n$; у треугольной --- диагональные элементы; векторы для разных $\lambda$ --- ЛНЗ \\ \hline
+симметрическая & $A^T = A$; \ $\lambda$ вещественные, собственные векторы попарно ортогональны \\ \hline
+нормировка & $e = x / |x|$ \\ \hline
+ортогональная матрица & $U^T U = E$, \ $U^T = U^{-1}$, \ $\det U = \pm 1$ \\ \hline
+диагонализация & $U^T A U = \diag(\lambda_1, \dots, \lambda_n)$, столбцы $U$ --- нормированные собственные векторы \\ \hline
+\multicolumn{2}{|l|}{\textbf{Комплексные числа (вопросы 18, 19)}} \\ \hline
+КЧ & $z = \alpha + i\beta$, \ $i^2 = -1$, \ $\alpha = \Rez z$, $\beta = \Imz z$ \\ \hline
+сопряжённое, модуль & $\bar z = \alpha - i\beta$; \ $|z| = \sqrt{\alpha^2 + \beta^2} = \sqrt{z \bar z}$ \\ \hline
+произведение, частное & $(\alpha a - \beta b) + i(\alpha b + \beta a)$; \ $\frac{z_1}{z_2} = \frac{z_1 \bar z_2}{z_2 \bar z_2}$ \\ \hline
+аргумент & $\arg z \in (-\pi; \pi]$: \ $\operatorname{arctg}\frac yx$ ($x > 0$); \ $\pi + \operatorname{arctg}\frac yx$ ($x < 0$, $y \ge 0$); \ $-\pi + \operatorname{arctg}\frac yx$ ($x < 0$, $y < 0$) \\ \hline
+тригонометрическая форма & $z = r(\cos\varphi + i\sin\varphi)$ \\ \hline
+круг, окружность & $|z - a| < R$ --- круг; \ $|z - a| = R$ --- окружность; \ $|z - a| > R$ --- внешность \\ \hline
+формула Эйлера & $e^{i\varphi} = \cos\varphi + i\sin\varphi$ \\ \hline
+показательная форма & $z = r e^{i\varphi}$ \\ \hline
+произведение, частное & $r_1 r_2 e^{i(\varphi_1 + \varphi_2)}$, \ $\frac{r_1}{r_2} e^{i(\varphi_1 - \varphi_2)}$ \\ \hline
+формула Муавра & $z^n = r^n(\cos n\varphi + i\sin n\varphi)$ \\ \hline
+корень $n$-й степени & $\sqrt[n]{r}\bigl(\cos\frac{\arg z + 2\pi k}{n} + i\sin\frac{\arg z + 2\pi k}{n}\bigr)$, \ $k = 0, \dots, n - 1$ \\ \hline
+\end{longtable}
+\normalsize
+
+\end{document}
