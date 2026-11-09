@@ -2495,4 +2495,257 @@ $\varphi=\widehat{(\vec q_1,\vec q_2)}$.
 \subsection{Уравнение прямой на плоскости}
 (Частный случай уравнения прямой в пространстве.)
 
+
+\lead{1. Каноническое уравнение и его следствия.}
+Допустим, на плоскости задана прямая $l$: $M_0(x_0,y_0)\in l$ и $\vec q=(q_1,q_2)\parallel l$~---
+\emph{направляющий вектор}.
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+ \draw (-0.3,-0.15)--(4,1.3) node[right] {$l$};
+ \fill (0.6,0.15) circle (1.3pt) node[above left] {$M_0$};
+ \fill (2.4,0.76) circle (1.3pt) node[above left] {$P(x,y)$};
+ \draw[->,thick] (0.9,-0.35)--(2.1,0.06) node[below right] {$\vec q$};
+\end{tikzpicture}
+\end{center}
+Тогда, исключив аппликату (переменную $z$) в каноническом уравнении прямой в пространстве
+(т.\,к. любую плоскость $xOy$ можно считать плоскостью $z=\mathrm{const}$, например $z=0$,
+в пространстве), получим:
+\begin{enumerate}[label=\arabic*)]
+\item \emph{каноническое уравнение прямой на плоскости}
+\[
+\boxed{\ \frac{x-x_0}{q_1}=\frac{y-y_0}{q_2}\ }\tag{1}
+\]
+\item \emph{параметрические уравнения прямой на плоскости}
+\[
+\boxed{\ \begin{cases}x=x_0+tq_1,\\y=y_0+tq_2,\end{cases}\quad t\in\mathbb R\ }\tag{2}
+\]
+\end{enumerate}
+
+\textbf{Следствия.}
+\begin{enumerate}[label=\arabic*.]
+\item Если $M_1(x_1,y_1),\ M_2(x_2,y_2)\in l$, то $\vec q=\overrightarrow{M_1M_2}$ $\stackrel{(1)}{\Rightarrow}$
+\emph{уравнение прямой по двум точкам на плоскости}
+\[
+\boxed{\ \frac{x-x_1}{x_2-x_1}=\frac{y-y_1}{y_2-y_1}\ }\tag{3}
+\]
+\item (2) $\Rightarrow$ \emph{параметрические уравнения отрезка} $M_1M_2$
+(луча $M_1M_2$ с вершиной $M_1$ и направлением $\overrightarrow{M_1M_2}$):
+\[
+\begin{cases}x=x_1+t(x_2-x_1),\\y=y_1+t(y_2-y_1),\end{cases}\quad t\in[0,1]\ \ (t\ge0).\tag{4}
+\]
+\end{enumerate}
+
+\textbf{Замечания.}
+
+\textbf{а.} Угол между двумя прямыми равен углу между их направляющими векторами.
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+ \draw (0,0.9)--(4,0.25) node[right] {$l_1$};
+ \draw (0,0.9)--(4,1.15) node[right] {$l_2$};
+ \draw[->,thick] (0.6,0.8)--(1.9,0.59) node[below] {\small$\vec a_1$};
+ \draw[->,thick] (0.6,0.94)--(1.9,1.02) node[above] {\small$\vec a_2$};
+ \draw (1.3,0.69) arc (-9:4:0.9); \node at (1.55,0.85) {\scriptsize$\varphi$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{б.} Измерим \emph{расстояние от точки $A$ до прямой $l$}.
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+ \draw (-0.3,-0.15)--(4.2,1.35) node[right] {$l$};
+ \coordinate (M) at (0.3,0.05);
+ \coordinate (A) at (1.2,2.2);
+ \coordinate (H) at ($(M)!(A)!(4.2,1.35)$);
+ \fill (M) circle (1.3pt) node[below] {$M_0$};
+ \fill (A) circle (1.3pt) node[above] {$A$};
+ \draw[->] (M)--(A);
+ \draw[dashed] (A)--(H) node[midway,right] {$\rho$};
+ \draw[->,thick] (2.4,0.75)--(3.4,1.08) node[below right] {$\vec q$};
+ \draw (0.62,0.16) arc (18:67:0.33); \node at (0.75,0.55) {\scriptsize$\varphi$};
+\end{tikzpicture}
+\end{center}
+\[
+\rho=\rho(A,l)=\bigl|\overrightarrow{M_0A}\bigr|\cdot\sin\varphi,
+\]
+где $M_0\in l$~--- любая выбранная точка,
+$\cos\varphi=\dfrac{(\vec q,\overrightarrow{M_0A})}{|\vec q|\cdot|\overrightarrow{M_0A}|}$ $\to$ выразим $\sin\varphi$ и
+получим формулу
+\[
+\rho(A,l)=\bigl|\overrightarrow{M_0A}\bigr|\cdot\sqrt{1-\left(\frac{(\vec q,\overrightarrow{M_0A})}{|\vec q|\cdot|\overrightarrow{M_0A}|}\right)^2}
+=\boxed{\ \frac{\sqrt{|\vec q|^2\cdot|\overrightarrow{M_0A}|^2-(\vec q,\overrightarrow{M_0A})^2}}{|\vec q|}\ }\tag{5}
+\]
+\q Приведите пример!
+
+\textbf{в.} К применению (5) сводится измерение расстояния между параллельными прямыми.
+
+\lead{2. Общее уравнение прямой на плоскости.}
+В пространстве прямая имеет бесконечно много направлений нормали, поэтому в пространстве нельзя
+определить прямую через одну нормаль.
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+ \draw (-1.4,-0.5)--(1.6,0.6) node[right] {$l$};
+ \draw[dashed] (0,0) circle (0.9);
+ \draw[->] (0,0)--(-0.34,0.93) node[above] {\small$\vec n$};
+ \draw[->] (0,0)--(0.5,-0.75);
+ \draw[->] (0,0)--(-0.6,-0.6);
+ \draw[->] (0,0)--(0.75,0.45);
+\end{tikzpicture}
+\end{center}
+Однако на плоскости через данную точку можно провести единственную прямую, перпендикулярную данной
+прямой (аксиома евклидовой геометрии) $\Rightarrow$ используем характеристическое свойство:
+\[
+P(x,y)\in l:\quad M_0(x_0,y_0)\in l\ \text{и}\ \vec n=(a,b)\perp l\ \iff\ \vec n\perp\overrightarrow{M_0P}.
+\]
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+ \draw (-0.3,-0.12)--(3.6,1.2) node[right] {$l$};
+ \fill (0.3,0.08) circle (1.3pt) node[below] {$M_0$};
+ \fill (2.8,0.93) circle (1.3pt) node[below right] {$P$};
+ \draw[->] (0.3,0.08)--(2.8,0.93);
+ \draw[->,thick] (1.1,0.35)--(0.75,1.38) node[left] {$\vec n$};
+ \draw (1.02,0.58)--(1.25,0.66)--(1.33,0.43);
+\end{tikzpicture}
+\end{center}
+Тогда в силу геометрического свойства скалярного произведения
+$l:\ (\vec n,\overrightarrow{M_0P})=0$ $\iff$ \emph{уравнение прямой по точке и нормали на плоскости}:
+\[
+\boxed{\ a(x-x_0)+b(y-y_0)=0\ }\tag{6}
+\]
+$\iff$ $ax+by+\underbrace{(-ax_0-by_0)}_{c}=0$, где $c$ выражается через координаты точки $M_0$,
+выбранной на $l$. Получили \emph{общее уравнение прямой}
+\[
+\boxed{\ ax+by+c=0\ }\tag{7}
+\]
+\imp Итак, уравнение прямой на плоскости~--- это линейное уравнение (верно и обратное: любое линейное
+уравнение с двумя переменными определяет прямую на плоскости).
+
+\lead{Частные случаи.}
+\begin{enumerate}[label=\arabic*.]
+\item $a=0\ \stackrel{(7)}{\Rightarrow}\ by+c=0$, \ $\vec n=(0,b)\parallel Oy$ $\Rightarrow$ прямая $\parallel Ox$.
+\item $b=0$~--- аналогично $\Rightarrow$ прямая $\parallel Oy$.
+\item $c=0$ $\Rightarrow$ $(0,0)$ удовлетворяет (7) $\Rightarrow$ прямая проходит через точку $O$.
+\item $a\ne0,\ b\ne0,\ c\ne0\ \stackrel{(7)}{\Rightarrow}\ ax+by=-c\ \bigm|:(-c)$ $\Rightarrow$
+\emph{уравнение прямой в отрезках}
+\[
+\boxed{\ \frac{x}{\alpha}+\frac{y}{\beta}=1\ },\qquad \alpha=-\frac ca,\quad \beta=-\frac cb.\tag{8}
+\]
+\begin{center}
+\begin{tikzpicture}[>=Stealth,scale=0.8]
+ \draw[->] (-0.4,0)--(3,0) node[right] {$x$};
+ \draw[->] (0,-0.4)--(0,2.4) node[above] {$y$};
+ \draw (-0.3,2.1)--(2.6,-0.5) node[right] {$l$};
+ \fill (0,1.83) circle (1.5pt) node[left] {$\beta$};
+ \fill (2.04,0) circle (1.5pt) node[above right] {$\alpha$};
+ \node[below left] at (0,0) {$O$};
+\end{tikzpicture}
+\end{center}
+\item $b\ne0\ \stackrel{(7)}{\Rightarrow}\ by=-ax-c\ \bigm|:b$ $\Rightarrow$ \emph{уравнение прямой с угловым
+коэффициентом}
+\[
+\boxed{\ y=kx+d\ },\qquad k=-\frac ab,\quad d=-\frac cb.\tag{9}
+\]
+\begin{center}
+\begin{tikzpicture}[>=Stealth,scale=0.9]
+ \draw[->] (-0.3,0)--(5,0) node[right] {$x$};
+ \draw[->] (0,-0.3)--(0,3.2) node[above] {$y$};
+ \draw (-0.3,0.75)--(4.6,2.9) node[right] {$y=kx+d$};
+ \fill (0,0.88) circle (1.3pt) node[left] {$d$};
+ \coordinate (M1) at (1.2,1.4); \coordinate (M2) at (3.8,2.54);
+ \fill (M1) circle (1.3pt) node[above left] {$M_1$};
+ \fill (M2) circle (1.3pt) node[above left] {$M_2$};
+ \draw[dashed] (M1)--(3.8,1.4)--(M2);
+ \draw[dashed] (M1)--(1.2,0) node[below] {$x_1$}; \draw[dashed] (M2)--(3.8,0) node[below] {$x_2$};
+ \draw[dashed] (M1)--(0,1.4) node[left] {$y_1$}; \draw[dashed] (M2)--(0,2.54) node[left] {$y_2$};
+ \draw (1.8,1.4) arc (0:23:0.6); \node at (2.05,1.55) {\scriptsize$\alpha$};
+ \node[below left] at (0,0) {$O$};
+\end{tikzpicture}
+\end{center}
+\[
+\operatorname{tg}\alpha=\frac{y_2-y_1}{x_2-x_1}=\frac{kx_2+d-(kx_1+d)}{x_2-x_1}=k
+\ \text{~--- \emph{угловой коэффициент} прямой } l.
+\]
+\end{enumerate}
+
+\textbf{Замечания.}
+\begin{enumerate}[label=\arabic*.]
+\item Угол между прямыми~--- это угол между их нормалями.
+\begin{center}
+\begin{tikzpicture}[>=Stealth,scale=0.9]
+ \draw[->] (-1.6,0.9)--(1.8,-1.0) node[right] {$l_2$};
+ \draw[->] (-0.5,1.6)--(0.6,-1.8) node[below] {$l_1$};
+ \coordinate (X) at (0,0.03);
+ \draw[->,thick] (X)--++(0.95,0.31) node[right] {\small$\vec n_1$};
+ \draw[->,thick] (X)--++(0.48,0.86) node[above] {\small$\vec n_2$};
+ \draw ($(X)+(0.5,0.16)$) arc (18:61:0.52); \node at (0.5,0.52) {\scriptsize$\varphi$};
+\end{tikzpicture}
+\end{center}
+\item (9) $\Rightarrow$
+\[
+\boxed{\ y=k_1x+d_1\parallel y=k_2x+d_2\iff k_1=k_2\ },
+\]
+\[
+\boxed{\ y=k_1x+d_1\perp y=k_2x+d_2\iff k_1\cdot k_2=-1\ },
+\]
+так как $k_1=\operatorname{tg}\alpha$, $k_2=\operatorname{tg}(90^\circ+\alpha)=-\operatorname{ctg}\alpha$.
+\item \textbf{Расстояние от точки $A$ до прямой} (6) или (7).
+\begin{center}
+\begin{tikzpicture}[>=Stealth]
+ \draw (-0.3,0)--(4.3,0) node[right] {$l$};
+ \fill (0.2,0) circle (1.3pt) node[below] {$M_0$};
+ \fill (2.6,1.8) circle (1.3pt) node[above right] {$A(x_1,y_1)$};
+ \draw (0.2,0)--(2.6,1.8);
+ \draw[dashed] (2.6,1.8)--(2.6,0);
+ \draw (2.6,0.2)--(2.4,0.2)--(2.4,0);
+ \draw[->,thick] (2.1,0)--(2.1,1.0) node[left] {\small$\vec n$};
+ \node[right] at (2.6,0.9) {$\rho$};
+ \draw (2.6,1.4) arc (-90:-143:0.4); \node at (2.35,1.25) {\scriptsize$\varphi$};
+\end{tikzpicture}
+\end{center}
+\[
+\rho=\Bigl|\,|\overrightarrow{M_0A}|\cdot\cos\varphi\,\Bigr|
+=\left|\,|\overrightarrow{M_0A}|\cdot\frac{(\vec n,\overrightarrow{M_0A})}{|\vec n|\cdot|\overrightarrow{M_0A}|}\right|
+\ \Rightarrow\
+\boxed{\ \rho=\left|\frac{(\vec n,\overrightarrow{M_0A})}{|\vec n|}\right|\ }
+\]
+\[
+\Rightarrow\quad
+\rho=\left|\frac{a(x_1-x_0)+b(y_1-y_0)}{\sqrt{a^2+b^2}}\right|
+=\boxed{\ \left|\frac{ax_1+by_1+c}{\sqrt{a^2+b^2}}\right|\ },
+\]
+так как $ax_0+by_0+c=0$ ($M_0\in l$) $\iff$ $-ax_0-by_0=c$.
+\end{enumerate}
+
+\prim Составить уравнение прямой $l$, проходящей через точки $A(1;-1)$ и $B(5;7)$. Привести уравнение
+к различным формам.
+\begin{enumerate}[label=\arabic*)]
+\item Удобно применить (3)~--- по двум точкам:
+\[
+l:\ \frac{x-1}{5-1}=\frac{y-(-1)}{7-(-1)}.\tag{$*$}
+\]
+\item В канонической форме:
+\[
+l:\ \frac{x-1}{4}=\frac{y+1}{8}\iff\frac{x-1}{1}=\frac{y+1}{2}\ \Rightarrow\ \vec q=(1,2)\ \text{~--- направляющий вектор}.
+\]
+\item В параметрической форме:
+$\begin{cases}x=1+t,\\y=-1+2t,\end{cases}$ \ $t\in\mathbb R$.
+\item $(*)\Rightarrow 8(x-1)=4(y+1)\ \bigm|:4$ $\Rightarrow$ по точке и нормали:
+\[
+2(x-1)+(-1)(y+1)=0\ \Rightarrow\ \vec n=(2;-1)\perp l.
+\]
+\item В общей форме: $2x-y-3=0$. \hfill $(**)$
+\item Уравнение с угловым коэффициентом: $y=2x-3$, \ $k=2$.
+\item $(**)\Rightarrow 2x-y=3\ \bigm|:3$ $\Rightarrow$ уравнение $l$ в отрезках:
+\[
+\frac{x}{3/2}+\frac{y}{-3}=1.
+\]
+\begin{center}
+\begin{tikzpicture}[>=Stealth,scale=0.6]
+ \draw[->] (-1,0)--(3.2,0) node[right] {$x$};
+ \draw[->] (0,-3.6)--(0,1.4) node[above] {$y$};
+ \draw (-0.25,-3.5)--(2.25,1.5) node[right] {$l$};
+ \fill (1.5,0) circle (2pt) node[above left] {$\tfrac32$};
+ \fill (0,-3) circle (2pt) node[left] {$-3$};
+\end{tikzpicture}
+\end{center}
+\end{enumerate}
+
 \end{document}
