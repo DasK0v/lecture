@@ -4,7 +4,7 @@
 
 | Предмет | Файлы | Вопросы |
 |---------|-------|---------|
-| Математический анализ, часть 1 | [PDF](matan_otvety_chast1.pdf)&nbsp;·&nbsp;[tex](matan_otvety_chast1.tex) | вопросы 1–23 (без 16) |
+| Математический анализ, часть 1 | [PDF](matan_otvety_chast1.pdf)&nbsp;·&nbsp;[tex](matan_otvety_chast1.tex) | вопросы 1–24 |
 | Линейная алгебра (курс аналитической геометрии) | [PDF](linal_otvety.pdf)&nbsp;·&nbsp;[tex](linal_otvety.tex) | вопросы 1–19 |
 
 Темы вопросов и описание оформления — в [главном README](../README.md#ответы-к-коллоквиумам).

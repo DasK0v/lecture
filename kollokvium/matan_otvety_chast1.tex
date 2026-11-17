@@ -79,6 +79,20 @@
   {\par\smallskip\noindent\textit{Доказательство.}\ $\triangle$\ \ignorespaces}
   {\unskip\nobreak\hfill$\blacktriangle$\par\smallskip}
 
+% Предупреждение: ответ сгенерирован, лекции нет
+\newcommand{\gennote}{%
+  \begin{tcolorbox}[enhanced, colback=red!8, colframe=red!70!black, boxrule=1.2pt, arc=2pt,
+    left=8pt, right=8pt, top=5pt, bottom=5pt]
+    \centering\large\bfseries\textcolor{red!70!black}{Ответ сгенерирован, потому что у меня нет лекции.
+    Если у кого-то есть --- киньте мне, я вставлю.}
+  \end{tcolorbox}}
+% Просьба сообщать об ошибках
+\newcommand{\oshibki}{%
+  \begin{tcolorbox}[enhanced, colback=zamc!10, colframe=zamc, boxrule=1.2pt, arc=2pt,
+    left=8pt, right=8pt, top=5pt, bottom=5pt]
+    \centering\large\bfseries\textcolor{zamc!80!black}{Нашли ошибку или опечатку? Пишите мне --- исправлю.}
+  \end{tcolorbox}}
+
 % Заголовок вопроса
 \newcommand{\vopros}[2]{%
   \clearpage\phantomsection
@@ -103,6 +117,16 @@
 \newcommand{\plan}[1]{\begin{planbox}\textbf{План ответа:}
   \begin{enumerate}[nosep,leftmargin=*,label=\arabic*)]#1\end{enumerate}\end{planbox}}
 
+% Стили рисунков к 16 определениям предела (как в конспекте)
+\tikzset{
+  lim16/.style={scale=0.82, font=\footnotesize, >=stealth},
+  xr/.style={fill=blue!50, fill opacity=0.15},
+  yr/.style={fill=orange!90, fill opacity=0.2},
+  gd/.style={densely dashed, gray},
+  g/.style={thick},
+  hl/.style={very thick, red!80!black},
+}
+
 % Диаграммы Эйлера--Венна (из конспекта): #1 — заливка, #2 — подпись
 \newcommand{\venn}[2]{%
 \begin{tikzpicture}[scale=0.55]
@@ -124,7 +148,9 @@
   {\Large Ответы на вопросы к экзамену 2026 г.\ --- часть 1}\par\medskip
   {\normalsize по конспекту лекций; каждое определение --- словами и в кванторах}
 \end{center}
-\bigskip
+\medskip
+\oshibki
+\medskip
 
 \begin{tcolorbox}[colback=white, colframe=black!40, boxrule=0.4pt, arc=2pt,
   title={Как устроен этот файл}, fonttitle=\bfseries, colbacktitle=black!8, coltitle=black]
@@ -142,8 +168,10 @@
 \end{itemize}
 \end{tcolorbox}
 
-\textbf{Вопросов 2 и 3 в лекциях нет} --- ответы на них составлены по стандартному курсу (это отмечено в начале вопросов).
-\textbf{Вопрос 16} (односторонние пределы, пределы монотонных функций) в лекциях не разбирался и пропущен.
+\textbf{Вопросов 2, 3 и 24 в лекциях нет} --- ответы на них составлены по стандартному курсу (это отмечено в начале вопросов).
+\textbf{Вопрос *} --- все 16 определений предела функции по Коши с рисунками, вынесены из вопроса 15 отдельно.
+\textbf{Вопросы 16 и 24} (односторонние пределы и пределы монотонных функций; элементарные преобразования и элементарные функции)
+в лекциях не разбирались --- ответы на них тоже составлены по стандартному курсу.
 Вопросы 20--23 составлены по записям лекции о непрерывности; в вопросе 23 из них есть только
 определение непрерывности на отрезке (теорем Больцано--Коши и Вейерштрасса в записях нет).
 В вопросе 17 из лекций нет сравнения бесконечно больших функций.
@@ -155,98 +183,6 @@
 \raggedright
 \tableofcontents
 \endgroup
-
-% ======================= 0. КВАНТОРЫ =======================
-\razdel{Перед началом: как читать кванторы}
-
-Все определения курса записываются на языке логики. Обозначения из лекций
-(раздел <<Операции над множествами>>, <<Соглашения>>):
-
-\begin{center}\small
-\renewcommand{\arraystretch}{1.25}
-\begin{tabular}{|c|l|l|}
-\hline
-\textbf{Знак} & \textbf{Читается} & \textbf{Пример} \\ \hline
-$\forall x$ & <<для любого (всякого) $x$>> --- квантор всеобщности & $\forall n \in \N\ (x_n \le M)$ \\
-$\exists x$ & <<существует $x$ такой, что\dots>> --- квантор существования & $\exists M\ \forall n \in \N\ (x_n \le M)$ \\
-$\exists!\,x$ & <<существует единственный $x$>>${}^{*}$ & $\exists!\, c\ \forall n\ \bigl(c \in [a_n;b_n]\bigr)$ \\
-$P \to Q$,\ $P \Rightarrow Q$ & <<если $P$, то $Q$>>, <<из $P$ следует $Q$>> & $n > n_0 \to |x_n - A| < \eps$ \\
-$P \Leftrightarrow Q$ & <<$P$ тогда и только тогда, когда $Q$>> & $A = B \Leftrightarrow A \subseteq B \wedge B \subseteq A$ \\
-$P \wedge Q$ & <<$P$ и $Q$>> (конъюнкция) & $x \in A \wedge x \in B$ \\
-$P \vee Q$ & <<$P$ или $Q$>> (дизъюнкция, хотя бы одно) & $x \in A \vee x \in B$ \\
-$\neg P$,\ $\overline{P}$ & <<не $P$>> (отрицание) & $\neg(x \in A) \Leftrightarrow x \notin A$ \\ \hline
-\end{tabular}
-
-{\small ${}^{*}$ знак $\exists!$ в лекциях не вводился, но им удобно записывать <<единственный>>.}
-\end{center}
-
-\podr{Высказывания и логические операции (из лекций)}
-
-\textbf{Высказывание} --- предложение, которое либо истинно, либо ложно (но не то и другое сразу).
-Функция истинности $\lambda(P) = 1$, если $P$ истинно, и $\lambda(P) = 0$, если $P$ ложно.
-
-\begin{itemize}[leftmargin=*]
-  \item \textbf{Отрицание} $\neg P$ истинно, когда $P$ ложно, и ложно, когда $P$ истинно.
-  \item \textbf{Конъюнкция} $P \wedge Q$ истинна только тогда, когда истинны оба высказывания (логическое <<$\times$>>).
-  \item \textbf{Дизъюнкция} $P \vee Q$ ложна только тогда, когда оба высказывания ложны (логическое <<$+$>>).
-  \item \textbf{Импликация} $P \Rightarrow Q$ ложна только в одном случае: $P$ истинно, а $Q$ ложно.
-  \item \textbf{Эквиваленция} $P \Leftrightarrow Q$ истинна, когда $P$ и $Q$ оба истинны или оба ложны.
-\end{itemize}
-
-\begin{center}
-\renewcommand{\arraystretch}{1.15}
-\begin{tabular}{|c|c||c|c|c|c|c|}
-\hline
-$P$ & $Q$ & $\neg P$ & $P \wedge Q$ & $P \vee Q$ & $P \Rightarrow Q$ & $P \Leftrightarrow Q$ \\ \hline
-0 & 0 & 1 & 0 & 0 & 1 & 1 \\
-0 & 1 & 1 & 0 & 1 & 1 & 0 \\
-1 & 0 & 0 & 0 & 1 & 0 & 0 \\
-1 & 1 & 0 & 1 & 1 & 1 & 1 \\ \hline
-\end{tabular}
-\end{center}
-
-Операции над высказываниями аналогичны операциям над множествами
-($\wedge \leftrightarrow \cap$, $\vee \leftrightarrow \cup$, $\neg \leftrightarrow$ дополнение);
-свойства логических операций доказывают таблицами истинности.
-
-\podr{Как читать кванторную формулу}
-
-Формулу читают слева направо, каждый квантор --- отдельный шаг. Пример --- определение предела:
-\[
-  \forall \eps > 0\ \ \exists n_0\ \ \forall n \in \N\ \ \bigl(n > n_0 \to |x_n - A| < \eps\bigr)
-\]
-\begin{center}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{r@{\quad---\quad}l}
-$\forall \eps > 0$ & какое бы (сколь угодно малое) $\eps > 0$ ни взяли, \\
-$\exists n_0$ & найдётся номер $n_0$ такой, что \\
-$\forall n \in \N$ & для всех номеров $n$ \\
-$(n > n_0 \to \dots)$ & если $n$ больше $n_0$, то \\
-$|x_n - A| < \eps$ & $x_n$ отличается от $A$ меньше чем на $\eps$.
-\end{tabular}
-\end{center}
-Квантор, стоящий правее, может зависеть от всех кванторов левее: здесь $n_0$ зависит от $\eps$,
-поэтому в лекциях пишут $n_0(\eps)$.
-
-\begin{dop}[отрицание формулы с кванторами]
-Чтобы построить отрицание, каждый $\forall$ меняют на $\exists$, каждый $\exists$ --- на $\forall$,
-а условие в скобках заменяют на противоположное:
-\[
-  \neg\,\forall x\, P(x) \Leftrightarrow \exists x\, \neg P(x), \qquad
-  \neg\,\exists x\, P(x) \Leftrightarrow \forall x\, \neg P(x),
-\]
-\[
-  \neg(P \to Q) \Leftrightarrow P \wedge \neg Q, \qquad
-  \neg(P \wedge Q) \Leftrightarrow \neg P \vee \neg Q, \qquad
-  \neg(P \vee Q) \Leftrightarrow \neg P \wedge \neg Q.
-\]
-Пример из лекций: последовательность ограничена сверху: $\exists M\ \forall n \in \N\ (x_n \le M)$;
-отрицание --- не ограничена сверху: $\forall M\ \exists n \in \N\ (x_n > M)$.
-
-\textbf{Порядок кванторов важен.} Формула $\forall n\ \exists M\ (x_n \le M)$ верна для \emph{любой}
-последовательности (возьми $M = x_n$), а $\exists M\ \forall n\ (x_n \le M)$ --- это ограниченность
-сверху: одно $M$ годится сразу для всех $n$.
-\end{dop}
 
 % ======================= ВОПРОС 1 =======================
 \vopros{1}{Множества, операции над множествами. Свойства операций над множествами. Диаграммы Эйлера--Венна}
@@ -1060,7 +996,7 @@ $\sup\limits_{X} f = \sup\{f(x) : x \in X\}$, \ $\inf\limits_{X} f = \inf\{f(x) 
   (x_n) \text{ сходится} \Leftrightarrow
   \exists A \in \R\ \forall \eps > 0\ \exists n_0\ \forall n \in \N\ \bigl(n > n_0 \to |x_n - A| < \eps\bigr).
 \]
-Отрицание (по правилам из раздела <<Перед началом>>):
+Отрицание ($\forall \leftrightarrow \exists$, условие в скобках --- на противоположное):
 \[
   (x_n) \text{ расходится} \Leftrightarrow
   \forall A \in \R\ \exists \eps > 0\ \forall n_0\ \exists n \in \N\ \bigl(n > n_0 \wedge |x_n - A| \ge \eps\bigr).
@@ -2128,7 +2064,7 @@ $\lim u^v = e^{\lim (u - 1) v}$.
 \plan{\item окрестность, проколотая окрестность; предельная точка множества; теорема о предельной точке;
 \item предел функции по Гейне (словами и в кванторах);
 \item предел по Коши (словами и в кванторах); равносильность определений; геометрический смысл;
-\item пределы на бесконечности и бесконечные пределы --- общая схема <<16 определений>>;
+\item пределы на бесконечности (все 16 определений с рисунками --- вопрос *);
 \item свойства пределов функции; примеры.}
 
 \podr{Окрестность и предельная точка}
@@ -2267,65 +2203,7 @@ $\delta(\eps) > 0$ такое, что при всех $x \in D(f)$, $x > \delta(
 \]
 \end{opr}
 
-\podr{Все 16 определений предела функции}
-
-Все определения устроены одинаково:
-\[
-  \lim_{x \to a} f(x) = b \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\
-  \forall x \in D(f)\ \bigl( \text{<<$x$ близко к $a$>>} \to \text{<<$f(x)$ близко к $b$>>} \bigr).
-\]
-Меняются только два условия:
-\begin{center}
-\renewcommand{\arraystretch}{1.3}
-\begin{tabular}{|c|c|}
-  \hline
-  $a$ & условие на $x$ \\ \hline
-  $x_0$ & $0 < |x - x_0| < \delta(\eps)$ \\
-  $+\infty$ & $x > \delta(\eps)$ \\
-  $-\infty$ & $x < -\delta(\eps)$ \\
-  $\infty$ & $|x| > \delta(\eps)$ \\ \hline
-\end{tabular}
-\qquad
-\begin{tabular}{|c|c|}
-  \hline
-  $b$ & условие на $f(x)$ \\ \hline
-  $A$ & $|f(x) - A| < \eps$ \\
-  $+\infty$ & $f(x) > \eps$ \\
-  $-\infty$ & $f(x) < -\eps$ \\
-  $\infty$ & $|f(x)| > \eps$ \\ \hline
-\end{tabular}
-\end{center}
-Четыре условия на $x$ и четыре условия на $f(x)$ дают $4 \cdot 4 = 16$ определений. Везде
-$\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)$, а в скобках:
-
-\begin{center}
-\renewcommand{\arraystretch}{1.45}
-\begin{tabular}{|r|l|l|}
-\hline
-\textbf{№} & \textbf{Предел} & \textbf{Условие в скобках} \\ \hline
-1 & $\lim\limits_{x \to x_0} f(x) = A$ & $\bigl(0 < |x - x_0| < \delta \to |f(x) - A| < \eps\bigr)$ \\
-2 & $\lim\limits_{x \to x_0} f(x) = +\infty$ & $\bigl(0 < |x - x_0| < \delta \to f(x) > \eps\bigr)$ \\
-3 & $\lim\limits_{x \to x_0} f(x) = -\infty$ & $\bigl(0 < |x - x_0| < \delta \to f(x) < -\eps\bigr)$ \\
-4 & $\lim\limits_{x \to x_0} f(x) = \infty$ & $\bigl(0 < |x - x_0| < \delta \to |f(x)| > \eps\bigr)$ \\ \hline
-5 & $\lim\limits_{x \to +\infty} f(x) = A$ & $\bigl(x > \delta \to |f(x) - A| < \eps\bigr)$ \\
-6 & $\lim\limits_{x \to +\infty} f(x) = +\infty$ & $\bigl(x > \delta \to f(x) > \eps\bigr)$ \\
-7 & $\lim\limits_{x \to +\infty} f(x) = -\infty$ & $\bigl(x > \delta \to f(x) < -\eps\bigr)$ \\
-8 & $\lim\limits_{x \to +\infty} f(x) = \infty$ & $\bigl(x > \delta \to |f(x)| > \eps\bigr)$ \\ \hline
-9 & $\lim\limits_{x \to -\infty} f(x) = A$ & $\bigl(x < -\delta \to |f(x) - A| < \eps\bigr)$ \\
-10 & $\lim\limits_{x \to -\infty} f(x) = +\infty$ & $\bigl(x < -\delta \to f(x) > \eps\bigr)$ \\
-11 & $\lim\limits_{x \to -\infty} f(x) = -\infty$ & $\bigl(x < -\delta \to f(x) < -\eps\bigr)$ \\
-12 & $\lim\limits_{x \to -\infty} f(x) = \infty$ & $\bigl(x < -\delta \to |f(x)| > \eps\bigr)$ \\ \hline
-13 & $\lim\limits_{x \to \infty} f(x) = A$ & $\bigl(|x| > \delta \to |f(x) - A| < \eps\bigr)$ \\
-14 & $\lim\limits_{x \to \infty} f(x) = +\infty$ & $\bigl(|x| > \delta \to f(x) > \eps\bigr)$ \\
-15 & $\lim\limits_{x \to \infty} f(x) = -\infty$ & $\bigl(|x| > \delta \to f(x) < -\eps\bigr)$ \\
-16 & $\lim\limits_{x \to \infty} f(x) = \infty$ & $\bigl(|x| > \delta \to |f(x)| > \eps\bigr)$ \\ \hline
-\end{tabular}
-\end{center}
-
-Например, полностью определение 10:
-\[
-  \lim_{x \to -\infty} f(x) = +\infty \Leftrightarrow \forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ \bigl(x < -\delta \to f(x) > \eps\bigr).
-\]
+Все 16 определений предела функции (схема, таблица и рисунки) вынесены в отдельный \textbf{вопрос *} --- он идёт сразу после этого вопроса.
 
 \podr{Свойства предела функции}
 
@@ -2395,6 +2273,839 @@ $f(x_n) + g(x_n) \to A + B$ (предел суммы последователь�
   = \frac{1}{-6 \cdot 2} = -\frac{1}{12}.
 \end{multline*}
 
+% ======================= ВОПРОС * =======================
+\vopros{*}{16 определений предела функции по Коши (с рисунками)}
+
+\plan{\item общий вид: $\forall \eps > 0\ \exists \delta(\eps) > 0\ \forall x \in D(f)\ (\text{условие на } x \to \text{условие на } f(x))$;
+\item 4 условия на $x$ ($x \to x_0, +\infty, -\infty, \infty$) и 4 условия на $f(x)$ ($A, +\infty, -\infty, \infty$) --- $4 \cdot 4 = 16$;
+\item любое из 16: словами, в кванторах и рисунком (синяя полоса --- $x$, оранжевая --- $f(x)$, красный кусок графика).}
+
+Это продолжение вопроса 15: там определение предела в точке по Коши $\bigl(0 < |x - x_0| < \delta \to |f(x) - A| < \eps\bigr)$
+и пределы на бесконечности; здесь --- все случаи вместе.
+
+\podr{Общая схема}
+
+Все определения устроены одинаково:
+\[
+  \lim_{x \to a} f(x) = b \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\
+  \forall x \in D(f)\ \bigl( \text{<<$x$ близко к $a$>>} \to \text{<<$f(x)$ близко к $b$>>} \bigr).
+\]
+Меняются только два условия:
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|c|}
+  \hline
+  $a$ & условие на $x$ \\ \hline
+  $x_0$ & $0 < |x - x_0| < \delta(\eps)$ \\
+  $+\infty$ & $x > \delta(\eps)$ \\
+  $-\infty$ & $x < -\delta(\eps)$ \\
+  $\infty$ & $|x| > \delta(\eps)$ \\ \hline
+\end{tabular}
+\qquad
+\begin{tabular}{|c|c|}
+  \hline
+  $b$ & условие на $f(x)$ \\ \hline
+  $A$ & $|f(x) - A| < \eps$ \\
+  $+\infty$ & $f(x) > \eps$ \\
+  $-\infty$ & $f(x) < -\eps$ \\
+  $\infty$ & $|f(x)| > \eps$ \\ \hline
+\end{tabular}
+\end{center}
+Четыре условия на $x$ и четыре условия на $f(x)$ дают $4 \cdot 4 = 16$ определений. Везде
+$\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)$, а в скобках:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabular}{|r|l|l|}
+\hline
+\textbf{№} & \textbf{Предел} & \textbf{Условие в скобках} \\ \hline
+1 & $\lim\limits_{x \to x_0} f(x) = A$ & $\bigl(0 < |x - x_0| < \delta \to |f(x) - A| < \eps\bigr)$ \\
+2 & $\lim\limits_{x \to x_0} f(x) = +\infty$ & $\bigl(0 < |x - x_0| < \delta \to f(x) > \eps\bigr)$ \\
+3 & $\lim\limits_{x \to x_0} f(x) = -\infty$ & $\bigl(0 < |x - x_0| < \delta \to f(x) < -\eps\bigr)$ \\
+4 & $\lim\limits_{x \to x_0} f(x) = \infty$ & $\bigl(0 < |x - x_0| < \delta \to |f(x)| > \eps\bigr)$ \\ \hline
+5 & $\lim\limits_{x \to +\infty} f(x) = A$ & $\bigl(x > \delta \to |f(x) - A| < \eps\bigr)$ \\
+6 & $\lim\limits_{x \to +\infty} f(x) = +\infty$ & $\bigl(x > \delta \to f(x) > \eps\bigr)$ \\
+7 & $\lim\limits_{x \to +\infty} f(x) = -\infty$ & $\bigl(x > \delta \to f(x) < -\eps\bigr)$ \\
+8 & $\lim\limits_{x \to +\infty} f(x) = \infty$ & $\bigl(x > \delta \to |f(x)| > \eps\bigr)$ \\ \hline
+9 & $\lim\limits_{x \to -\infty} f(x) = A$ & $\bigl(x < -\delta \to |f(x) - A| < \eps\bigr)$ \\
+10 & $\lim\limits_{x \to -\infty} f(x) = +\infty$ & $\bigl(x < -\delta \to f(x) > \eps\bigr)$ \\
+11 & $\lim\limits_{x \to -\infty} f(x) = -\infty$ & $\bigl(x < -\delta \to f(x) < -\eps\bigr)$ \\
+12 & $\lim\limits_{x \to -\infty} f(x) = \infty$ & $\bigl(x < -\delta \to |f(x)| > \eps\bigr)$ \\ \hline
+13 & $\lim\limits_{x \to \infty} f(x) = A$ & $\bigl(|x| > \delta \to |f(x) - A| < \eps\bigr)$ \\
+14 & $\lim\limits_{x \to \infty} f(x) = +\infty$ & $\bigl(|x| > \delta \to f(x) > \eps\bigr)$ \\
+15 & $\lim\limits_{x \to \infty} f(x) = -\infty$ & $\bigl(|x| > \delta \to f(x) < -\eps\bigr)$ \\
+16 & $\lim\limits_{x \to \infty} f(x) = \infty$ & $\bigl(|x| > \delta \to |f(x)| > \eps\bigr)$ \\ \hline
+\end{tabular}
+\end{center}
+
+Например, полностью определение 10:
+\[
+  \lim_{x \to -\infty} f(x) = +\infty \Leftrightarrow \forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ \bigl(x < -\delta \to f(x) > \eps\bigr).
+\]
+
+
+\podr{Как отвечать: одно из 16 определений с рисунком}
+
+\begin{planbox}
+\textbf{Как отвечать, если попросят записать одно из 16 определений по Коши и нарисовать его:}
+\begin{enumerate}[nosep,leftmargin=*,label=\arabic*)]
+  \item написать каркас: $\lim\limits_{x \to a} f(x) = b \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\ \forall x \in D(f)\ \bigl(\ \dots \to \dots\ \bigr)$;
+  \item в скобки подставить условие на $x$ (по $a$) и условие на $f(x)$ (по $b$) из двух таблиц выше;
+  \item сказать то же словами: <<для любого $\eps > 0$ существует $\delta(\eps) > 0$ такое, что при всех $x \in D(f)$,
+        удовлетворяющих условию \dots, выполняется неравенство \dots>>;
+  \item нарисовать: оси; \textcolor{blue!70!black}{\textbf{синим}} --- полосу значений $x$ из условия на $x$
+        (около $x_0$ без самой точки, правее $\delta$, левее $-\delta$ или обе стороны);
+        \textcolor{orange!90!black}{\textbf{оранжевым}} --- полосу значений $y$ из условия на $f(x)$
+        ($A \pm \eps$, выше $\eps$, ниже $-\eps$ или обе); график, у которого кусок над синей полосой
+        (\textcolor{red!80!black}{\textbf{красный}}) целиком лежит в оранжевой полосе.
+\end{enumerate}
+\end{planbox}
+
+Ниже все 16 определений из лекции --- словами, в кванторах и с рисунком. На рисунках синим отмечены значения $x$,
+удовлетворяющие условию на $x$, оранжевым --- значения $y$, удовлетворяющие условию на $f(x)$. Часть графика над синей
+областью (выделена красным) целиком лежит в оранжевой полосе.
+
+\par\needspace{6\baselineskip}\medskip\noindent{\bfseries\textcolor{oprc!80!black}{Предел при $x \to x_0$}}\par\smallskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{1.} $\displaystyle\lim_{x \to x_0} f(x) = A$.
+
+  \smallskip
+  Число $A$ называется пределом функции $f(x)$ в точке $x_0$, если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $0 < |x - x_0| < \delta(\varepsilon)$, выполняется неравенство $|f(x) - A| < \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to x_0} f(x) = A \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( 0 < |x - x_0| < \delta(\varepsilon) \rightarrow |f(x) - A| < \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-0.3,1.7) rectangle (6.6,2.7);
+  \fill[xr] (1.8,-0.3) rectangle (4.6,4.6);
+  \foreach \y/\l in {2.7/A+\varepsilon, 2.2/A, 1.7/A-\varepsilon}
+    \draw[gd] (0,\y) node[left,black] {$\l$} -- (6.6,\y);
+  \foreach \x/\l in {1.8/x_0-\delta, 3.2/x_0, 4.6/x_0+\delta}
+    \draw[gd] (\x,4.6) -- (\x,0) node[below,black] {$\l$};
+  \draw[->] (-0.3,0) -- (6.8,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.8) node[left] {$y$};
+  \def\gr{plot[domain=0.4:6.2,samples=80,smooth] (\x,{2.2+0.25*(\x-3.2)+0.04*(\x-3.2)^3})}
+  \draw[g] \gr;
+  \begin{scope}\clip (1.8,-0.3) rectangle (4.6,4.6); \draw[hl] \gr; \end{scope}
+  \draw[thick,fill=white] (3.2,2.2) circle (1.6pt);
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{2.} $\displaystyle\lim_{x \to x_0} f(x) = +\infty$.
+
+  \smallskip
+  Функция $f(x)$ стремится к $+\infty$ при $x \to x_0$ (имеет предел $+\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $0 < |x - x_0| < \delta(\varepsilon)$, выполняется неравенство $f(x) > \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to x_0} f(x) = +\infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( 0 < |x - x_0| < \delta(\varepsilon) \rightarrow f(x) > \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-0.3,1.6) rectangle (6.6,4.6);
+  \fill[xr] (1.8,-0.3) rectangle (4.6,4.6);
+  \draw[gd] (0,1.6) node[left,black] {$\varepsilon$} -- (6.6,1.6);
+  \foreach \x/\l in {1.8/x_0-\delta, 3.2/x_0, 4.6/x_0+\delta}
+    \draw[gd] (\x,4.6) -- (\x,0) node[below,black] {$\l$};
+  \draw[->] (-0.3,0) -- (6.8,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.8) node[left] {$y$};
+  \def\grl{plot[domain=0.3:2.365,samples=80,smooth] (\x,{3.136/(\x-3.2)^2})}
+  \def\grr{plot[domain=4.035:6.3,samples=80,smooth] (\x,{3.136/(\x-3.2)^2})}
+  \draw[g] \grl; \draw[g] \grr;
+  \begin{scope}\clip (1.8,-0.3) rectangle (4.6,4.6); \draw[hl] \grl; \draw[hl] \grr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{3.} $\displaystyle\lim_{x \to x_0} f(x) = -\infty$.
+
+  \smallskip
+  Функция $f(x)$ стремится к $-\infty$ при $x \to x_0$ (имеет предел $-\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $0 < |x - x_0| < \delta(\varepsilon)$, выполняется неравенство $f(x) < -\varepsilon$.
+  \begin{gather*}
+    \lim_{x \to x_0} f(x) = -\infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( 0 < |x - x_0| < \delta(\varepsilon) \rightarrow f(x) < -\varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-0.3,-4.6) rectangle (6.6,-1.6);
+  \fill[xr] (1.8,-4.6) rectangle (4.6,0.3);
+  \draw[gd] (0,-1.6) node[left,black] {$-\varepsilon$} -- (6.6,-1.6);
+  \foreach \x/\l in {1.8/x_0-\delta, 3.2/x_0, 4.6/x_0+\delta}
+    \draw[gd] (\x,-4.6) -- (\x,0) node[above,black] {$\l$};
+  \draw[->] (-0.3,0) -- (6.8,0) node[above] {$x$};
+  \draw[->] (0,-4.6) -- (0,0.8) node[left] {$y$};
+  \def\grl{plot[domain=0.3:2.365,samples=80,smooth] (\x,{-3.136/(\x-3.2)^2})}
+  \def\grr{plot[domain=4.035:6.3,samples=80,smooth] (\x,{-3.136/(\x-3.2)^2})}
+  \draw[g] \grl; \draw[g] \grr;
+  \begin{scope}\clip (1.8,-4.6) rectangle (4.6,0.3); \draw[hl] \grl; \draw[hl] \grr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{4.} $\displaystyle\lim_{x \to x_0} f(x) = \infty$.
+
+  \smallskip
+  Функция $f(x)$ называется бесконечно большой при $x \to x_0$ (стремится к $\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $0 < |x - x_0| < \delta(\varepsilon)$, выполняется неравенство $|f(x)| > \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to x_0} f(x) = \infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( 0 < |x - x_0| < \delta(\varepsilon) \rightarrow |f(x)| > \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-0.3,1.2) rectangle (6.6,2.6);
+  \fill[yr] (-0.3,-2.6) rectangle (6.6,-1.2);
+  \fill[xr] (1.8,-2.6) rectangle (4.6,2.6);
+  \draw[gd] (0,1.2) node[left,black] {$\varepsilon$} -- (6.6,1.2);
+  \draw[gd] (0,-1.2) node[left,black] {$-\varepsilon$} -- (6.6,-1.2);
+  \foreach \x/\l in {1.8/x_0-\delta, 3.2/x_0, 4.6/x_0+\delta}
+    \draw[gd] (\x,2.6) -- (\x,-2.6);
+  \foreach \x/\l in {1.8/x_0-\delta, 3.2/x_0, 4.6/x_0+\delta}
+    \node[below,fill=white,fill opacity=0.85,text opacity=1,inner sep=1pt,yshift=-1pt] at (\x,0) {$\l$};
+  \draw[->] (-0.3,0) -- (6.8,0) node[below] {$x$};
+  \draw[->] (0,-2.7) -- (0,2.9) node[left] {$y$};
+  \def\grl{plot[domain=0.3:2.528,samples=80,smooth] (\x,{1.68/(\x-3.2)})}
+  \def\grr{plot[domain=3.872:6.3,samples=80,smooth] (\x,{1.68/(\x-3.2)})}
+  \draw[g] \grl; \draw[g] \grr;
+  \begin{scope}\clip (1.8,-2.6) rectangle (4.6,2.6); \draw[hl] \grl; \draw[hl] \grr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\par\needspace{6\baselineskip}\medskip\noindent{\bfseries\textcolor{oprc!80!black}{Предел при $x \to +\infty$}}\par\smallskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{5.} $\displaystyle\lim_{x \to +\infty} f(x) = A$.
+
+  \smallskip
+  Число $A$ называется пределом функции $f(x)$ при $x \to +\infty$, если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $x > \delta(\varepsilon)$, выполняется неравенство $|f(x) - A| < \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to +\infty} f(x) = A \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( x > \delta(\varepsilon) \rightarrow |f(x) - A| < \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-0.3,1.7) rectangle (6.6,2.7);
+  \fill[xr] (2.8,-0.3) rectangle (6.6,4.6);
+  \foreach \y/\l in {2.7/A+\varepsilon, 2.2/A, 1.7/A-\varepsilon}
+    \draw[gd] (0,\y) node[left,black] {$\l$} -- (6.6,\y);
+  \draw[gd] (2.8,4.6) -- (2.8,0) node[below,black] {$\delta$};
+  \draw[->] (-0.3,0) -- (6.8,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.8) node[left] {$y$};
+  \def\gr{plot[domain=0:6.5,samples=160,smooth] (\x,{2.2+2.2*exp(-0.55*\x)*cos(deg(2*\x))})}
+  \draw[g] \gr;
+  \begin{scope}\clip (2.8,-0.3) rectangle (6.6,4.6); \draw[hl] \gr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{6.} $\displaystyle\lim_{x \to +\infty} f(x) = +\infty$.
+
+  \smallskip
+  Функция $f(x)$ стремится к $+\infty$ при $x \to +\infty$ (имеет предел $+\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $x > \delta(\varepsilon)$, выполняется неравенство $f(x) > \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to +\infty} f(x) = +\infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( x > \delta(\varepsilon) \rightarrow f(x) > \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-0.3,1.5) rectangle (6.6,4.6);
+  \fill[xr] (3.24,-0.3) rectangle (6.6,4.6);
+  \draw[gd] (0,1.5) node[left,black] {$\varepsilon$} -- (6.6,1.5);
+  \draw[gd] (3.24,4.6) -- (3.24,0) node[below,black] {$\delta$};
+  \draw[->] (-0.3,0) -- (6.8,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.8) node[left] {$y$};
+  \def\gr{plot[domain=0:5.47,samples=80,smooth] (\x,{0.2*(\x-1)^2+0.5})}
+  \draw[g] \gr;
+  \begin{scope}\clip (3.24,-0.3) rectangle (6.6,4.6); \draw[hl] \gr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{7.} $\displaystyle\lim_{x \to +\infty} f(x) = -\infty$.
+
+  \smallskip
+  Функция $f(x)$ стремится к $-\infty$ при $x \to +\infty$ (имеет предел $-\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $x > \delta(\varepsilon)$, выполняется неравенство $f(x) < -\varepsilon$.
+  \begin{gather*}
+    \lim_{x \to +\infty} f(x) = -\infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( x > \delta(\varepsilon) \rightarrow f(x) < -\varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-0.3,-4.6) rectangle (6.6,-1.5);
+  \fill[xr] (3.45,-4.6) rectangle (6.6,1.0);
+  \draw[gd] (0,-1.5) node[left,black] {$-\varepsilon$} -- (6.6,-1.5);
+  \draw[gd] (3.45,-4.6) -- (3.45,0) node[above,black] {$\delta$};
+  \draw[->] (-0.3,0) -- (6.8,0) node[above] {$x$};
+  \draw[->] (0,-4.6) -- (0,1.2) node[left] {$y$};
+  \def\gr{plot[domain=0:4.92,samples=80,smooth] (\x,{0.6-0.3*(\x-0.8)^2})}
+  \draw[g] \gr;
+  \begin{scope}\clip (3.45,-4.6) rectangle (6.6,1.0); \draw[hl] \gr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{8.} $\displaystyle\lim_{x \to +\infty} f(x) = \infty$.
+
+  \smallskip
+  Функция $f(x)$ называется бесконечно большой при $x \to +\infty$ (стремится к $\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $x > \delta(\varepsilon)$, выполняется неравенство $|f(x)| > \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to +\infty} f(x) = \infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( x > \delta(\varepsilon) \rightarrow |f(x)| > \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-0.3,1.0) rectangle (6.6,2.7);
+  \fill[yr] (-0.3,-2.7) rectangle (6.6,-1.0);
+  \fill[xr] (2.4,-2.7) rectangle (6.6,2.7);
+  \draw[gd] (0,1.0) node[left,black] {$\varepsilon$} -- (6.6,1.0);
+  \draw[gd] (0,-1.0) node[left,black] {$-\varepsilon$} -- (6.6,-1.0);
+  \draw[gd] (2.4,2.7) -- (2.4,-2.7);
+  \node[below left,fill=white,inner sep=1pt] at (2.4,0) {$\delta$};
+  \draw[->] (-0.3,0) -- (6.8,0) node[below] {$x$};
+  \draw[->] (0,-2.8) -- (0,2.9) node[left] {$y$};
+  \foreach \k in {0,...,7} {
+    \pgfmathsetmacro\a{0.8*\k}
+    \pgfmathsetmacro\b{0.8*\k+0.8}
+    \pgfmathsetmacro\s{ifthenelse(isodd(\k),-1,1)}
+    \pgfmathsetmacro\ya{\s*(0.3+0.35*\a)}
+    \pgfmathsetmacro\yb{\s*(0.3+0.35*\b)}
+    \ifnum\k>2 \tikzset{pc/.style=hl}\else\tikzset{pc/.style=g}\fi
+    \draw[pc] (\a,\ya) -- (\b,\yb);
+    \fill (\a,\ya) circle (1.4pt);
+    \ifnum\k<7 \draw[fill=white] (\b,\yb) circle (1.4pt); \fi
+  }
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\par\needspace{6\baselineskip}\medskip\noindent{\bfseries\textcolor{oprc!80!black}{Предел при $x \to -\infty$}}\par\smallskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{9.} $\displaystyle\lim_{x \to -\infty} f(x) = A$.
+
+  \smallskip
+  Число $A$ называется пределом функции $f(x)$ при $x \to -\infty$, если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $x < -\delta(\varepsilon)$, выполняется неравенство $|f(x) - A| < \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to -\infty} f(x) = A \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( x < -\delta(\varepsilon) \rightarrow |f(x) - A| < \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-6.6,1.7) rectangle (0.3,2.7);
+  \fill[xr] (-6.6,-0.3) rectangle (-2.8,4.6);
+  \foreach \y/\l in {2.7/A+\varepsilon, 2.2/A, 1.7/A-\varepsilon}
+    \draw[gd] (-6.6,\y) -- (0,\y) node[right,black] {$\l$};
+  \draw[gd] (-2.8,4.6) -- (-2.8,0) node[below,black] {$-\delta$};
+  \draw[->] (-6.8,0) -- (0.6,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.8) node[right] {$y$};
+  \def\gr{plot[domain=-6.5:0,samples=160,smooth] (\x,{2.2+2.2*exp(0.55*\x)*cos(deg(2*\x))})}
+  \draw[g] \gr;
+  \begin{scope}\clip (-6.6,-0.3) rectangle (-2.8,4.6); \draw[hl] \gr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{10.} $\displaystyle\lim_{x \to -\infty} f(x) = +\infty$.
+
+  \smallskip
+  Функция $f(x)$ стремится к $+\infty$ при $x \to -\infty$ (имеет предел $+\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $x < -\delta(\varepsilon)$, выполняется неравенство $f(x) > \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to -\infty} f(x) = +\infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( x < -\delta(\varepsilon) \rightarrow f(x) > \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-6.6,1.5) rectangle (0.3,4.6);
+  \fill[xr] (-6.6,-0.3) rectangle (-3.24,4.6);
+  \draw[gd] (-6.6,1.5) -- (0,1.5) node[right,black] {$\varepsilon$};
+  \draw[gd] (-3.24,4.6) -- (-3.24,0) node[below,black] {$-\delta$};
+  \draw[->] (-6.8,0) -- (0.6,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.8) node[right] {$y$};
+  \def\gr{plot[domain=-5.47:0,samples=80,smooth] (\x,{0.2*(\x+1)^2+0.5})}
+  \draw[g] \gr;
+  \begin{scope}\clip (-6.6,-0.3) rectangle (-3.24,4.6); \draw[hl] \gr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{11.} $\displaystyle\lim_{x \to -\infty} f(x) = -\infty$.
+
+  \smallskip
+  Функция $f(x)$ стремится к $-\infty$ при $x \to -\infty$ (имеет предел $-\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $x < -\delta(\varepsilon)$, выполняется неравенство $f(x) < -\varepsilon$.
+  \begin{gather*}
+    \lim_{x \to -\infty} f(x) = -\infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( x < -\delta(\varepsilon) \rightarrow f(x) < -\varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-6.6,-4.6) rectangle (0.3,-1.5);
+  \fill[xr] (-6.6,-4.6) rectangle (-3.45,1.0);
+  \draw[gd] (-6.6,-1.5) -- (0,-1.5) node[right,black] {$-\varepsilon$};
+  \draw[gd] (-3.45,-4.6) -- (-3.45,0) node[above,black] {$-\delta$};
+  \draw[->] (-6.8,0) -- (0.6,0) node[above] {$x$};
+  \draw[->] (0,-4.6) -- (0,1.2) node[right] {$y$};
+  \def\gr{plot[domain=-4.92:0,samples=80,smooth] (\x,{0.6-0.3*(\x+0.8)^2})}
+  \draw[g] \gr;
+  \begin{scope}\clip (-6.6,-4.6) rectangle (-3.45,1.0); \draw[hl] \gr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{12.} $\displaystyle\lim_{x \to -\infty} f(x) = \infty$.
+
+  \smallskip
+  Функция $f(x)$ называется бесконечно большой при $x \to -\infty$ (стремится к $\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $x < -\delta(\varepsilon)$, выполняется неравенство $|f(x)| > \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to -\infty} f(x) = \infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( x < -\delta(\varepsilon) \rightarrow |f(x)| > \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-6.6,1.0) rectangle (0.3,2.7);
+  \fill[yr] (-6.6,-2.7) rectangle (0.3,-1.0);
+  \fill[xr] (-6.6,-2.7) rectangle (-2.4,2.7);
+  \draw[gd] (-6.6,1.0) -- (0,1.0) node[right,black] {$\varepsilon$};
+  \draw[gd] (-6.6,-1.0) -- (0,-1.0) node[right,black] {$-\varepsilon$};
+  \draw[gd] (-2.4,2.7) -- (-2.4,-2.7);
+  \node[below right,fill=white,inner sep=1pt] at (-2.4,0) {$-\delta$};
+  \draw[->] (-6.8,0) -- (0.6,0) node[below] {$x$};
+  \draw[->] (0,-2.8) -- (0,2.9) node[right] {$y$};
+  \foreach \k in {0,...,7} {
+    \pgfmathsetmacro\a{-0.8*\k-0.8}
+    \pgfmathsetmacro\b{-0.8*\k}
+    \pgfmathsetmacro\s{ifthenelse(isodd(\k),-1,1)}
+    \pgfmathsetmacro\ya{\s*(0.3-0.35*\a)}
+    \pgfmathsetmacro\yb{\s*(0.3-0.35*\b)}
+    \ifnum\k>2 \tikzset{pc/.style=hl}\else\tikzset{pc/.style=g}\fi
+    \draw[pc] (\a,\ya) -- (\b,\yb);
+    \ifnum\k<7 \fill (\a,\ya) circle (1.4pt); \fi
+    \draw[fill=white] (\b,\yb) circle (1.4pt);
+  }
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\par\needspace{6\baselineskip}\medskip\noindent{\bfseries\textcolor{oprc!80!black}{Предел при $x \to \infty$}}\par\smallskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{13.} $\displaystyle\lim_{x \to \infty} f(x) = A$.
+
+  \smallskip
+  Число $A$ называется пределом функции $f(x)$ при $x \to \infty$, если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $|x| > \delta(\varepsilon)$, выполняется неравенство $|f(x) - A| < \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to \infty} f(x) = A \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( |x| > \delta(\varepsilon) \rightarrow |f(x) - A| < \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16,scale=0.95]
+  \fill[yr] (-3.6,1.7) rectangle (3.6,2.7);
+  \fill[xr] (-3.6,-0.3) rectangle (-1.9,4.0);
+  \fill[xr] (1.9,-0.3) rectangle (3.6,4.0);
+  \foreach \y/\l in {2.7/A+\varepsilon, 2.2/A, 1.7/A-\varepsilon}
+    \draw[gd] (-3.6,\y) node[left,black] {$\l$} -- (3.6,\y);
+  \draw[gd] (-1.9,4.0) -- (-1.9,0) node[below,black] {$-\delta$};
+  \draw[gd] (1.9,4.0) -- (1.9,0) node[below,black] {$\delta$};
+  \draw[->] (-3.7,0) -- (3.8,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.2) node[left] {$y$};
+  \def\gr{plot[domain=-3.6:3.6,samples=120,smooth] (\x,{2.2+2*\x*exp(-0.6*\x*\x)})}
+  \draw[g] \gr;
+  \begin{scope}\clip (-3.6,-0.3) rectangle (-1.9,4.0) (1.9,-0.3) rectangle (3.6,4.0); \draw[hl] \gr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{14.} $\displaystyle\lim_{x \to \infty} f(x) = +\infty$.
+
+  \smallskip
+  Функция $f(x)$ стремится к $+\infty$ при $x \to \infty$ (имеет предел $+\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $|x| > \delta(\varepsilon)$, выполняется неравенство $f(x) > \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to \infty} f(x) = +\infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( |x| > \delta(\varepsilon) \rightarrow f(x) > \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-3.6,1.5) rectangle (3.6,4.5);
+  \fill[xr] (-3.6,-0.3) rectangle (-1.86,4.5);
+  \fill[xr] (1.86,-0.3) rectangle (3.6,4.5);
+  \draw[gd] (-3.6,1.5) node[left,black] {$\varepsilon$} -- (3.6,1.5);
+  \draw[gd] (-1.86,4.5) -- (-1.86,0) node[below,black] {$-\delta$};
+  \draw[gd] (1.86,4.5) -- (1.86,0) node[below,black] {$\delta$};
+  \draw[->] (-3.7,0) -- (3.8,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.7) node[left] {$y$};
+  \def\gr{plot[domain=-3.42:3.42,samples=100,smooth] (\x,{0.35*\x*\x+0.3})}
+  \draw[g] \gr;
+  \begin{scope}\clip (-3.6,-0.3) rectangle (-1.86,4.5) (1.86,-0.3) rectangle (3.6,4.5); \draw[hl] \gr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{15.} $\displaystyle\lim_{x \to \infty} f(x) = -\infty$.
+
+  \smallskip
+  Функция $f(x)$ стремится к $-\infty$ при $x \to \infty$ (имеет предел $-\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $|x| > \delta(\varepsilon)$, выполняется неравенство $f(x) < -\varepsilon$.
+  \begin{gather*}
+    \lim_{x \to \infty} f(x) = -\infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( |x| > \delta(\varepsilon) \rightarrow f(x) < -\varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-3.6,-4.5) rectangle (3.6,-1.5);
+  \fill[xr] (-3.6,-4.5) rectangle (-2.3,1.0);
+  \fill[xr] (2.3,-4.5) rectangle (3.6,1.0);
+  \draw[gd] (-3.6,-1.5) node[left,black] {$-\varepsilon$} -- (3.6,-1.5);
+  \draw[gd] (-2.3,-4.5) -- (-2.3,0) node[above,black] {$-\delta$};
+  \draw[gd] (2.3,-4.5) -- (2.3,0) node[above,black] {$\delta$};
+  \draw[->] (-3.7,0) -- (3.8,0) node[above] {$x$};
+  \draw[->] (0,-4.5) -- (0,1.2) node[left] {$y$};
+  \def\gr{plot[domain=-3.53:3.53,samples=100,smooth] (\x,{0.6-0.4*\x*\x})}
+  \draw[g] \gr;
+  \begin{scope}\clip (-3.6,-4.5) rectangle (-2.3,1.0) (2.3,-4.5) rectangle (3.6,1.0); \draw[hl] \gr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+\noindent
+\begin{minipage}[c]{0.56\textwidth}
+  \textbf{16.} $\displaystyle\lim_{x \to \infty} f(x) = \infty$.
+
+  \smallskip
+  Функция $f(x)$ называется бесконечно большой при $x \to \infty$ (стремится к $\infty$), если для любого числа $\varepsilon > 0$ существует число $\delta(\varepsilon) > 0$ такое, что при всех $x \in D(f)$, удовлетворяющих условию $|x| > \delta(\varepsilon)$, выполняется неравенство $|f(x)| > \varepsilon$.
+  \begin{gather*}
+    \lim_{x \to \infty} f(x) = \infty \Leftrightarrow \forall \varepsilon > 0\ \exists \delta(\varepsilon) > 0\ \forall x \in D(f) \\
+    \bigl( |x| > \delta(\varepsilon) \rightarrow |f(x)| > \varepsilon \bigr)
+  \end{gather*}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-3.6,1.2) rectangle (3.6,2.7);
+  \fill[yr] (-3.6,-2.7) rectangle (3.6,-1.2);
+  \fill[xr] (-3.6,-2.7) rectangle (-1.78,2.7);
+  \fill[xr] (1.78,-2.7) rectangle (3.6,2.7);
+  \draw[gd] (-3.6,1.2) node[left,black] {$\varepsilon$} -- (3.6,1.2);
+  \draw[gd] (-3.6,-1.2) node[left,black] {$-\varepsilon$} -- (3.6,-1.2);
+  \draw[gd] (-1.78,2.7) -- (-1.78,-2.7);
+  \draw[gd] (1.78,2.7) -- (1.78,-2.7);
+  \node[above,fill=white,inner sep=1pt,yshift=2pt] at (-1.78,0) {$-\delta$};
+  \node[below,fill=white,inner sep=1pt,yshift=-2pt] at (1.78,0) {$\delta$};
+  \draw[->] (-3.7,0) -- (3.8,0) node[below] {$x$};
+  \draw[->] (0,-2.8) -- (0,2.9) node[left] {$y$};
+  \def\gr{plot[domain=-2.45:2.45,samples=100,smooth] (\x,{0.12*\x^3+0.3*\x})}
+  \draw[g] \gr;
+  \begin{scope}\clip (-3.6,-2.7) rectangle (-1.78,2.7) (1.78,-2.7) rectangle (3.6,2.7); \draw[hl] \gr; \end{scope}
+\end{tikzpicture}
+\end{minipage}
+\par\bigskip
+
+
+% ======================= ВОПРОС 16 =======================
+\vopros{16}{Односторонние пределы функции в точке и их связь с пределом функции в точке. Пределы монотонных функций}
+
+\gennote
+
+{\small\textcolor{zamc}{В лекциях есть только обозначения $f(x_0 - 0)$, $f(x_0 + 0)$ и непрерывность слева и справа (вопрос 20);
+остальное --- по стандартному курсу в тех же обозначениях. Сверь с тем, что требует преподаватель.}}
+
+\plan{\item левая и правая полуокрестность; предел слева и справа по Коши (словами и в кванторах) и по Гейне; рисунок;
+\item бесконечные односторонние пределы;
+\item теорема о связи: предел в точке существует $\iff$ оба односторонних существуют и равны (с доказательством);
+\item примеры: $\operatorname{sign} x$, $\arctg\frac1x$, $2^{1/x}$;
+\item теорема о пределе монотонной функции (с доказательством через $\sup$ и $\inf$);
+\item следствие: у монотонной функции разрывы только I рода (скачки).}
+
+\podr{Односторонние пределы}
+
+Предел по Коши (вопрос 15) требует, чтобы $f(x)$ была близка к $A$ при $x$, близких к $x_0$ \emph{с обеих сторон}:
+$0 < |x - x_0| < \delta \iff x_0 - \delta < x < x_0$ или $x_0 < x < x_0 + \delta$.
+Если оставить только одну сторону, получится односторонний предел.
+Интервал $(x_0 - \delta;\ x_0)$ называют \textbf{левой}, а $(x_0;\ x_0 + \delta)$ --- \textbf{правой полуокрестностью} точки $x_0$.
+
+\begin{opr}[предел слева]
+Пусть $f(x)$ определена на некотором интервале $(x_0 - \delta_0;\ x_0)$. Число $A$ называется \textbf{пределом функции $f(x)$
+в точке $x_0$ слева} (левосторонним пределом), если для любого числа $\eps > 0$ существует число $\delta(\eps) > 0$ такое, что
+при всех $x \in D(f)$, удовлетворяющих условию $x_0 - \delta(\eps) < x < x_0$, выполняется неравенство $|f(x) - A| < \eps$.
+Обозначение: $\lim\limits_{x \to x_0 - 0} f(x) = A$ или $f(x_0 - 0) = A$.
+\kv
+\[
+  \lim_{x \to x_0 - 0} f(x) = A \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\
+  \forall x \in D(f)\ \bigl( x_0 - \delta(\eps) < x < x_0 \to |f(x) - A| < \eps \bigr).
+\]
+\end{opr}
+
+\begin{opr}[предел справа]
+Пусть $f(x)$ определена на некотором интервале $(x_0;\ x_0 + \delta_0)$. Число $A$ называется \textbf{пределом функции $f(x)$
+в точке $x_0$ справа} (правосторонним пределом), если для любого числа $\eps > 0$ существует число $\delta(\eps) > 0$ такое, что
+при всех $x \in D(f)$, удовлетворяющих условию $x_0 < x < x_0 + \delta(\eps)$, выполняется неравенство $|f(x) - A| < \eps$.
+Обозначение: $\lim\limits_{x \to x_0 + 0} f(x) = A$ или $f(x_0 + 0) = A$.
+\kv
+\[
+  \lim_{x \to x_0 + 0} f(x) = A \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\
+  \forall x \in D(f)\ \bigl( x_0 < x < x_0 + \delta(\eps) \to |f(x) - A| < \eps \bigr).
+\]
+\end{opr}
+
+При $x_0 = 0$ пишут коротко: $f(-0) = \lim\limits_{x \to -0} f(x)$, \ $f(+0) = \lim\limits_{x \to +0} f(x)$.
+Пределы слева и справа вместе называются \textbf{односторонними пределами}.
+
+\textbf{Геометрический смысл.} Для любой полосы $A - \eps < y < A + \eps$ найдётся \emph{полуокрестность} точки $x_0$
+(левая для предела слева, правая для предела справа), над которой график целиком лежит в этой полосе.
+Что происходит с другой стороны от $x_0$, для одностороннего предела неважно.
+
+\begin{center}
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-0.3,1.0) rectangle (6.6,1.8);
+  \fill[xr] (2.0,-0.3) rectangle (3.4,4.2);
+  \foreach \y/\l in {1.8/A+\varepsilon, 1.4/A, 1.0/A-\varepsilon}
+    \draw[gd] (0,\y) node[left,black] {$\l$} -- (6.6,\y);
+  \draw[gd] (2.0,4.2) -- (2.0,0) node[below,black] {$x_0-\delta$};
+  \draw[gd] (3.4,4.2) -- (3.4,0) node[below,black] {$x_0$};
+  \draw[->] (-0.3,0) -- (6.8,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.4) node[left] {$y$};
+  \def\grl{plot[domain=0.4:3.4,samples=60,smooth] (\x,{1.4-0.35*(3.4-\x)+0.08*(3.4-\x)^2})}
+  \def\grr{plot[domain=3.4:6.2,samples=60,smooth] (\x,{2.8+0.3*(\x-3.4)-0.05*(\x-3.4)^2})}
+  \draw[g] \grl; \draw[g] \grr;
+  \begin{scope}\clip (2.0,-0.3) rectangle (3.4,4.2); \draw[hl] \grl; \end{scope}
+  \draw[thick,fill=white] (3.4,1.4) circle (1.6pt);
+  \draw[thick,fill=white] (3.4,2.8) circle (1.6pt);
+  \node[above] at (3.7,4.3) {\small предел слева: $A = f(x_0 - 0)$};
+\end{tikzpicture}
+\hspace{2mm}
+\begin{tikzpicture}[lim16]
+  \fill[yr] (-0.3,2.4) rectangle (6.6,3.2);
+  \fill[xr] (3.4,-0.3) rectangle (4.8,4.2);
+  \foreach \y/\l in {3.2/A+\varepsilon, 2.8/A, 2.4/A-\varepsilon}
+    \draw[gd] (0,\y) node[left,black] {$\l$} -- (6.6,\y);
+  \draw[gd] (3.4,4.2) -- (3.4,0) node[below,black] {$x_0$};
+  \draw[gd] (4.8,4.2) -- (4.8,0) node[below,black] {$x_0+\delta$};
+  \draw[->] (-0.3,0) -- (6.8,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.4) node[left] {$y$};
+  \def\grl{plot[domain=0.4:3.4,samples=60,smooth] (\x,{1.4-0.35*(3.4-\x)+0.08*(3.4-\x)^2})}
+  \def\grr{plot[domain=3.4:6.2,samples=60,smooth] (\x,{2.8+0.3*(\x-3.4)-0.05*(\x-3.4)^2})}
+  \draw[g] \grl; \draw[g] \grr;
+  \begin{scope}\clip (3.4,-0.3) rectangle (4.8,4.2); \draw[hl] \grr; \end{scope}
+  \draw[thick,fill=white] (3.4,1.4) circle (1.6pt);
+  \draw[thick,fill=white] (3.4,2.8) circle (1.6pt);
+  \node[above] at (3.7,4.3) {\small предел справа: $A = f(x_0 + 0)$};
+\end{tikzpicture}
+\end{center}
+
+\begin{opr}[односторонний предел по Гейне]
+Число $A$ --- предел $f(x)$ в точке $x_0$ слева (справа), если для любой последовательности $(x_n)$, сходящейся к $x_0$,
+у которой $x_n \in D(f)$ и $x_n < x_0$ ($x_n > x_0$) при всех $n$, последовательность $f(x_n)$ сходится к $A$.
+\kv
+\[
+  \lim_{x \to x_0 - 0} f(x) = A \Leftrightarrow
+  \forall (x_n)\ \Bigl( \forall n\ \bigl(x_n \in D(f) \wedge x_n < x_0\bigr) \wedge \lim_{n \to \infty} x_n = x_0
+  \to \lim_{n \to \infty} f(x_n) = A \Bigr).
+\]
+\end{opr}
+
+\textbf{Бесконечные односторонние пределы} записываются так же, только условие на $f(x)$ берётся из таблицы
+16 определений (вопрос *). Например,
+\[
+  \lim_{x \to x_0 + 0} f(x) = +\infty \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\
+  \forall x \in D(f)\ \bigl( x_0 < x < x_0 + \delta(\eps) \to f(x) > \eps \bigr);
+\]
+\[
+  \lim_{x \to x_0 - 0} f(x) = -\infty \Leftrightarrow \forall \eps > 0\ \exists \delta(\eps) > 0\
+  \forall x \in D(f)\ \bigl( x_0 - \delta(\eps) < x < x_0 \to f(x) < -\eps \bigr).
+\]
+Пример: $\lim\limits_{x \to +0} \dfrac{1}{x} = +\infty$, \ $\lim\limits_{x \to -0} \dfrac{1}{x} = -\infty$
+(для $\eps > 0$ берём $\delta = \frac1\eps$: при $0 < x < \frac1\eps$ получаем $\frac1x > \eps$).
+
+\podr{Связь односторонних пределов с пределом в точке}
+
+\begin{teo}[о связи предела с односторонними пределами]
+Функция $f(x)$ имеет в точке $x_0$ предел, равный $A$, тогда и только тогда, когда в этой точке существуют оба
+односторонних предела и они оба равны $A$.
+\kv
+\[
+  \lim_{x \to x_0} f(x) = A \ \Longleftrightarrow\ f(x_0 - 0) = f(x_0 + 0) = A.
+\]
+\end{teo}
+
+\begin{dok}
+\textit{Необходимость} ($\Rightarrow$). Пусть $\lim\limits_{x \to x_0} f(x) = A$. Выберем $\forall \eps > 0$. По определению предела
+\[
+  \exists \delta > 0\ \forall x \in D(f)\ \bigl( 0 < |x - x_0| < \delta \to |f(x) - A| < \eps \bigr).
+\]
+Если $x_0 - \delta < x < x_0$, то $0 < |x - x_0| < \delta$, значит $|f(x) - A| < \eps$. Получили определение предела слева
+с тем же $\delta$: $f(x_0 - 0) = A$. Так же при $x_0 < x < x_0 + \delta$: $f(x_0 + 0) = A$.
+
+\textit{Достаточность} ($\Leftarrow$). Пусть $f(x_0 - 0) = f(x_0 + 0) = A$. Выберем $\forall \eps > 0$. По определениям
+односторонних пределов
+\[
+  \exists \delta_1 > 0\ \forall x \in D(f)\ \bigl( x_0 - \delta_1 < x < x_0 \to |f(x) - A| < \eps \bigr),
+\]
+\[
+  \exists \delta_2 > 0\ \forall x \in D(f)\ \bigl( x_0 < x < x_0 + \delta_2 \to |f(x) - A| < \eps \bigr).
+\]
+Возьмём $\delta = \min(\delta_1, \delta_2)$. Если $0 < |x - x_0| < \delta$, то либо $x_0 - \delta_1 \le x_0 - \delta < x < x_0$,
+либо $x_0 < x < x_0 + \delta \le x_0 + \delta_2$. В обоих случаях $|f(x) - A| < \eps$. Получили
+\[
+  \forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ \bigl( 0 < |x - x_0| < \delta \to |f(x) - A| < \eps \bigr),
+\]
+т.\,е. $\lim\limits_{x \to x_0} f(x) = A$.
+\end{dok}
+
+\textbf{Следствие (как доказать, что предела нет).} Если хотя бы один односторонний предел не существует или
+$f(x_0 - 0) \ne f(x_0 + 0)$, то $\lim\limits_{x \to x_0} f(x)$ не существует.
+На этом построены непрерывность через односторонние пределы (вопрос 20) и классификация точек разрыва (вопрос 22).
+
+\podr{Примеры}
+
+\textbf{Пр.~1.} $f(x) = \operatorname{sign} x$, $x_0 = 0$. При $x > 0$ $f(x) = 1$, поэтому $|f(x) - 1| = 0 < \eps$ при любом $\delta$:
+$f(+0) = 1$. Так же $f(-0) = -1$. Так как $-1 \ne 1$, $\lim\limits_{x \to 0} \operatorname{sign} x$ не существует.
+
+\textbf{Пр.~2.} $f(x) = \arctg\dfrac1x$, $x_0 = 0$. При $x \to +0$: $\frac1x \to +\infty$, $\arctg\frac1x \to \frac\pi2$;
+при $x \to -0$: $\frac1x \to -\infty$, $\arctg\frac1x \to -\frac\pi2$. Итак, $f(+0) = \frac\pi2 \ne f(-0) = -\frac\pi2$ --- предела нет.
+
+\textbf{Пр.~3.} $f(x) = 2^{1/x}$, $x_0 = 0$. При $x \to +0$: $\frac1x \to +\infty$, $2^{1/x} \to +\infty$; при $x \to -0$:
+$\frac1x \to -\infty$, $2^{1/x} \to 0$. Итак, $f(-0) = 0$, $f(+0) = +\infty$.
+
+\textbf{Пр.~4.} $f(x) = \begin{cases} x^2, & x < 1,\\ 2x, & x \ge 1, \end{cases}$ \ $x_0 = 1$:
+$f(1 - 0) = \lim\limits_{x \to 1 - 0} x^2 = 1$, \ $f(1 + 0) = \lim\limits_{x \to 1 + 0} 2x = 2$ --- предела в точке $1$ нет.
+
+\podr{Пределы монотонных функций}
+
+Монотонные функции (возрастающие, убывающие, неубывающие, невозрастающие) определены в вопросе 3.
+Для них верен аналог теоремы о пределе монотонной последовательности (вопрос 13).
+
+\begin{teo}[о пределе монотонной функции]
+Пусть функция $f$ неубывающая на интервале $(a; b)$. Тогда
+\begin{enumerate}
+  \item в каждой точке $x_0 \in (a; b)$ существуют \textbf{конечные} односторонние пределы, причём
+        \[
+          f(x_0 - 0) = \sup_{(a;\, x_0)} f \ \le\ f(x_0) \ \le\ \inf_{(x_0;\, b)} f = f(x_0 + 0);
+        \]
+  \item на концах интервала: $\lim\limits_{x \to b - 0} f(x) = \sup\limits_{(a;\, b)} f$ (конечный, если $f$ ограничена сверху,
+        и $+\infty$, если не ограничена); \ $\lim\limits_{x \to a + 0} f(x) = \inf\limits_{(a;\, b)} f$ (конечный или $-\infty$).
+\end{enumerate}
+Для невозрастающей функции то же, только $\sup$ и $\inf$ меняются местами. Концы могут быть и бесконечными: $a = -\infty$, $b = +\infty$.
+\kv\ (пункт 1, предел слева)
+\begin{gather*}
+  \forall x_1, x_2 \in (a; b)\ \bigl(x_1 < x_2 \to f(x_1) \le f(x_2)\bigr) \ \wedge\ x_0 \in (a; b) \ \Longrightarrow \\
+  \Longrightarrow\ \lim_{x \to x_0 - 0} f(x) = \sup\{ f(x) : a < x < x_0 \} \in \R.
+\end{gather*}
+\end{teo}
+
+\begin{dok}
+\textbf{Предел слева в точке $x_0$.} Пусть $E = \{ f(x) : a < x < x_0 \}$ --- значения функции левее $x_0$.
+Так как $f$ неубывающая, $\forall x \in (a; x_0)\ \bigl(f(x) \le f(x_0)\bigr)$, т.\,е. $E$ ограничено сверху числом $f(x_0)$.
+По теореме о существовании граней (вопрос 13) существует $M_0 = \sup E$, причём $M_0 \le f(x_0)$.
+
+Выберем $\forall \eps > 0$. По определению верхней грани (пункт 2) $\exists x_1 \in (a; x_0)\ \bigl(f(x_1) > M_0 - \eps\bigr)$.
+Положим $\delta = x_0 - x_1 > 0$. Если $x_0 - \delta < x < x_0$, т.\,е. $x_1 < x < x_0$, то
+\[
+  M_0 - \eps < f(x_1) \le f(x) \le M_0 < M_0 + \eps
+\]
+(второе неравенство --- монотонность, третье --- $M_0$ верхняя граница $E$). Значит, $|f(x) - M_0| < \eps$. Получили
+\[
+  \forall \eps > 0\ \exists \delta > 0\ \forall x\ \bigl( x_0 - \delta < x < x_0 \to |f(x) - M_0| < \eps \bigr),
+  \quad\text{т.\,е.}\quad f(x_0 - 0) = M_0 = \sup_{(a;\, x_0)} f.
+\]
+
+\textbf{Предел справа} доказывается так же: множество $\{ f(x) : x_0 < x < b \}$ ограничено снизу числом $f(x_0)$,
+у него есть $\inf$, и $f(x_0 + 0) = \inf\limits_{(x_0;\, b)} f \ge f(x_0)$.
+
+\textbf{Конец $b$.} Если $f$ ограничена сверху на $(a; b)$ --- то же рассуждение с $x_0 = b$. Если не ограничена сверху, то
+$\forall \eps > 0\ \exists x_1 \in (a; b)\ \bigl(f(x_1) > \eps\bigr)$; при $x_1 < x < b$ по монотонности $f(x) \ge f(x_1) > \eps$,
+т.\,е. $\lim\limits_{x \to b - 0} f(x) = +\infty$ (при $b = +\infty$ условие $x > x_1$ --- это условие $x > \delta$ с $\delta = x_1$).
+\end{dok}
+
+\zam Это та же теорема, что и для последовательностей (вопрос 13): последовательность --- функция на $\N$,
+а $n \to +\infty$ --- то же, что $x \to b - 0$ при $b = +\infty$. Доказательства совпадают слово в слово.
+
+\begin{center}
+\begin{tikzpicture}[lim16]
+  \draw[->] (-0.3,0) -- (6.8,0) node[below] {$x$};
+  \draw[->] (0,-0.3) -- (0,4.3) node[left] {$y$};
+  \draw[g] plot[domain=0.4:3.4,samples=50,smooth] (\x,{1.8-0.12*(3.4-\x)^2});
+  \draw[g] plot[domain=3.4:6.3,samples=50,smooth] (\x,{2.9+0.5*sqrt(\x-3.4)});
+  \draw[gd] (0,1.8) node[left,black] {$f(x_0 - 0) = \sup\limits_{(a;\,x_0)} f$} -- (3.4,1.8);
+  \draw[gd] (0,2.35) node[left,black] {$f(x_0)$} -- (3.4,2.35);
+  \draw[gd] (0,2.9) node[left,black] {$f(x_0 + 0) = \inf\limits_{(x_0;\,b)} f$} -- (3.4,2.9);
+  \draw[gd] (3.4,0) node[below,black] {$x_0$} -- (3.4,2.9);
+  \draw[thick,fill=white] (3.4,1.8) circle (1.6pt);
+  \draw[thick,fill=white] (3.4,2.9) circle (1.6pt);
+  \fill (3.4,2.35) circle (1.8pt);
+  \node[above] at (5.4,3.8) {\small неубывающая $f$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Следствие.} У монотонной на $(a; b)$ функции в каждой точке оба односторонних предела конечны, поэтому её точки
+разрыва могут быть \textbf{только I рода, со скачком} $f(x_0 + 0) - f(x_0 - 0)$ (вопрос 22). Монотонная функция непрерывна в точке
+$x_0$ $\iff$ $f(x_0 - 0) = f(x_0 + 0)$.
+
+\textbf{Примеры.}
+\begin{itemize}[leftmargin=*]
+  \item $f(x) = [x]$ (целая часть) --- неубывающая. В точке $x_0 = 1$: $f(1 - 0) = \sup\limits_{(0;\,1)} [x] = 0$,
+        $f(1) = 1$, $f(1 + 0) = \inf\limits_{(1;\,2)} [x] = 1$ --- скачок $1$ в каждой целой точке.
+  \item $f(x) = \arctg x$ возрастает и ограничена: $\lim\limits_{x \to +\infty} \arctg x = \sup\limits_{\R} \arctg x = \dfrac\pi2$,
+        \ $\lim\limits_{x \to -\infty} \arctg x = \inf\limits_{\R} \arctg x = -\dfrac\pi2$.
+  \item $f(x) = e^x$ возрастает: $\lim\limits_{x \to -\infty} e^x = \inf\limits_{\R} e^x = 0$, а сверху не ограничена,
+        поэтому $\lim\limits_{x \to +\infty} e^x = +\infty$.
+\end{itemize}
+
+
 % ======================= ВОПРОС 17 =======================
 \vopros{17}{Бесконечно малые и бесконечно большие функции и их свойства. Сравнение б.м.ф. и б.б.ф. Символы \texorpdfstring{$o$ и $O$}{o и O}}
 
@@ -2450,7 +3161,7 @@ $\lim\limits_{x \to x_0} f(x) = 0$. Б/м функции обозначают $\
 \]
 \end{opr}
 
-Аналогично формулируются пределы, равные $\pm\infty$, и пределы при $x \to \pm\infty$, $\infty$ (таблица 16 определений, вопрос 15).
+Аналогично формулируются пределы, равные $\pm\infty$, и пределы при $x \to \pm\infty$, $\infty$ (таблица 16 определений, вопрос *).
 Например (из лекции):
 \[
   \lim_{x \to -\infty} f(x) = +\infty \Leftrightarrow \forall \eps > 0\ \exists \delta > 0\
@@ -3073,6 +3784,211 @@ II род & бесконечный скачок & хотя бы один из $f
 
 Концы отрезка проверяются только с одной стороны, потому что с другой стороны функция на отрезке не рассматривается.
 Например, $f(x) = \sqrt{x}$ непрерывна на $[0; 1]$: в точке $0$ она непрерывна справа, а слева от нуля не определена.
+
+% ======================= ВОПРОС 24 =======================
+\vopros{24}{Элементарные преобразования функции. Элементарные функции}
+
+\gennote
+
+{\small\textcolor{zamc}{Ответ составлен по стандартному курсу (преобразования графиков и основные элементарные функции знакомы из школы).
+Сверь с тем, что требует преподаватель.}}
+
+\plan{\item элементарные преобразования графика: сдвиги, растяжения и сжатия, отражения, модуль --- таблица;
+\item общий вид $y = A\,f\bigl(k(x - a)\bigr) + b$ и порядок построения; пример с рисунком;
+\item основные элементарные функции: $D(f)$, $E(f)$, свойства, графики;
+\item определение элементарной функции; примеры и не-примеры; непрерывность элементарных функций.}
+
+\podr{Элементарные преобразования графика}
+
+Пусть известен график $y = f(x)$. По нему без вычислений строятся графики функций, полученных
+\textbf{элементарными преобразованиями} (везде $a, b \in \R$, $k > 0$):
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\small
+\begin{tabular}{|c|>{\raggedright\arraybackslash}p{9.6cm}|c|}
+\hline
+\textbf{Функция} & \textbf{Что происходит с графиком $y = f(x)$} & \textbf{Точка $(x;\, y)$ $\to$} \\ \hline
+$y = f(x) + b$ & сдвиг вдоль $Oy$ на $b$ (вверх при $b > 0$, вниз при $b < 0$) & $(x;\ y + b)$ \\
+$y = f(x - a)$ & сдвиг вдоль $Ox$ на $a$ (\textbf{вправо} при $a > 0$, влево при $a < 0$) & $(x + a;\ y)$ \\ \hline
+$y = k\,f(x)$ & растяжение от оси $Ox$ в $k$ раз при $k > 1$, сжатие при $0 < k < 1$ & $(x;\ ky)$ \\
+$y = f(kx)$ & \textbf{сжатие} к оси $Oy$ в $k$ раз при $k > 1$, растяжение при $0 < k < 1$ & $\left(\frac{x}{k};\ y\right)$ \\ \hline
+$y = -f(x)$ & симметрия относительно оси $Ox$ & $(x;\ -y)$ \\
+$y = f(-x)$ & симметрия относительно оси $Oy$ & $(-x;\ y)$ \\ \hline
+$y = |f(x)|$ & часть графика ниже $Ox$ отражается вверх, остальное без изменений & $(x;\ |y|)$ \\
+$y = f(|x|)$ & часть при $x \ge 0$ остаётся, левая заменяется её отражением относительно $Oy$ & --- \\ \hline
+$y = f^{-1}(x)$ & симметрия относительно прямой $y = x$ (вопрос 3) & $(y;\ x)$ \\ \hline
+\end{tabular}
+\end{center}
+
+\textbf{Как запомнить.} Изменения \emph{снаружи} $f$ ($+b$, $k\cdot$, минус) действуют на ось $Oy$ и делают \emph{то, что написано}.
+Изменения \emph{внутри}, с аргументом ($x - a$, $kx$, $-x$), действуют на ось $Ox$ и делают \emph{наоборот}:
+$x - 2$ --- сдвиг вправо, $2x$ --- сжатие в 2 раза. Причина: чтобы $f(x - a)$ приняла то же значение, что $f$ в точке $x$,
+аргумент нужно взять на $a$ больше.
+
+\begin{dop}[почему сдвиг именно вправо]
+Если точка $(x_0;\, y_0)$ лежит на графике $y = f(x)$, т.\,е. $y_0 = f(x_0)$, то для $g(x) = f(x - a)$:
+$g(x_0 + a) = f(x_0 + a - a) = f(x_0) = y_0$. Значит, точка $(x_0 + a;\ y_0)$ лежит на графике $g$ --- график сдвинулся на $a$ вправо.
+Остальные строки таблицы проверяются так же.
+\end{dop}
+
+\podr{Общий случай и порядок построения}
+
+Любую комбинацию удобно привести к виду
+\[
+  y = A\, f\bigl(k(x - a)\bigr) + b .
+\]
+Порядок построения: \ $f(x)$ \ $\to$ \ $f(kx)$ (сжатие/растяжение по $Ox$; при $k < 0$ ещё отражение относительно $Oy$) \
+$\to$ \ $f\bigl(k(x - a)\bigr)$ (сдвиг по $Ox$ на $a$) \ $\to$ \ $A\,f(\dots)$ (растяжение по $Oy$; при $A < 0$ ещё отражение
+относительно $Ox$) \ $\to$ \ $+\,b$ (сдвиг по $Oy$).
+
+\nopagebreak
+\zam В записи $f(kx - c)$ сдвиг равен не $c$, а $\frac{c}{k}$: \ $f(kx - c) = f\bigl(k(x - \frac{c}{k})\bigr)$.
+Например, $y = \sin\left(2x - \frac\pi3\right) = \sin\Bigl(2\bigl(x - \frac\pi6\bigr)\Bigr)$: сжатие в 2 раза, потом сдвиг вправо на $\frac\pi6$.
+
+\textbf{Пример.} Построить $y = -2(x - 1)^2 + 3$ из $y = x^2$: \ $x^2 \to (x - 1)^2$ (сдвиг вправо на 1) $\to$ $2(x - 1)^2$
+(растяжение от $Ox$ в 2 раза) $\to$ $-2(x - 1)^2$ (отражение относительно $Ox$) $\to$ $-2(x - 1)^2 + 3$ (сдвиг вверх на 3).
+Вершина параболы переходит из $(0;\, 0)$ в $(1;\, 3)$, ветви направлены вниз.
+
+\textbf{Пример с модулем.} $y = |x^2 - 4x + 3|$: строим параболу $y = (x - 1)(x - 3)$ и часть между корнями $1$ и $3$,
+лежащую ниже $Ox$, отражаем вверх.
+
+\begin{center}
+\begin{tikzpicture}[scale=0.8, font=\small, >=stealth]
+  \draw[->] (-2,0) -- (3,0) node[below] {$x$};
+  \draw[->] (0,-1.3) -- (0,3.6) node[left] {$y$};
+  \draw[dashed, gray, domain=-1.75:1.75, samples=50] plot (\x,{\x*\x});
+  \node[gray] at (-1.55,3.25) {$y = x^2$};
+  \draw[thick, domain=-0.35:2.35, samples=60] plot (\x,{-2*(\x-1)^2+3});
+  \fill (1,3) circle (1.6pt) node[above right] {$(1;\,3)$};
+  \node[anchor=west] at (2.25,2.3) {$y = -2(x - 1)^2 + 3$};
+\end{tikzpicture}
+\qquad\qquad
+\begin{tikzpicture}[scale=0.8, font=\small, >=stealth]
+  \draw[->] (-0.5,0) -- (4.6,0) node[below] {$x$};
+  \draw[->] (0,-1.3) -- (0,3.6) node[left] {$y$};
+  \draw[dashed, gray, domain=-0.1:4.1, samples=60] plot (\x,{(\x-1)*(\x-3)});
+  \draw[thick, domain=-0.1:4.1, samples=120] plot (\x,{abs((\x-1)*(\x-3))});
+  \node[below] at (1,0) {$1$}; \node[below] at (3,0) {$3$};
+  \node[gray] at (2,-1.35) {$y = x^2 - 4x + 3$};
+  \node at (2,2.6) {$y = |x^2 - 4x + 3|$};
+\end{tikzpicture}
+\end{center}
+
+\podr{Основные элементарные функции}
+
+\begin{opr}[основные элементарные функции]
+\textbf{Основными элементарными функциями} называются:
+\begin{enumerate}
+  \item постоянная $y = C$;
+  \item степенная $y = x^\alpha$, $\alpha \in \R$;
+  \item показательная $y = a^x$, $a > 0$, $a \ne 1$;
+  \item логарифмическая $y = \log_a x$, $a > 0$, $a \ne 1$;
+  \item тригонометрические $y = \sin x$, $y = \cos x$, $y = \tg x$, $y = \operatorname{ctg} x$;
+  \item обратные тригонометрические $y = \arcsin x$, $y = \arccos x$, $y = \arctg x$, $y = \operatorname{arcctg} x$.
+\end{enumerate}
+\end{opr}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\small
+\begin{tabular}{|l|l|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}p{6.2cm}|}
+\hline
+\textbf{Функция} & $D(f)$ & $E(f)$ & \textbf{Свойства} \\ \hline
+$y = x^n$, $n \in \N$ & $\R$ & $\R$ ($n$ нечёт.), $[0; +\infty)$ ($n$ чёт.) & чётная при чётном $n$, нечётная при нечётном \\
+$y = \sqrt{x} = x^{1/2}$ & $[0; +\infty)$ & $[0; +\infty)$ & возрастает \\
+$y = \frac1x = x^{-1}$ & $x \ne 0$ & $y \ne 0$ & нечётная, убывает на $(-\infty; 0)$ и на $(0; +\infty)$ \\ \hline
+$y = a^x$ & $\R$ & $(0; +\infty)$ & возрастает при $a > 1$, убывает при $0 < a < 1$; $a^0 = 1$ \\
+$y = \log_a x$ & $(0; +\infty)$ & $\R$ & обратна к $a^x$; $\log_a 1 = 0$; монотонна как $a^x$ \\ \hline
+$y = \sin x$, $y = \cos x$ & $\R$ & $[-1; 1]$ & период $2\pi$; $\sin$ нечётная, $\cos$ чётная \\
+$y = \tg x$ & $x \ne \frac\pi2 + \pi k$ & $\R$ & период $\pi$, нечётная \\
+$y = \operatorname{ctg} x$ & $x \ne \pi k$ & $\R$ & период $\pi$, нечётная \\ \hline
+$y = \arcsin x$ & $[-1; 1]$ & $\left[-\frac\pi2; \frac\pi2\right]$ & возрастает, нечётная \\
+$y = \arccos x$ & $[-1; 1]$ & $[0; \pi]$ & убывает \\
+$y = \arctg x$ & $\R$ & $\left(-\frac\pi2; \frac\pi2\right)$ & возрастает, нечётная \\
+$y = \operatorname{arcctg} x$ & $\R$ & $(0; \pi)$ & убывает \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.5, font=\footnotesize, >=stealth]
+  \draw[->] (-2.3,0) -- (2.5,0) node[below] {$x$};
+  \draw[->] (0,-2.3) -- (0,2.6) node[left] {$y$};
+  \draw[thick, domain=-1.5:1.5, samples=40] plot (\x,{\x*\x});
+  \draw[thick, blue!70!black, domain=-1.3:1.3, samples=40] plot (\x,{\x*\x*\x});
+  \node at (0,-3) {$x^2$, \textcolor{blue!70!black}{$x^3$}};
+\end{tikzpicture}
+\quad
+\begin{tikzpicture}[scale=0.5, font=\footnotesize, >=stealth]
+  \draw[->] (-2.3,0) -- (2.5,0) node[below] {$x$};
+  \draw[->] (0,-2.3) -- (0,2.6) node[left] {$y$};
+  \draw[thick, domain=0.42:2.3, samples=40] plot (\x,{1/\x});
+  \draw[thick, domain=-2.3:-0.42, samples=40] plot (\x,{1/\x});
+  \draw[thick, blue!70!black, domain=0:2.3, samples=40] plot (\x,{sqrt(\x)});
+  \node at (0,-3) {$\frac1x$, \textcolor{blue!70!black}{$\sqrt{x}$}};
+\end{tikzpicture}
+\quad
+\begin{tikzpicture}[scale=0.5, font=\footnotesize, >=stealth]
+  \draw[->] (-2.3,0) -- (2.5,0) node[below] {$x$};
+  \draw[->] (0,-2.3) -- (0,2.6) node[left] {$y$};
+  \draw[dashed, gray] (-2,-2) -- (2.4,2.4);
+  \draw[thick, domain=-2.3:1.25, samples=40] plot (\x,{2^\x});
+  \draw[thick, blue!70!black, domain=-2.3:1.25, samples=40] plot ({2^\x},\x);
+  \node at (0,-3) {$2^x$, \textcolor{blue!70!black}{$\log_2 x$}};
+\end{tikzpicture}
+\quad
+\begin{tikzpicture}[scale=0.5, font=\footnotesize, >=stealth]
+  \draw[->] (-3.3,0) -- (3.5,0) node[below] {$x$};
+  \draw[->] (0,-2.3) -- (0,2.6) node[left] {$y$};
+  \draw[thick, domain=-3.2:3.2, samples=60] plot (\x,{sin(\x r)});
+  \draw[thick, blue!70!black, domain=-3.2:3.2, samples=60] plot (\x,{cos(\x r)});
+  \node at (0,-3) {$\sin x$, \textcolor{blue!70!black}{$\cos x$}};
+\end{tikzpicture}
+\quad
+\begin{tikzpicture}[scale=0.5, font=\footnotesize, >=stealth]
+  \draw[->] (-3.3,0) -- (3.5,0) node[below] {$x$};
+  \draw[->] (0,-2.3) -- (0,2.6) node[left] {$y$};
+  \draw[dashed, gray] (-3.2,1.571) -- (3.2,1.571) (-3.2,-1.571) -- (3.2,-1.571);
+  \draw[thick, domain=-3.2:3.2, samples=60] plot (\x,{rad(atan(\x))});
+  \draw[thick, blue!70!black, domain=-1.15:1.15, samples=40] plot (\x,{tan(\x r)});
+  \node at (0,-3) {$\arctg x$, \textcolor{blue!70!black}{$\tg x$}};
+\end{tikzpicture}
+\end{center}
+
+\podr{Элементарные функции}
+
+\begin{opr}[элементарная функция]
+\textbf{Элементарной} называется функция, которая получается из основных элементарных функций с помощью
+\textbf{конечного} числа арифметических операций (сложения, вычитания, умножения, деления) и \textbf{композиций}
+(взятия функции от функции, вопрос 3) и задаётся одной формулой.
+\end{opr}
+
+\textbf{Примеры элементарных функций:}
+\begin{itemize}[leftmargin=*]
+  \item многочлены $a_n x^n + \dots + a_1 x + a_0$ и дробно-рациональные функции $\frac{P_n(x)}{Q_m(x)}$;
+  \item $y = \ln\bigl(x + \sqrt{x^2 + 1}\bigr)$, \ $y = e^{\sin x} + \arctg\frac1x$, \ $y = \sin^2(3x - 1)$;
+  \item $y = |x| = \sqrt{x^2}$ --- элементарная, хотя обычно записывается <<по кускам>>;
+  \item $y = x^x = e^{x \ln x}$ ($x > 0$) --- элементарная.
+\end{itemize}
+
+\textbf{Не элементарные:} $y = \operatorname{sign} x$, \ $y = [x]$ (целая часть), функция Дирихле
+(их нельзя записать одной формулой из основных элементарных функций с конечным числом операций);
+$y = n!$ --- задана только на $\N$.
+
+\begin{teo}[о непрерывности элементарных функций]
+Всякая элементарная функция непрерывна в каждой точке своей области определения
+(точнее --- в каждой точке интервала, целиком лежащего в $D(f)$).
+\end{teo}
+Идея: основные элементарные функции непрерывны (для $\sin x$ это доказано в вопросе 20), а сумма, разность, произведение,
+частное (вопрос 21, свойства) и композиция (вопрос 21, теорема о сложной функции) непрерывных функций непрерывны.
+
+\zam Поэтому предел элементарной функции в точке $x_0$ её области определения равен её значению:
+$\lim\limits_{x \to x_0} f(x) = f(x_0)$ --- значение просто подставляется. Сложности (неопределённости $\left[\frac00\right]$,
+$\left[\frac\infty\infty\right]$ и т.\,д.) возникают только в точках, где функция не определена, и на бесконечности.
+
+\textbf{Пример.} $\lim\limits_{x \to 1} \dfrac{x^2 + \ln x}{e^x + 1} = \dfrac{1 + 0}{e + 1} = \dfrac{1}{e + 1}$ --- подставили $x = 1$,
+так как функция элементарная и $1 \in D(f)$.
+
 % ======================= ШПАРГАЛКА =======================
 \razdel{Сводная таблица: все определения в кванторах}
 
@@ -3133,7 +4049,7 @@ $A < B$ (множества) & $\forall a \in A\ \forall b \in B\ (a < b)$ \\ \h
 подпоследовательность $(a_{n_k})$ & $\forall k\ (n_k \in \N \wedge n_k < n_{k+1})$, $k$-й член $= a_{n_k}$ \\ \hline
 $M_0 = \sup E$ & $\forall x \in E\ (x \le M_0) \ \wedge\ \forall \eps > 0\ \exists x_1 \in E\ (x_1 > M_0 - \eps)$ \\ \hline
 $m_0 = \inf E$ & $\forall x \in E\ (x \ge m_0) \ \wedge\ \forall \eps > 0\ \exists x_2 \in E\ (x_2 < m_0 + \eps)$ \\ \hline
-\multicolumn{2}{|l|}{\textbf{Пределы функций (вопросы 15, 17, 18)}} \\ \hline
+\multicolumn{2}{|l|}{\textbf{Пределы функций (вопросы 15, *, 17, 18)}} \\ \hline
 $U(x_0, \delta)$ & $x \in U(x_0, \delta) \Leftrightarrow |x - x_0| < \delta$ \\ \hline
 предельная точка $E$ & $\forall \delta > 0\ \exists x \in E\ (0 < |x - x_0| < \delta)$ (в любой окрестности бесконечно много точек $E$) \\ \hline
 предел по Гейне & $\forall (x_n)\ \bigl(\forall n\ (x_n \in D(f) \wedge x_n \ne x_0) \wedge \lim x_n = x_0 \to \lim f(x_n) = A\bigr)$ \\ \hline
@@ -3146,6 +4062,11 @@ $\lim\limits_{x \to \infty} f(x) = A$ & $\forall \eps > 0\ \exists \delta > 0\ \
 $\alpha_1 = O(\alpha_2)$ (один порядок) & $\lim \frac{\alpha_1}{\alpha_2} = k \ne 0$: \ $\exists k \ne 0\ \forall \eps > 0\ \exists \delta > 0\ \forall x\ \bigl(0 < |x - x_0| < \delta \to \bigl|\frac{\alpha_1}{\alpha_2} - k\bigr| < \eps\bigr)$ \\ \hline
 $\alpha_1 \sim \alpha_2$ (эквивалентны) & $\forall \eps > 0\ \exists \delta > 0\ \forall x\ \bigl(0 < |x - x_0| < \delta \to \bigl|\frac{\alpha_1}{\alpha_2} - 1\bigr| < \eps\bigr)$ \\ \hline
 $\alpha_1 = o(\alpha_2)$ (выше порядок) & $\forall \eps > 0\ \exists \delta > 0\ \forall x\ \bigl(0 < |x - x_0| < \delta \to \bigl|\frac{\alpha_1}{\alpha_2}\bigr| < \eps\bigr)$ \\ \hline
+\multicolumn{2}{|l|}{\textbf{Односторонние пределы, монотонные функции (вопрос 16)}} \\ \hline
+предел слева $f(x_0 - 0) = A$ & $\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ (x_0 - \delta < x < x_0 \to |f(x) - A| < \eps)$ \\ \hline
+предел справа $f(x_0 + 0) = A$ & $\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ (x_0 < x < x_0 + \delta \to |f(x) - A| < \eps)$ \\ \hline
+связь с пределом в точке & $\lim\limits_{x \to x_0} f(x) = A \Leftrightarrow f(x_0 - 0) = f(x_0 + 0) = A$ \\ \hline
+предел монотонной функции & $f$ неубывает на $(a; b)$, $x_0 \in (a; b)$ $\Rightarrow$ $f(x_0 - 0) = \sup\limits_{(a;\,x_0)} f \le f(x_0) \le \inf\limits_{(x_0;\,b)} f = f(x_0 + 0)$ \\ \hline
 \multicolumn{2}{|l|}{\textbf{Непрерывность (вопросы 20--23)}} \\ \hline
 непрерывна в $x_0$ (Коши) & $\forall \eps > 0\ \exists \delta > 0\ \forall x \in D(f)\ (|x - x_0| < \delta \to |f(x) - f(x_0)| < \eps)$ \\ \hline
 непрерывна в $x_0$ (Гейне) & $\forall (x_n),\ x_n \in D(f)\ \bigl((x_n) \to x_0 \to f(x_n) \to f(x_0)\bigr)$ \\ \hline
@@ -3156,7 +4077,14 @@ $\alpha_1 = o(\alpha_2)$ (выше порядок) & $\forall \eps > 0\ \exists 
 устранимый разрыв & $f(x_0 + 0) = f(x_0 - 0) = A \in \R \wedge (x_0 \notin D(f) \vee f(x_0) \ne A)$ \\ \hline
 конечный скачок & $f(x_0 \pm 0) \in \R \wedge f(x_0 + 0) \ne f(x_0 - 0)$ \\ \hline
 непрерывна на $[a; b]$ & $\forall x_0 \in (a; b)\ \bigl(\lim\limits_{x \to x_0} f(x) = f(x_0)\bigr) \wedge f(a + 0) = f(a) \wedge f(b - 0) = f(b)$ \\ \hline
+\multicolumn{2}{|l|}{\textbf{Элементарные функции (вопрос 24)}} \\ \hline
+сдвиги графика & $f(x) + b$ --- на $b$ по $Oy$; \ $f(x - a)$ --- на $a$ по $Ox$ (вправо при $a > 0$) \\ \hline
+растяжения, отражения & $k f(x)$ --- от $Ox$ в $k$ раз; \ $f(kx)$ --- сжатие к $Oy$ в $k$ раз; \ $-f(x)$, $f(-x)$ --- симметрия отн.\ $Ox$, $Oy$ \\ \hline
+элементарная функция & из основных элементарных конечным числом операций $+, -, \cdot, :$ и композиций, одной формулой \\ \hline
 \end{longtable}
 \normalsize
+
+\bigskip
+\oshibki
 
 \end{document}
